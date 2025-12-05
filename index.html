@@ -15,7 +15,7 @@
         
         body { 
             font-family: 'Noto Sans TC', sans-serif; 
-            /* 修改背景為 Line 官方綠色 */
+            /* 背景維持 Line 官方綠色 */
             background-color: #06C755; 
             color: #111827;
         }
@@ -102,18 +102,6 @@
         const Star = (props) => <Icon {...props}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></Icon>;
         const Tag = (props) => <Icon {...props}><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></Icon>;
         const CropIcon = (props) => <Icon {...props}><path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"/><path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"/></Icon>;
-
-        // --- Custom SVG Logo (Red Background, White Meiko Text) ---
-        const MeikoLogo = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" className="w-8 h-8 rounded-full shadow-sm">
-                <circle cx="50" cy="50" r="50" fill="#bf0000"/>
-                <path d="M25 70 V30 L40 60 L55 30 V70" fill="none" stroke="white" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" opacity="0.9"/>
-                <text x="50" y="85" fontFamily="sans-serif" fontSize="18" fill="white" textAnchor="middle" fontWeight="bold">Meiko</text>
-            </svg>
-        );
-        // 使用更精確的 SVG Data URI 替代 (模擬您提供的圖片樣式)
-        const logoSrc = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI1MCIgZmlsbD0iI2JmMDAwMCIvPjx0ZXh0IHg9IjUwIiB5PSI2MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZvbnQtc2l6ZT0iNDUiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5NPC90ZXh0Pjx0ZXh0IHg9IjUwIiB5PSI4NSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5NZWlrbzwvdGV4dD48L3N2Zz4=";
-
 
         // --- WEB WORKER CODE ---
         const workerScript = `
@@ -531,8 +519,8 @@
                                 Line 貼圖自動化助手
                             </h1>
                             <div className="mt-2 text-sm text-slate-500 font-medium flex flex-row items-center gap-2">
-                                {/* FIXED LOGO: Using SVG Data URI */}
-                                <img src={logoSrc} alt="Meiko Logo" className="w-8 h-8 rounded-full shadow-sm" />
+                                {/* FIXED LOGO: Using User Provided URL */}
+                                <img src="https://yt3.googleusercontent.com/JnUFUP1SG8zzWPO--CV1CdXQ-0S75KMjbpsF2QpVT_rQZ8pqCZOX98SDYufsjDgSWNNlgVkz2vw=s160-c-k-c0x00ffffff-no-rj" alt="Meiko Logo" className="w-8 h-8 rounded-full shadow-sm" />
                                 <div className="flex items-center gap-1">
                                     <a href="https://www.youtube.com/@meiko1" target="_blank" className="text-slate-800 hover:text-line hover:underline transition-colors font-bold">
                                         Meiko微課頻道
