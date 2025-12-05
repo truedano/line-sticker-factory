@@ -12,6 +12,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        /* 引入 Brush Script 字型用於 Logo 的 M */
+        @import url('https://fonts.googleapis.com/css2?family=Comforter+Brush&display=swap');
         
         body { 
             font-family: 'Noto Sans TC', sans-serif; 
@@ -103,9 +105,21 @@
         const Tag = (props) => <Icon {...props}><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></Icon>;
         const CropIcon = (props) => <Icon {...props}><path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"/><path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"/></Icon>;
 
-        // --- FIXED LOGO (Base64) ---
-        const logoSrc = "data:image/png;base64,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";
-
+        // --- Custom SVG Logo Component (Code-Drawn Meiko Logo) ---
+        const MeikoLogo = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" className="w-8 h-8 rounded-full shadow-sm bg-[#bf0000]">
+                {/* Red Background */}
+                <circle cx="50" cy="50" r="50" fill="#bf0000"/>
+                {/* M - Hand drawn approximation */}
+                <text x="18" y="78" fontFamily="'Comforter Brush', cursive" fontSize="65" fill="white" fontWeight="bold">M</text>
+                {/* eiko */}
+                <text x="50" y="68" fontFamily="'Noto Sans TC', sans-serif" fontSize="24" fill="white" fontWeight="900">eiko</text>
+                {/* 微課頻道 */}
+                <text x="50" y="42" fontFamily="'Noto Sans TC', sans-serif" fontSize="11" fill="white" fontWeight="500">微課頻道</text>
+                {/* Yellow Swoosh */}
+                <path d="M 22 82 Q 55 95 85 68" fill="none" stroke="#FFD700" strokeWidth="2.5" strokeLinecap="round"/>
+            </svg>
+        );
 
         // --- WEB WORKER CODE ---
         const workerScript = `
@@ -553,8 +567,8 @@
                                 Line 貼圖自動化助手
                             </h1>
                             <div className="mt-2 text-sm text-slate-500 font-medium flex flex-row items-center gap-2">
-                                {/* FIXED LOGO: Using Base64 Data URI to prevent broken image */}
-                                <img src={logoSrc} alt="Meiko Logo" className="w-8 h-8 rounded-full shadow-sm" />
+                                {/* FIXED LOGO: Using Custom SVG Component */}
+                                <MeikoLogo />
                                 <div className="flex items-center gap-1">
                                     <a href="https://www.youtube.com/@meiko1" target="_blank" className="text-slate-800 hover:text-line hover:underline transition-colors font-bold">
                                         Meiko微課頻道
@@ -595,15 +609,22 @@
                                 </div>
                             </div>
 
-                            <div className="w-20 h-20 bg-green-50 text-line rounded-3xl flex items-center justify-center mx-auto mb-2 shadow-sm"><Upload className="w-10 h-10" /></div>
+                            {/* REVISED UPLOAD SECTION: Icon moved inside the box */}
                             <div><h2 className="text-2xl font-bold text-slate-800 mb-2">上傳您的貼圖原始檔</h2><p className="text-slate-500">請上傳 AI 生成的 4x3 網格圖 (JPG/PNG)。</p></div>
                             <div className="relative group w-full">
-                                <div className="border-2 border-dashed border-slate-300 rounded-2xl h-64 flex flex-col items-center justify-center bg-slate-50 group-hover:bg-green-50 group-hover:border-green-300 transition-all cursor-pointer overflow-hidden relative">
+                                <div className="border-2 border-dashed border-slate-300 rounded-2xl h-80 flex flex-col items-center justify-center bg-slate-50 group-hover:bg-green-50 group-hover:border-green-300 transition-all cursor-pointer overflow-hidden relative">
                                     <input type="file" accept="image/*" onChange={handleUpload} className="absolute inset-0 opacity-0 cursor-pointer z-20" />
                                     {originalSheet ? (
                                         <div className="w-full h-full p-2 flex flex-col items-center justify-center relative z-10"><img src={originalSheet.src} className="max-w-full max-h-full object-contain shadow-sm rounded-lg" alt="Preview" /></div>
                                     ) : (
-                                        <div className="flex flex-col items-center justify-center z-10 pointer-events-none"><span className="bg-white text-slate-700 px-6 py-2 rounded-full font-bold shadow-sm border border-slate-200 group-hover:text-line group-hover:border-green-200 transition-colors">選擇檔案</span><span className="text-xs text-slate-400 mt-3">或是將圖片拖曳至此</span></div>
+                                        <div className="flex flex-col items-center justify-center z-10 pointer-events-none">
+                                            {/* MOVED ICON: Green Arrow Box */}
+                                            <div className="w-20 h-20 bg-white text-line rounded-3xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-105 transition-transform border border-green-100">
+                                                <Upload className="w-10 h-10" />
+                                            </div>
+                                            <span className="bg-white text-slate-700 px-6 py-2 rounded-full font-bold shadow-sm border border-slate-200 group-hover:text-line group-hover:border-green-200 transition-colors">選擇檔案</span>
+                                            <span className="text-xs text-slate-400 mt-3">或是將圖片拖曳至此</span>
+                                        </div>
                                     )}
                                 </div>
                             </div>
