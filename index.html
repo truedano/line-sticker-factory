@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Line 貼圖自動化流程</title>
+    <title>Line 貼圖自動化流程 - 加速版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
         
@@ -76,7 +77,7 @@
         .prompt-content ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 0.5em; font-size: 0.9em; color: #4b5563; }
         .var-highlight { color: #dc2626; font-weight: bold; background-color: #fef2f2; padding: 0 2px; rounded: 2px; }
         .fixed-val { font-weight: bold; color: #1f2937; }
-        .black-highlight { color: #000000; font-weight: bold; } /* New class for black bold text */
+        .black-highlight { color: #000000; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -84,6 +85,10 @@
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
+        
+        // --- 初始化 Web Worker (必須放在 React 元件之外，確保只建立一次) ---
+        const worker = new Worker('worker.js');
+
 
         // --- Icons ---
         const Icon = ({ children, className, spin, ...props }) => (
@@ -109,16 +114,6 @@
         const Copy = (props) => <Icon {...props}><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></Icon>;
         const FileText = (props) => <Icon {...props}><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></Icon>;
         const Wand2 = (props) => <Icon {...props}><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></Icon>;
-
-        // --- Helper: Hex to RGB ---
-        const hexToRgb = (hex) => {
-            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return result ? {
-                r: parseInt(result[1], 16),
-                g: parseInt(result[2], 16),
-                b: parseInt(result[3], 16)
-            } : null;
-        };
 
         // --- PROMPT DATA (CONTENT THEMES) ---
         const PROMPT_THEMES = {
@@ -361,113 +356,25 @@
                     setIsProcessing(false);
                 }, 100);
             };
-
-            // --- HSV Logic ---
-            const isPixelBackgroundHSV = (r, g, b, tolerancePercent) => {
-                const max = Math.max(r, g, b);
-                const min = Math.min(r, g, b);
-                const delta = max - min;
-                let hue = 0;
-                if (delta !== 0) {
-                    if (max === g) hue = 60 * ((b - r) / delta + 2);
-                    else if (max === r) hue = 60 * ((g - b) / delta + 4);
-                    else hue = 60 * ((r - g) / delta);
-                }
-                if (hue < 0) hue += 360;
-                const saturation = max === 0 ? 0 : delta / max;
-                const value = max / 255;
-                const toleranceFactor = tolerancePercent / 100;
-                const minSat = 0.25 * (1 - toleranceFactor); 
-                const minVal = 0.35 * (1 - toleranceFactor); 
-                const isGreenHue = (h >= 60 && h <= 180);
-                const isStandardGreenScreen = isGreenHue && s > minSat && v > minVal;
-                const isDominantGreen = (g > r + 30) && (g > b + 30) && (g > 80);
-                return isStandardGreenScreen || isDominantGreen;
-            };
-
-            const isTargetColorRGB = (r, g, b, targetRgb, toleranceDist) => {
-                const dist = Math.sqrt(Math.pow(r - targetRgb.r, 2) + Math.pow(g - targetRgb.g, 2) + Math.pow(b - targetRgb.b, 2));
-                return dist <= toleranceDist;
-            };
-
-            const isPixelBackground = (r, g, b, targetHex, tolerancePercent) => {
-                if (targetHex.toLowerCase() === '#00ff00') {
-                    return isPixelBackgroundHSV(r, g, b, tolerancePercent);
-                } else {
-                    const targetRgb = hexToRgb(targetHex) || {r:0, g:0, b:0};
-                    const maxDist = 442;
-                    const toleranceDist = maxDist * (tolerancePercent / 100);
-                    return isTargetColorRGB(r, g, b, targetRgb, toleranceDist);
-                }
-            };
-
-            const removeBgGlobal = (ctx, w, h, targetHex, tolerancePercent) => {
-                const imgData = ctx.getImageData(0, 0, w, h);
-                const data = imgData.data;
-                const len = data.length;
-                for (let i = 0; i < len; i += 4) {
-                    if (isPixelBackground(data[i], data[i+1], data[i+2], targetHex, tolerancePercent)) {
-                        data[i+3] = 0; 
-                    }
-                }
-                ctx.putImageData(imgData, 0, 0);
-            };
-
-            const removeBgFloodFill = (ctx, w, h, targetHex, tolerancePercent) => {
-                const imgData = ctx.getImageData(0, 0, w, h);
-                const data = imgData.data;
-                const stack = [[0,0], [w-1,0], [0,h-1], [w-1,h-1]];
-                const visited = new Uint8Array(w*h);
-                while(stack.length) {
-                    const [x, y] = stack.pop();
-                    const offset = y*w + x;
-                    if (x < 0 || x >= w || y < 0 || y >= h || visited[offset]) continue;
-                    visited[offset] = 1;
-                    const idx = offset * 4;
-                    if (isPixelBackground(data[idx], data[idx+1], data[idx+2], targetHex, tolerancePercent)) {
-                        data[idx+3] = 0; 
-                        stack.push([x+1, y], [x-1, y], [x, y+1], [x, y-1]);
-                    }
-                }
-                ctx.putImageData(imgData, 0, 0);
-            };
-
-            const applyErosion = (ctx, w, h, strength) => {
-                if (strength <= 0) return;
-                const imgData = ctx.getImageData(0, 0, w, h);
-                const data = imgData.data;
-                for (let k = 0; k < strength; k++) {
-                    const buffer = new Uint8Array(w * h);
-                    for(let i=0; i<w*h; i++) buffer[i] = data[i*4+3];
-                    for (let y = 1; y < h-1; y++) {
-                        for (let x = 1; x < w-1; x++) {
-                            const idx = y*w + x;
-                            if (buffer[idx] > 0) { 
-                                if (buffer[idx-1] === 0 || buffer[idx+1] === 0 || 
-                                    buffer[idx-w] === 0 || buffer[idx+w] === 0) {
-                                    data[idx*4+3] = 0; 
-                                }
-                            }
-                        }
-                    }
-                }
-                ctx.putImageData(imgData, 0, 0);
-            };
-
+            
+            // --- 核心加速邏輯: 使用 Web Worker 和尺寸優化 ---
             const performProcessing = async () => {
                 setIsProcessing(true);
                 setFinalImages([]);
                 const results = [];
                 const targetW = 370;
                 const targetH = 320;
-                const workW = targetW * 2; 
-                const workH = targetH * 2;
+                
+                // 執行去背的目標工作尺寸 (優化: 與最終尺寸相同，減少運算量)
+                const workW = targetW; 
+                const workH = targetH; 
+                
+                const processPromises = [];
 
                 for (let i = 0; i < slicedPieces.length; i++) {
                     const piece = slicedPieces[i];
-                    setProgress(`正在處理: ${i+1} / 12`);
-                    await new Promise(r => setTimeout(r, 10));
-
+                    setProgress(`準備處理: ${i + 1} / 12`);
+                    
                     const workCanvas = document.createElement('canvas');
                     workCanvas.width = workW;
                     workCanvas.height = workH;
@@ -481,30 +388,66 @@
                     const dx = (workW - drawW) / 2;
                     const dy = (workH - drawH) / 2;
 
+                    // Step 1: 縮放圖片到目標尺寸的 Canvas 上
                     workCtx.drawImage(piece.rawCanvas, 0, 0, rawW, rawH, dx, dy, drawW, drawH);
-
+                    
                     if (autoRemoveBg) {
-                        if (removalMode === 'flood') {
-                            removeBgFloodFill(workCtx, workW, workH, targetColorHex, colorTolerance);
-                        } else {
-                            removeBgGlobal(workCtx, workW, workH, targetColorHex, colorTolerance);
-                        }
-                        applyErosion(workCtx, workW, workH, erodeStrength);
+                        // Step 2: 提取 ImageData (將處理任務移交給 Worker)
+                        const rawImageData = workCtx.getImageData(0, 0, workW, workH);
+
+                        const workerPromise = new Promise((resolve) => {
+                            // 建立一次性監聽器來接收當前圖片的結果
+                            const handler = (e) => {
+                                if (e.data.id === piece.id) {
+                                    const processedImageData = e.data.processedImageData;
+                                    
+                                    // 將 Worker 處理後的結果寫入回 Canvas
+                                    workCtx.putImageData(processedImageData, 0, 0);
+                                    
+                                    // 移除監聽器，準備接收下一張圖片
+                                    worker.removeEventListener('message', handler);
+                                    resolve({
+                                        id: piece.id,
+                                        dataUrl: workCanvas.toDataURL('image/png'),
+                                        rawSource: workCanvas
+                                    });
+                                }
+                            };
+                            worker.addEventListener('message', handler);
+
+                            // 將運算任務和圖片資料傳輸給 Worker
+                            worker.postMessage({
+                                id: piece.id,
+                                rawImageData: rawImageData,
+                                removalMode: removalMode,
+                                targetColorHex: targetColorHex,
+                                colorTolerance: colorTolerance,
+                                erodeStrength: erodeStrength,
+                                width: workW,
+                                height: workH
+                            }, [rawImageData.data.buffer]); // 使用 Transferable Object 加速傳輸
+                        });
+                        processPromises.push(workerPromise);
+                    } else {
+                        // 如果不需去背，直接生成結果
+                        results.push({
+                            id: piece.id,
+                            dataUrl: workCanvas.toDataURL('image/png'),
+                            rawSource: workCanvas
+                        });
                     }
-
-                    const finalCanvas = document.createElement('canvas');
-                    finalCanvas.width = targetW;
-                    finalCanvas.height = targetH;
-                    const finalCtx = finalCanvas.getContext('2d');
-                    finalCtx.drawImage(workCanvas, 0, 0, workW, workH, 0, 0, targetW, targetH);
-
-                    results.push({
-                        id: piece.id,
-                        dataUrl: finalCanvas.toDataURL('image/png'),
-                        rawSource: finalCanvas 
-                    });
                 }
 
+                // 等待所有 Worker 任務完成
+                if (autoRemoveBg) {
+                    setProgress(`正在處理中...請稍候`);
+                    const workerResults = await Promise.all(processPromises);
+                    results.push(...workerResults);
+                }
+
+                // 排序結果 (確保順序正確)
+                results.sort((a, b) => a.id - b.id);
+                
                 setFinalImages(results);
                 setMainId(1);
                 setTabId(1);
@@ -512,6 +455,7 @@
                 setIsProcessing(false);
                 setProgress("");
             };
+            // --- 核心加速邏輯結束 ---
 
             const resizeImage = (sourceCanvas, width, height) => {
                 const canvas = document.createElement('canvas');
@@ -686,10 +630,10 @@
                         </div>
                     </div>
 
-                    {/* Step 2 (重構版面：移除左側標題、右側設定改為左右並排) */}
+                    {/* Step 2 (去背設定與執行) */}
                     <div className={`step-card bg-white rounded-3xl shadow-lg border border-slate-100 p-8 mb-8 ${step !== 2 && 'hidden'}`}>
                         <div className="flex flex-col xl:flex-row justify-between items-start gap-8">
-                            {/* 左側：圖片預覽網格 (更緊湊的佈局) */}
+                            {/* 左側：圖片預覽網格 */}
                             <div className="w-full xl:w-2/3">
                                 <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
                                     {slicedPieces.map((p) => (
@@ -700,7 +644,7 @@
                                 </div>
                             </div>
 
-                            {/* 右側：智能去背設定面板 (與預覽並排) */}
+                            {/* 右側：智能去背設定面板 */}
                             <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 w-full xl:w-1/3">
                                 <label className="flex items-center justify-between cursor-pointer mb-5 pb-5 border-b border-slate-200">
                                     <span className="font-bold text-slate-700 flex items-center gap-2"><Eraser className="w-5 h-5 text-line"/> 啟用智能去背</span>
@@ -763,36 +707,36 @@
 
                     {/* Step 3 */}
                     <div className={`step-card bg-white rounded-3xl shadow-lg border border-slate-100 p-8 mb-8 ${step !== 3 && 'hidden'}`}>
-                         <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-8 gap-6 pb-6 border-b border-slate-100">
-                            <div className="flex-1">
-                                <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2 mb-2"><CheckCircle className="text-line"/>設定與打包</h2>
-                                <p className="text-slate-500 text-sm">請勾選主圖(Main)與標籤圖(Tab)。</p>
-                            </div>
-                            <div className="bg-slate-50 px-4 py-3 rounded-xl border border-slate-200 flex items-center gap-3">
-                                <div className="flex flex-col"><span className="text-xs font-bold text-slate-500 flex items-center gap-1"><Hash className="w-3 h-3"/> 起始編號</span><span className="text-[10px] text-slate-400">接續上一批次</span></div>
-                                <input type="number" min="1" value={startNumber} onChange={(e) => setStartNumber(Math.max(1, parseInt(e.target.value) || 1))} className="w-20 h-10 border border-slate-300 rounded-lg text-center font-bold text-lg focus:ring-2 focus:ring-green-500 outline-none" />
-                            </div>
-                            <button onClick={downloadZip} className="w-full xl:w-auto bg-line hover:bg-green-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition-all btn-press flex items-center justify-center gap-2"><Download className="w-5 h-5" />下載完整 ZIP</button>
-                        </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                            {finalImages.map((img, idx) => (
-                                <div key={img.id} className="bg-white rounded-2xl border border-slate-200 p-3 hover:border-green-300 hover:shadow-md transition-all">
-                                    <div className="aspect-[370/320] grid-bg rounded-xl flex items-center justify-center overflow-hidden border border-slate-100 mb-3"><img src={img.dataUrl} className="w-full h-full object-contain" /></div>
-                                    <div className="text-center text-sm font-bold text-slate-600 mb-4 bg-slate-100 rounded py-1">{getFileName(idx)}.png</div>
-                                    <div className="space-y-2">
-                                        <label className="flex items-center gap-2 cursor-pointer group">
-                                            <input type="radio" name="main_select" checked={mainId === img.id} onChange={() => setMainId(img.id)} className="hidden custom-radio"/>
-                                            <div className={`flex-1 text-xs border rounded-lg px-2 py-2 flex items-center gap-1 justify-center transition-all ${mainId === img.id ? 'bg-green-50 border-line text-line font-bold' : 'bg-slate-50 border-slate-200 text-slate-500 group-hover:bg-white group-hover:border-green-200'}`}><Star className="w-3 h-3" /> Main</div>
-                                        </label>
-                                        <label className="flex items-center gap-2 cursor-pointer group">
-                                            <input type="radio" name="tab_select" checked={tabId === img.id} onChange={() => setTabId(img.id)} className="hidden custom-radio"/>
-                                            <div className={`flex-1 text-xs border rounded-lg px-2 py-2 flex items-center gap-1 justify-center transition-all ${tabId === img.id ? 'bg-green-50 border-line text-line font-bold' : 'bg-slate-50 border-slate-200 text-slate-500 group-hover:bg-white group-hover:border-green-200'}`}><Tag className="w-3 h-3" /> Tab</div>
-                                        </label>
-                                    </div>
+                           <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-8 gap-6 pb-6 border-b border-slate-100">
+                                <div className="flex-1">
+                                    <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2 mb-2"><CheckCircle className="text-line"/>設定與打包</h2>
+                                    <p className="text-slate-500 text-sm">請勾選主圖(Main)與標籤圖(Tab)。</p>
                                 </div>
-                            ))}
-                        </div>
-                        <div className="text-center mt-10"><button onClick={()=>setStep(1)} className="text-slate-400 hover:text-slate-600 text-sm font-medium transition-colors underline">處理下一張原始圖</button></div>
+                                <div className="bg-slate-50 px-4 py-3 rounded-xl border border-slate-200 flex items-center gap-3">
+                                    <div className="flex flex-col"><span className="text-xs font-bold text-slate-500 flex items-center gap-1"><Hash className="w-3 h-3"/> 起始編號</span><span className="text-[10px] text-slate-400">接續上一批次</span></div>
+                                    <input type="number" min="1" value={startNumber} onChange={(e) => setStartNumber(Math.max(1, parseInt(e.target.value) || 1))} className="w-20 h-10 border border-slate-300 rounded-lg text-center font-bold text-lg focus:ring-2 focus:ring-green-500 outline-none" />
+                                </div>
+                                <button onClick={downloadZip} className="w-full xl:w-auto bg-line hover:bg-green-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition-all btn-press flex items-center justify-center gap-2"><Download className="w-5 h-5" />下載完整 ZIP</button>
+                           </div>
+                           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                                {finalImages.map((img, idx) => (
+                                    <div key={img.id} className="bg-white rounded-2xl border border-slate-200 p-3 hover:border-green-300 hover:shadow-md transition-all">
+                                        <div className="aspect-[370/320] grid-bg rounded-xl flex items-center justify-center overflow-hidden border border-slate-100 mb-3"><img src={img.dataUrl} className="w-full h-full object-contain" /></div>
+                                        <div className="text-center text-sm font-bold text-slate-600 mb-4 bg-slate-100 rounded py-1">{getFileName(idx)}.png</div>
+                                        <div className="space-y-2">
+                                            <label className="flex items-center gap-2 cursor-pointer group">
+                                                <input type="radio" name="main_select" checked={mainId === img.id} onChange={() => setMainId(img.id)} className="hidden custom-radio"/>
+                                                <div className={`flex-1 text-xs border rounded-lg px-2 py-2 flex items-center gap-1 justify-center transition-all ${mainId === img.id ? 'bg-green-50 border-line text-line font-bold' : 'bg-slate-50 border-slate-200 text-slate-500 group-hover:bg-white group-hover:border-green-200'}`}><Star className="w-3 h-3" /> Main</div>
+                                            </label>
+                                            <label className="flex items-center gap-2 cursor-pointer group">
+                                                <input type="radio" name="tab_select" checked={tabId === img.id} onChange={() => setTabId(img.id)} className="hidden custom-radio"/>
+                                                <div className={`flex-1 text-xs border rounded-lg px-2 py-2 flex items-center gap-1 justify-center transition-all ${tabId === img.id ? 'bg-green-50 border-line text-line font-bold' : 'bg-slate-50 border-slate-200 text-slate-500 group-hover:bg-white group-hover:border-green-200'}`}><Tag className="w-3 h-3" /> Tab</div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                ))}
+                           </div>
+                           <div className="text-center mt-10"><button onClick={()=>setStep(1)} className="text-slate-400 hover:text-slate-600 text-sm font-medium transition-colors underline">處理下一張原始圖</button></div>
                     </div>
                     <footer className="text-center text-lg font-bold text-black mt-12 mb-8">© 2025 Meiko 微課頻道 | LINE Sticker Factory</footer>
                 </div>
