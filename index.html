@@ -15,36 +15,37 @@
         
         body { 
             font-family: 'Noto Sans TC', sans-serif; 
-            /* 背景維持 Line 官方綠色 */
-            background-color: #06C755; 
-            color: #111827;
+            /* 專業深色背景 */
+            background-color: #0f172a; /* Slate 900 */
+            color: #f8fafc;
         }
 
-        /* LINE Brand Colors */
+        /* LINE Brand Colors - High Contrast for Dark Mode */
         .text-line { color: #06C755; }
         .bg-line { background-color: #06C755; }
         .bg-line:hover { background-color: #05b34c; } 
         .border-line { border-color: #06C755; }
         .ring-line { --tw-ring-color: #06C755; }
 
-        /* Checkerboard pattern */
+        /* Checkerboard pattern for transparency (Dark Mode optimized) */
         .grid-bg { 
-            background-image: linear-gradient(45deg, #e5e7eb 25%, transparent 25%), 
-                              linear-gradient(-45deg, #e5e7eb 25%, transparent 25%), 
-                              linear-gradient(45deg, transparent 75%, #e5e7eb 75%), 
-                              linear-gradient(-45deg, transparent 75%, #e5e7eb 75%);
+            background-image: linear-gradient(45deg, #334155 25%, transparent 25%), 
+                              linear-gradient(-45deg, #334155 25%, transparent 25%), 
+                              linear-gradient(45deg, transparent 75%, #334155 75%), 
+                              linear-gradient(-45deg, transparent 75%, #334155 75%);
             background-size: 16px 16px;
             background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
-            background-color: #ffffff;
+            background-color: #1e293b; /* Slate 800 */
         }
 
         .step-card { 
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
         }
         
+        /* Custom Radio in Dark Mode */
         .custom-radio:checked + div {
             border-color: #06C755;
-            background-color: #effcf4;
+            background-color: rgba(6, 199, 85, 0.1);
             color: #06C755;
             font-weight: 700;
         }
@@ -66,14 +67,15 @@
             opacity: 1;
         }
 
-        /* Markdown Style */
-        .prompt-content h2 { font-weight: 700; font-size: 1.1em; margin-bottom: 0.5em; color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.2em; margin-top: 1em; }
+        /* Markdown Style for Dark Mode */
+        .prompt-content h2 { font-weight: 700; font-size: 1.1em; margin-bottom: 0.5em; color: #e2e8f0; border-bottom: 1px solid #334155; padding-bottom: 0.2em; margin-top: 1em; }
         .prompt-content h2:first-child { margin-top: 0; }
-        .prompt-content p { margin-bottom: 0.5em; line-height: 1.6; font-size: 0.9em; color: #4b5563; }
-        .prompt-content ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 0.5em; font-size: 0.9em; color: #4b5563; }
-        .var-highlight { color: #dc2626; font-weight: bold; background-color: #fef2f2; padding: 0 2px; rounded: 2px; }
-        .fixed-val { font-weight: bold; color: #1f2937; }
-        .black-highlight { color: #000000; font-weight: bold; }
+        .prompt-content p { margin-bottom: 0.5em; line-height: 1.6; font-size: 0.9em; color: #94a3b8; }
+        .prompt-content ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 0.5em; font-size: 0.9em; color: #94a3b8; }
+        /* Highlights in Dark Mode */
+        .var-highlight { color: #f87171; font-weight: bold; background-color: rgba(254, 242, 242, 0.1); padding: 0 4px; border-radius: 4px; }
+        .fixed-val { font-weight: bold; color: #38bdf8; } /* Light Blue for fixed values */
+        .black-highlight { color: #fbbf24; font-weight: bold; } /* Amber for emphasis */
     </style>
 </head>
 <body>
@@ -86,7 +88,7 @@
         const Icon = ({ children, className, spin, ...props }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className || ''} ${spin ? 'animate-spin' : ''}`} {...props}>{children}</svg>
         );
-        const Upload = (props) => <Icon {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></Icon>;
+        const UploadIcon = (props) => <Icon {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></Icon>;
         const Scissors = (props) => <Icon {...props}><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></Icon>;
         const Download = (props) => <Icon {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></Icon>;
         const Loader = (props) => <Icon {...props} spin><path d="M21 12a9 9 0 1 1-6.219-8.56"/></Icon>;
@@ -102,9 +104,9 @@
         const Star = (props) => <Icon {...props}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></Icon>;
         const Tag = (props) => <Icon {...props}><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></Icon>;
         const CropIcon = (props) => <Icon {...props}><path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"/><path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"/></Icon>;
+        const LightBulb = (props) => <Icon {...props}><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-1 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></Icon>;
 
         // --- FIXED LOGO (Using Notion URL) ---
-        // Added object-cover to prevent deformation
         const logoSrc = "https://rain-galley-248.notion.site/image/attachment%3A1a4404e1-e6b1-4f29-a495-123224c6135a%3AMeiko_logo.png?table=block&id=2c04c228-35e5-80d2-b534-f270fb01613d&spaceId=cf48a189-fd68-4fe6-a35c-bf6538001b35&width=770&userId=&cache=v2";
 
         // --- WEB WORKER CODE ---
@@ -238,8 +240,8 @@
             const [step, setStep] = useState(1); 
             const [isProcessing, setIsProcessing] = useState(false);
             const [processedCount, setProcessedCount] = useState(0);
-            const [showAdvanced, setShowAdvanced] = useState(false); 
-            const [showPromptGuide, setShowPromptGuide] = useState(false);
+            const [showAdvanced, setShowAdvanced] = useState(true); // Open by default for better look in new layout
+            const [showPromptGuide, setShowPromptGuide] = useState(true); // Default open
             const [copySuccess, setCopySuccess] = useState(false);
             
             const [activeTheme, setActiveTheme] = useState('daily');
@@ -502,8 +504,8 @@
                 const style = PROMPT_STYLES[activeStyle];
                 
                 return (
-                    <div className="prompt-content text-sm font-mono bg-white p-4 rounded-lg border border-slate-200 h-80 overflow-y-auto">
-                        <div className="font-bold text-xl mb-2">✅ 12 格角色貼圖集｜Prompt 建議</div>
+                    <div className="prompt-content text-sm font-mono bg-slate-800 p-4 rounded-lg border border-slate-700 h-[380px] overflow-y-auto">
+                        <div className="font-bold text-xl mb-2 text-white">✅ 12 格角色貼圖集｜Prompt 建議</div>
                         <p>請參考上傳圖片中的角色，生成 一張包含 12 個不同動作的角色貼圖集。</p>
                         
                         <h2>[角色與風格設定]</h2>
@@ -545,174 +547,203 @@
             };
 
             return (
-                <div className="min-h-screen p-6 max-w-5xl mx-auto pb-32">
-                    <header className="mb-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div className="min-h-screen p-6 max-w-7xl mx-auto pb-32">
+                    {/* Header */}
+                    <header className="mb-8 bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 flex flex-col md:flex-row justify-between items-center gap-6">
                         <div className="flex flex-col items-center md:items-start">
-                            <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
+                            <h1 className="text-3xl font-bold text-white flex items-center gap-3">
                                 <MessageCircle className="w-8 h-8 text-line" />
                                 Line 貼圖自動化助手
                             </h1>
-                            <div className="mt-2 text-sm text-slate-500 font-medium flex flex-row items-center gap-2">
-                                {/* FIXED LOGO: Using Notion URL with object-cover */}
-                                <img src={logoSrc} alt="Meiko Logo" className="w-8 h-8 rounded-full shadow-sm object-cover" />
+                            <div className="mt-2 text-sm text-slate-400 font-medium flex flex-row items-center gap-2">
+                                <img src={logoSrc} alt="Meiko Logo" className="w-8 h-8 rounded-full shadow-sm object-cover border border-slate-600" />
                                 <div className="flex items-center gap-1">
-                                    <a href="https://www.youtube.com/@meiko1" target="_blank" className="text-slate-800 hover:text-line hover:underline transition-colors font-bold">
+                                    <a href="https://www.youtube.com/@meiko1" target="_blank" className="text-white hover:text-line hover:underline transition-colors font-bold">
                                         Meiko微課頻道
                                     </a>
-                                    <span className="text-slate-300 mx-1">|</span>
-                                    {/* MODIFIED SUBTITLE */}
+                                    <span className="text-slate-600 mx-1">|</span>
                                     <span className="text-line font-bold">飆速製作Line貼圖工廠</span>
                                 </div>
                             </div>
                         </div>
-                        <div className="flex items-center bg-slate-50 rounded-full px-6 py-2 border border-slate-100">
+                        <div className="flex items-center bg-slate-900 rounded-full px-6 py-2 border border-slate-700">
                              {[ { num: 1, label: '上傳' }, { num: 2, label: '去背' }, { num: 3, label: '打包' } ].map((s, idx) => (
                                 <div key={s.num} className="flex items-center">
-                                    <div className={`flex items-center gap-2 ${step >= s.num ? 'text-slate-800' : 'text-slate-400'}`}>
-                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${step >= s.num ? 'bg-line text-white' : 'bg-slate-200 text-slate-500'}`}>{step > s.num ? <CheckCircle className="w-4 h-4" /> : s.num}</div>
-                                        <span className={`text-sm font-medium ${step >= s.num ? 'text-slate-800' : ''}`}>{s.label}</span>
+                                    <div className={`flex items-center gap-2 ${step >= s.num ? 'text-white' : 'text-slate-500'}`}>
+                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${step >= s.num ? 'bg-line text-white' : 'bg-slate-700 text-slate-500'}`}>{step > s.num ? <CheckCircle className="w-4 h-4" /> : s.num}</div>
+                                        <span className={`text-sm font-medium ${step >= s.num ? 'text-white' : ''}`}>{s.label}</span>
                                     </div>
-                                    {idx < 2 && <div className={`w-8 h-[2px] mx-3 rounded-full ${step > s.num ? 'bg-green-200' : 'bg-slate-200'}`}></div>}
+                                    {idx < 2 && <div className={`w-8 h-[2px] mx-3 rounded-full ${step > s.num ? 'bg-green-600' : 'bg-slate-700'}`}></div>}
                                 </div>
                             ))}
                         </div>
                     </header>
 
-                    {/* Step 1: Upload */}
-                    <div className={`step-card bg-white rounded-3xl shadow-lg border border-slate-100 p-10 mb-8 ${step !== 1 && 'hidden'}`}>
-                        <div className="text-center space-y-6 max-w-6xl mx-auto">
+                    {/* Step 1: Layout - Prompt & Guide */}
+                    <div className={`transition-opacity duration-500 ${step !== 1 ? 'opacity-0 hidden' : 'opacity-100'}`}>
+                        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
                             
-                            <div className="flex flex-col lg:flex-row gap-8 mb-8 text-left">
-                                {/* Left Column: Prompt Master */}
-                                <div className="flex-1">
-                                    <button onClick={() => setShowPromptGuide(!showPromptGuide)} className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold py-3 px-4 rounded-xl border border-blue-200 transition-colors flex items-center justify-center gap-2 mb-4"><Wand2 className="w-5 h-5" />{showPromptGuide ? "隱藏 AI 提示詞大師" : "打開 AI 提示詞大師"}</button>
-                                    <div className={`collapse-content ${showPromptGuide ? 'collapse-open' : ''}`}>
-                                        <div className="mt-4 bg-white border border-blue-200 rounded-xl overflow-hidden shadow-sm text-left">
-                                             <div className="p-4 bg-blue-50 border-b border-blue-100 space-y-3">
-                                                <div className="flex flex-col gap-2"><span className="text-xs font-bold text-blue-800">1. 選擇主題內容：</span><div className="flex gap-2 flex-wrap">{Object.entries(PROMPT_THEMES).map(([key, theme]) => (<button key={key} onClick={() => setActiveTheme(key)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTheme === key ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-blue-600 border border-blue-200 hover:bg-blue-100'}`}>{theme.label}</button>))}</div></div>
-                                                <div className="flex flex-col gap-2"><span className="text-xs font-bold text-blue-800">2. 選擇畫風：</span><div className="flex gap-2 flex-wrap">{Object.entries(PROMPT_STYLES).map(([key, style]) => (<button key={key} onClick={() => setActiveStyle(key)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeStyle === key ? 'bg-purple-600 text-white shadow-md' : 'bg-white text-purple-600 border border-purple-200 hover:bg-purple-50'}`}>{style.label}</button>))}</div></div>
+                            {/* Left: Prompt Generator (3/5 width) */}
+                            <div className="lg:col-span-3 bg-slate-800 rounded-3xl shadow-lg border border-slate-700 p-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="font-bold text-lg text-white flex items-center gap-2"><Wand2 className="w-5 h-5 text-line"/> AI 提示詞大師</h3>
+                                    <button onClick={() => setShowPromptGuide(!showPromptGuide)} className="text-xs text-slate-400 hover:text-white flex items-center gap-1">
+                                        {showPromptGuide ? "隱藏" : "展開"} <ChevronDown className={`w-3 h-3 transition-transform ${showPromptGuide ? 'rotate-180' : ''}`} />
+                                    </button>
+                                </div>
+                                
+                                <div className={`transition-all duration-300 ${showPromptGuide ? 'opacity-100' : 'opacity-50 grayscale'}`}>
+                                    <div className="p-4 bg-slate-900 border border-slate-700 rounded-xl mb-4 space-y-4">
+                                        <div className="flex flex-col gap-2">
+                                            <span className="text-xs font-bold text-slate-400">1. 選擇主題內容：</span>
+                                            <div className="flex gap-2 flex-wrap">
+                                                {Object.entries(PROMPT_THEMES).map(([key, theme]) => (
+                                                    <button key={key} onClick={() => setActiveTheme(key)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${activeTheme === key ? 'bg-blue-600 text-white border-blue-500' : 'bg-slate-800 text-slate-400 border-slate-700 hover:border-slate-500'}`}>
+                                                        {theme.label}
+                                                    </button>
+                                                ))}
                                             </div>
-                                            <PromptDisplay />
-                                            <div className="bg-slate-50 px-4 py-3 border-t border-slate-200 flex justify-between items-center"><span className="text-xs text-slate-500 font-medium">組合：<span className="text-blue-700 font-bold">{PROMPT_THEMES[activeTheme].label}</span></span><button onClick={handleCopyPrompt} className={`text-xs px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all ${copySuccess ? 'bg-green-500 text-white' : 'bg-slate-800 text-white hover:bg-black shadow-sm'}`}>{copySuccess ? <CheckCircle className="w-4 h-4"/> : <Copy className="w-4 h-4"/>}{copySuccess ? "已複製成功！" : "複製 Prompt"}</button></div>
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <span className="text-xs font-bold text-slate-400">2. 選擇畫風：</span>
+                                            <div className="flex gap-2 flex-wrap">
+                                                {Object.entries(PROMPT_STYLES).map(([key, style]) => (
+                                                    <button key={key} onClick={() => setActiveStyle(key)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${activeStyle === key ? 'bg-purple-600 text-white border-purple-500' : 'bg-slate-800 text-slate-400 border-slate-700 hover:border-slate-500'}`}>
+                                                        {style.label}
+                                                    </button>
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-
-                                {/* Right Column: Instructions */}
-                                <div className="flex-1 bg-green-50/50 p-6 rounded-2xl border border-green-100 text-left text-sm text-slate-600 space-y-4 h-fit">
-                                    <h3 className="font-bold text-lg text-slate-800">🌈✨ Meiko 的貼圖快速產生三步驟！</h3>
-                                    <p>想做LINE貼圖？超級簡單，跟著做就能一次上架成功！</p>
-
-                                    <div>
-                                        <div className="font-bold text-slate-800 mb-1">🔥 Step 1：先把你的貼圖「生」出來！</div>
-                                        <p>還沒有圖片？完全沒問題～<br/>
-                                        直接使用 Meiko 提供的 Prompt，加點你的創意調味，<br/>
-                                        用 Gemini Nano Banana Pro / ChatGPT / 其他AI工具 就能生成超可愛貼圖素材！<br/>
-                                        <span className="text-xs text-slate-400">（角色要胖要瘦要中二都隨你調 😎）</span></p>
-                                    </div>
-
-                                    <div>
-                                        <div className="font-bold text-slate-800 mb-1">✨ Step 2：用《LINE貼圖自動化助手》一鍵搞定切圖＋去背！</div>
-                                        <p>下載前記得先做兩件小事：</p>
-                                        <ul className="list-none pl-0 mt-1 space-y-1">
-                                            <li><span className="font-bold">① 選擇 main / tab 封面圖</span><br/>挑一張最能代表你角色靈魂的封面圖，按一下就設定完成！</li>
-                                            <li><span className="font-bold">② 設定檔名起始編號</span><br/>如果你正在生產第二組貼圖，把起始編號改成 13，<br/>這樣下載後全部 40 張貼圖（含 main、tab）會乖乖排好隊，<br/>輕鬆彙整進同一個壓縮檔，完全不會撞號 ✨</li>
-                                        </ul>
-                                    </div>
-
-                                    <div>
-                                        <div className="font-bold text-slate-800 mb-1">🚀 Step 3：到 LINE Creators Market 一鍵上傳！</div>
-                                        <p>打開 <a href="https://creator.line.me/zh-hant/" target="_blank" rel="noopener noreferrer" className="text-line font-bold hover:underline">Creators Market</a>，整包 ZIP 直接送上去～<br/>
-                                        一次上傳所有貼圖超省時，效率直接爆表！</p>
+                                    
+                                    <PromptDisplay />
+                                    
+                                    <div className="mt-4 flex justify-end">
+                                        <button onClick={handleCopyPrompt} className={`px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all ${copySuccess ? 'bg-green-600 text-white' : 'bg-white text-slate-900 hover:bg-slate-200'}`}>
+                                            {copySuccess ? <CheckCircle className="w-5 h-5"/> : <Copy className="w-5 h-5"/>}
+                                            {copySuccess ? "已複製成功！" : "複製 Prompt"}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* REVISED UPLOAD SECTION: Icon moved inside the box */}
-                            <div className="max-w-xl mx-auto space-y-6">
-                                <div><h2 className="text-2xl font-bold text-slate-800 mb-2">上傳您的貼圖原始檔</h2><p className="text-slate-500">請上傳 AI 生成的 4x3 網格圖 (JPG/PNG)。</p></div>
-                                <div className="relative group w-full">
-                                    <div className="border-2 border-dashed border-slate-300 rounded-2xl h-80 flex flex-col items-center justify-center bg-slate-50 group-hover:bg-green-50 group-hover:border-green-300 transition-all cursor-pointer overflow-hidden relative">
-                                        <input type="file" accept="image/*" onChange={handleUpload} className="absolute inset-0 opacity-0 cursor-pointer z-20" />
-                                        {originalSheet ? (
-                                            <div className="w-full h-full p-2 flex flex-col items-center justify-center relative z-10"><img src={originalSheet.src} className="max-w-full max-h-full object-contain shadow-sm rounded-lg" alt="Preview" /></div>
-                                        ) : (
-                                            <div className="flex flex-col items-center justify-center z-10 pointer-events-none">
-                                                {/* MOVED ICON: Green Arrow Box */}
-                                                <div className="w-20 h-20 bg-white text-line rounded-3xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-105 transition-transform border border-green-100">
-                                                    <Upload className="w-10 h-10" />
-                                                </div>
-                                                <span className="bg-white text-slate-700 px-6 py-2 rounded-full font-bold shadow-sm border border-slate-200 group-hover:text-line group-hover:border-green-200 transition-colors">選擇檔案</span>
-                                                <span className="text-xs text-slate-400 mt-3">或是將圖片拖曳至此</span>
+                            {/* Right: Steps Guide (2/5 width) */}
+                            <div className="lg:col-span-2 bg-slate-800/80 p-6 rounded-3xl border border-slate-700 h-fit space-y-6 text-slate-300">
+                                <div className="pb-4 border-b border-slate-700">
+                                    <h3 className="font-bold text-xl text-white mb-2">🌈✨ Meiko 的貼圖快速產生三步驟！</h3>
+                                    <p className="text-sm text-slate-400">想做LINE貼圖？超級簡單，跟著做就能一次上架成功！</p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <div className="font-bold text-line">Step 1：先把你的貼圖「生」出來！</div>
+                                    <p className="text-sm leading-relaxed">還沒有圖片？完全沒問題～<br/>直接使用 Meiko 提供的 Prompt，加點你的創意調味，用 Gemini Nano / Banana Pro / ChatGPT / 其他AI工具 就能生成超可愛貼圖素材！</p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <div className="font-bold text-line">Step 2：用《LINE貼圖自動化助手》一鍵搞定切圖＋去背！</div>
+                                    <p className="text-sm">下載前記得先做兩件小事：</p>
+                                    <div className="bg-slate-900 p-3 rounded-xl border border-slate-700 text-xs space-y-2">
+                                        <p><span className="text-white font-bold">① 選擇 main / tab 封面圖</span><br/>挑一張最能代表你角色靈魂的封面圖，按一下就設定完成！</p>
+                                        <p><span className="text-white font-bold">② 設定檔名起始編號</span><br/>如果你正在生產第二組貼圖，把起始編號改成 13，這樣下載後全部 40 張貼圖（含 main、tab）會乖乖排好隊，輕鬆彙整進同一個壓縮檔，完全不會撞號 ✨</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <div className="font-bold text-line">Step 3：到 LINE Creators Market 一鍵上傳！</div>
+                                    <p className="text-sm">打開 <a href="https://creator.line.me/zh-hant/" target="_blank" className="text-blue-400 hover:text-blue-300 underline font-bold">Line Creators Market</a>，整包壓縮檔直接上傳～</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Upload Section - Full Width */}
+                        <div className="bg-slate-800 rounded-3xl shadow-lg border border-slate-700 p-10 text-center">
+                            <h2 className="text-2xl font-bold text-white mb-2">上傳您的貼圖原始檔</h2>
+                            <p className="text-slate-400 mb-6">請上傳 AI 生成的 4x3 網格圖 (JPG/PNG)。</p>
+                            
+                            <div className="relative group w-full max-w-2xl mx-auto">
+                                <div className="border-2 border-dashed border-slate-600 rounded-2xl h-64 flex flex-col items-center justify-center bg-slate-900 group-hover:border-line group-hover:bg-slate-800 transition-all cursor-pointer overflow-hidden relative">
+                                    <input type="file" accept="image/*" onChange={handleUpload} className="absolute inset-0 opacity-0 cursor-pointer z-20" />
+                                    {originalSheet ? (
+                                        <div className="w-full h-full p-2 flex flex-col items-center justify-center relative z-10"><img src={originalSheet.src} className="max-w-full max-h-full object-contain shadow-sm rounded-lg" alt="Preview" /></div>
+                                    ) : (
+                                        <div className="flex flex-col items-center justify-center z-10 pointer-events-none">
+                                            <div className="w-16 h-16 bg-slate-800 text-line rounded-2xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 group-hover:bg-white transition-all border border-slate-700">
+                                                <UploadIcon className="w-8 h-8" />
                                             </div>
-                                        )}
-                                    </div>
+                                            <span className="bg-white text-slate-900 px-6 py-2 rounded-full font-bold shadow-md group-hover:shadow-lg transition-all">選擇檔案</span>
+                                            <span className="text-xs text-slate-500 mt-3">或是將圖片拖曳至此</span>
+                                        </div>
+                                    )}
                                 </div>
-                                {originalSheet && <button onClick={performSlice} className="w-full bg-line hover:bg-green-600 text-white py-4 rounded-xl font-bold shadow-md shadow-green-100 transition-all btn-press flex items-center justify-center gap-2">{isProcessing ? <Loader /> : <Scissors />} 開始切割</button>}
                             </div>
+                            {originalSheet && (
+                                <button onClick={performSlice} className="mt-8 bg-line hover:bg-green-600 text-white px-12 py-4 rounded-xl font-bold shadow-lg shadow-green-900/20 transition-all btn-press flex items-center justify-center gap-3 mx-auto text-lg">
+                                    {isProcessing ? <Loader /> : <Scissors />} 開始切割
+                                </button>
+                            )}
                         </div>
                     </div>
 
                     {/* Step 2: Remove BG & Settings */}
-                    <div className={`step-card bg-white rounded-3xl shadow-lg border border-slate-100 p-8 mb-8 ${step !== 2 && 'hidden'}`}>
+                    <div className={`step-card bg-slate-800 rounded-3xl shadow-lg border border-slate-700 p-8 mb-8 ${step !== 2 && 'hidden'}`}>
                         <div className="flex flex-col xl:flex-row justify-between items-start gap-8">
                             <div className="w-full xl:w-2/3">
                                 <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
                                     {slicedPieces.map((p) => (
-                                        <div key={p.id} className="aspect-square bg-slate-50 rounded-xl border border-slate-200 p-2 flex items-center justify-center">
+                                        <div key={p.id} className="aspect-square bg-slate-900 rounded-xl border border-slate-700 p-2 flex items-center justify-center">
                                             <img src={p.previewUrl} className="w-full h-full object-contain" />
                                         </div>
                                     ))}
                                 </div>
                             </div>
 
-                            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 w-full xl:w-1/3">
-                                <label className="flex items-center justify-between cursor-pointer mb-5 pb-5 border-b border-slate-200">
-                                    <span className="font-bold text-slate-700 flex items-center gap-2"><Eraser className="w-5 h-5 text-line"/> 啟用智能去背</span>
+                            <div className="bg-slate-900 p-6 rounded-2xl border border-slate-700 w-full xl:w-1/3">
+                                <label className="flex items-center justify-between cursor-pointer mb-5 pb-5 border-b border-slate-700">
+                                    <span className="font-bold text-white flex items-center gap-2"><Eraser className="w-5 h-5 text-line"/> 啟用智能去背</span>
                                     <div className="relative inline-flex items-center cursor-pointer">
                                         <input type="checkbox" checked={autoRemoveBg} onChange={(e)=>setAutoRemoveBg(e.target.checked)} className="sr-only peer"/>
-                                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-line"></div>
+                                        <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-line"></div>
                                     </div>
                                 </label>
                                 {autoRemoveBg && (
                                     <div className="space-y-6 animate-fade-in">
                                         <div>
-                                            <div className="flex justify-between text-xs text-slate-500 mb-2 font-medium"><span>快速設定 (Presets)</span></div>
+                                            <div className="flex justify-between text-xs text-slate-400 mb-2 font-medium"><span>快速設定 (Presets)</span></div>
                                             <div className="grid grid-cols-2 gap-2">
-                                                <button onClick={()=>applyPreset('black')} className={`px-3 py-3 rounded-xl border text-xs font-bold flex flex-col items-center justify-center gap-2 transition ${targetColorHex === '#000000' ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'}`}><Moon className="w-4 h-4" /> <span>黑底去背</span></button>
-                                                <button onClick={()=>applyPreset('green')} className={`px-3 py-3 rounded-xl border text-xs font-bold flex flex-col items-center justify-center gap-2 transition ${targetColorHex === '#00FF00' ? 'bg-green-100 text-green-700 border-green-300 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-green-300'}`}><div className="w-4 h-4 bg-green-500 rounded-full"></div> <span>綠幕去背</span></button>
+                                                <button onClick={()=>applyPreset('black')} className={`px-3 py-3 rounded-xl border text-xs font-bold flex flex-col items-center justify-center gap-2 transition ${targetColorHex === '#000000' ? 'bg-slate-800 text-white border-slate-600 shadow-md' : 'bg-slate-900 text-slate-400 border-slate-700 hover:border-slate-500'}`}><Moon className="w-4 h-4" /> <span>黑底去背</span></button>
+                                                <button onClick={()=>applyPreset('green')} className={`px-3 py-3 rounded-xl border text-xs font-bold flex flex-col items-center justify-center gap-2 transition ${targetColorHex === '#00FF00' ? 'bg-green-900/30 text-green-400 border-green-700 shadow-sm' : 'bg-slate-900 text-slate-400 border-slate-700 hover:border-green-800'}`}><div className="w-4 h-4 bg-green-500 rounded-full"></div> <span>綠幕去背</span></button>
                                             </div>
                                         </div>
 
-                                        <button onClick={()=>setShowAdvanced(!showAdvanced)} className="w-full flex items-center justify-between text-xs text-slate-500 hover:text-slate-700 pt-2 border-t border-slate-200">
+                                        <button onClick={()=>setShowAdvanced(!showAdvanced)} className="w-full flex items-center justify-between text-xs text-slate-400 hover:text-white pt-2 border-t border-slate-700">
                                             <span className="flex items-center gap-1"><Settings className="w-3 h-3"/> 顯示進階設定</span>
                                             <ChevronDown className={`w-3 h-3 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
                                         </button>
 
                                         <div className={`collapse-content ${showAdvanced ? 'collapse-open' : ''}`}>
                                             <div className="pt-4 space-y-4">
-                                                <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                                <div className="bg-slate-800 p-3 rounded-lg border border-slate-600 shadow-sm">
                                                     <div className="flex justify-between text-[10px] text-slate-400 mb-1">
                                                         <span className="flex items-center gap-1"><CropIcon className="w-3 h-3"/> 裁切縮放 (去除黑邊)</span>
                                                         <span className="font-bold text-line">{Math.round((zoomLevel - 1) * 100)}%</span>
                                                     </div>
-                                                    <input type="range" min="1.00" max="1.50" step="0.01" value={zoomLevel} onChange={(e)=>setZoomLevel(Number(e.target.value))} className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer"/>
-                                                    <div className="text-[10px] text-slate-400 mt-1">若兩側仍有黑邊，請將數值往右拉大</div>
+                                                    <input type="range" min="1.00" max="1.50" step="0.01" value={zoomLevel} onChange={(e)=>setZoomLevel(Number(e.target.value))} className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer"/>
+                                                    <div className="text-[10px] text-slate-500 mt-1">若兩側仍有黑邊，請將數值往右拉大</div>
                                                 </div>
 
-                                                <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                                <div className="bg-slate-800 p-3 rounded-lg border border-slate-600 shadow-sm">
                                                     <div className="flex justify-between text-[10px] text-slate-400 mb-1"><span>目標顏色</span><span className="font-mono">{targetColorHex}</span></div>
-                                                    <input type="color" value={targetColorHex} onChange={(e)=>setTargetColorHex(e.target.value)} className="w-full h-8 rounded cursor-pointer border border-slate-300 p-0" />
+                                                    <input type="color" value={targetColorHex} onChange={(e)=>setTargetColorHex(e.target.value)} className="w-full h-8 rounded cursor-pointer border border-slate-600 p-0" />
                                                 </div>
-                                                <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                                <div className="bg-slate-800 p-3 rounded-lg border border-slate-600 shadow-sm">
                                                     <div className="flex justify-between text-[10px] text-slate-400 mb-1"><span>色彩容許度 (Tolerance)</span><span>{colorTolerance}</span></div>
-                                                    <input type="range" min="1" max="100" value={colorTolerance} onChange={(e)=>setColorTolerance(Number(e.target.value))} className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer"/>
+                                                    <input type="range" min="1" max="100" value={colorTolerance} onChange={(e)=>setColorTolerance(Number(e.target.value))} className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer"/>
                                                 </div>
-                                                <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                                <div className="bg-slate-800 p-3 rounded-lg border border-slate-600 shadow-sm">
                                                     <div className="flex justify-between text-[10px] text-slate-400 mb-1"><span>邊緣柔化 (Smoothness)</span><span>{smoothness}</span></div>
-                                                    <input type="range" min="0" max="10" step="1" value={smoothness} onChange={(e)=>setSmoothness(Number(e.target.value))} className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer"/>
+                                                    <input type="range" min="0" max="10" step="1" value={smoothness} onChange={(e)=>setSmoothness(Number(e.target.value))} className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer"/>
                                                 </div>
-                                                <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                                <div className="flex items-center justify-between bg-slate-800 p-3 rounded-lg border border-slate-600 shadow-sm">
                                                     <span className="text-[10px] text-slate-400">溢色去除 (Despill)</span>
                                                     <input type="checkbox" checked={despill} onChange={(e)=>setDespill(e.target.checked)} className="accent-green-500 w-4 h-4"/>
                                                 </div>
@@ -722,48 +753,48 @@
                                 )}
                             </div>
                         </div>
-                        <div className="flex justify-center gap-4 pt-8 border-t border-slate-100 mt-6">
-                            <button onClick={()=>setStep(1)} className="px-6 py-3 rounded-xl font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 hover:text-slate-700 transition">重新上傳</button>
-                            <button onClick={performProcessing} disabled={isProcessing} className="bg-line hover:bg-green-600 text-white px-12 py-3 rounded-xl font-bold shadow-lg shadow-green-100 transition-all btn-press flex items-center justify-center gap-2 min-w-[240px]">
+                        <div className="flex justify-center gap-4 pt-8 border-t border-slate-700 mt-6">
+                            <button onClick={()=>setStep(1)} className="px-6 py-3 rounded-xl font-bold text-slate-400 bg-slate-900 hover:bg-slate-700 hover:text-white transition">重新上傳</button>
+                            <button onClick={performProcessing} disabled={isProcessing} className="bg-line hover:bg-green-600 text-white px-12 py-3 rounded-xl font-bold shadow-lg shadow-green-900 transition-all btn-press flex items-center justify-center gap-2 min-w-[240px]">
                                 {isProcessing ? <><Loader /><span>處理中 ({processedCount}/12)</span></> : <><Eraser />執行極速去背</>}
                             </button>
                         </div>
                     </div>
 
                     {/* Step 3: Download */}
-                    <div className={`step-card bg-white rounded-3xl shadow-lg border border-slate-100 p-8 mb-8 ${step !== 3 && 'hidden'}`}>
-                         <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-8 gap-6 pb-6 border-b border-slate-100">
+                    <div className={`step-card bg-slate-800 rounded-3xl shadow-lg border border-slate-700 p-8 mb-8 ${step !== 3 && 'hidden'}`}>
+                         <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-8 gap-6 pb-6 border-b border-slate-700">
                             <div className="flex-1">
-                                <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2 mb-2"><CheckCircle className="text-line"/>設定與打包</h2>
-                                <p className="text-slate-500 text-sm">請勾選主圖(Main)與標籤圖(Tab)。</p>
+                                <h2 className="text-2xl font-bold text-white flex items-center gap-2 mb-2"><CheckCircle className="text-line"/>設定與打包</h2>
+                                <p className="text-slate-400 text-sm">請勾選主圖(Main)與標籤圖(Tab)。</p>
                             </div>
-                            <div className="bg-slate-50 px-4 py-3 rounded-xl border border-slate-200 flex items-center gap-3">
-                                <div className="flex flex-col"><span className="text-xs font-bold text-slate-500 flex items-center gap-1"><Hash className="w-3 h-3"/> 起始編號</span><span className="text-[10px] text-slate-400">接續上一批次</span></div>
-                                <input type="number" min="1" value={startNumber} onChange={(e) => setStartNumber(Math.max(1, parseInt(e.target.value) || 1))} className="w-20 h-10 border border-slate-300 rounded-lg text-center font-bold text-lg focus:ring-2 focus:ring-green-500 outline-none" />
+                            <div className="bg-slate-900 px-4 py-3 rounded-xl border border-slate-600 flex items-center gap-3">
+                                <div className="flex flex-col"><span className="text-xs font-bold text-slate-400 flex items-center gap-1"><Hash className="w-3 h-3"/> 起始編號</span><span className="text-[10px] text-slate-500">接續上一批次</span></div>
+                                <input type="number" min="1" value={startNumber} onChange={(e) => setStartNumber(Math.max(1, parseInt(e.target.value) || 1))} className="w-20 h-10 bg-slate-800 border border-slate-600 text-white rounded-lg text-center font-bold text-lg focus:ring-2 focus:ring-green-500 outline-none" />
                             </div>
                             <button onClick={downloadZip} className="w-full xl:w-auto bg-line hover:bg-green-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition-all btn-press flex items-center justify-center gap-2"><Download className="w-5 h-5" />下載完整 ZIP</button>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
                             {finalImages.map((img, idx) => (
-                                <div key={img.id} className="bg-white rounded-2xl border border-slate-200 p-3 hover:border-green-300 hover:shadow-md transition-all">
-                                    <div className="aspect-[370/320] grid-bg rounded-xl flex items-center justify-center overflow-hidden border border-slate-100 mb-3"><img src={img.dataUrl} className="w-full h-full object-contain" /></div>
-                                    <div className="text-center text-sm font-bold text-slate-600 mb-4 bg-slate-100 rounded py-1">{getFileName(idx)}.png</div>
+                                <div key={img.id} className="bg-slate-900 rounded-2xl border border-slate-700 p-3 hover:border-green-500 hover:shadow-md transition-all">
+                                    <div className="aspect-[370/320] grid-bg rounded-xl flex items-center justify-center overflow-hidden border border-slate-700 mb-3"><img src={img.dataUrl} className="w-full h-full object-contain" /></div>
+                                    <div className="text-center text-sm font-bold text-slate-400 mb-4 bg-slate-800 rounded py-1">{getFileName(idx)}.png</div>
                                     <div className="space-y-2">
                                         <label className="flex items-center gap-2 cursor-pointer group">
                                             <input type="radio" name="main_select" checked={mainId === img.id} onChange={() => setMainId(img.id)} className="hidden custom-radio"/>
-                                            <div className={`flex-1 text-xs border rounded-lg px-2 py-2 flex items-center gap-1 justify-center transition-all ${mainId === img.id ? 'bg-green-50 border-line text-line font-bold' : 'bg-slate-50 border-slate-200 text-slate-500 group-hover:bg-white group-hover:border-green-200'}`}><Star className="w-3 h-3" /> Main</div>
+                                            <div className={`flex-1 text-xs border rounded-lg px-2 py-2 flex items-center gap-1 justify-center transition-all ${mainId === img.id ? 'bg-green-900/40 border-line text-line font-bold' : 'bg-slate-800 border-slate-600 text-slate-500 group-hover:bg-slate-700 group-hover:border-slate-500'}`}><Star className="w-3 h-3" /> Main</div>
                                         </label>
                                         <label className="flex items-center gap-2 cursor-pointer group">
                                             <input type="radio" name="tab_select" checked={tabId === img.id} onChange={() => setTabId(img.id)} className="hidden custom-radio"/>
-                                            <div className={`flex-1 text-xs border rounded-lg px-2 py-2 flex items-center gap-1 justify-center transition-all ${tabId === img.id ? 'bg-green-50 border-line text-line font-bold' : 'bg-slate-50 border-slate-200 text-slate-500 group-hover:bg-white group-hover:border-green-200'}`}><Tag className="w-3 h-3" /> Tab</div>
+                                            <div className={`flex-1 text-xs border rounded-lg px-2 py-2 flex items-center gap-1 justify-center transition-all ${tabId === img.id ? 'bg-green-900/40 border-line text-line font-bold' : 'bg-slate-800 border-slate-600 text-slate-500 group-hover:bg-slate-700 group-hover:border-slate-500'}`}><Tag className="w-3 h-3" /> Tab</div>
                                         </label>
                                     </div>
                                 </div>
                             ))}
                         </div>
-                        <div className="text-center mt-10"><button onClick={()=>setStep(1)} className="text-slate-400 hover:text-slate-600 text-sm font-medium transition-colors underline">處理下一張原始圖</button></div>
+                        <div className="text-center mt-10"><button onClick={()=>setStep(1)} className="text-slate-500 hover:text-slate-300 text-sm font-medium transition-colors underline">處理下一張原始圖</button></div>
                     </div>
-                    <footer className="text-center text-lg font-bold text-black mt-12 mb-8">© 2025 Meiko 微課頻道 | LINE Sticker Factory</footer>
+                    <footer className="text-center text-lg font-bold text-slate-500 mt-12 mb-8">© 2025 Meiko 微課頻道 | LINE Sticker Factory</footer>
                 </div>
             );
         };
