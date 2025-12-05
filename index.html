@@ -580,41 +580,76 @@
 
                     {/* Step 1: Upload */}
                     <div className={`step-card bg-white rounded-3xl shadow-lg border border-slate-100 p-10 mb-8 ${step !== 1 && 'hidden'}`}>
-                        <div className="text-center space-y-6 max-w-xl mx-auto">
-                            <div className="mb-6">
-                                <button onClick={() => setShowPromptGuide(!showPromptGuide)} className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold py-3 px-4 rounded-xl border border-blue-200 transition-colors flex items-center justify-center gap-2"><Wand2 className="w-5 h-5" />{showPromptGuide ? "隱藏 AI 提示詞大師" : "打開 AI 提示詞大師"}</button>
-                                <div className={`collapse-content ${showPromptGuide ? 'collapse-open' : ''}`}>
-                                    <div className="mt-4 bg-white border border-blue-200 rounded-xl overflow-hidden shadow-sm text-left">
-                                         <div className="p-4 bg-blue-50 border-b border-blue-100 space-y-3">
-                                            <div className="flex flex-col gap-2"><span className="text-xs font-bold text-blue-800">1. 選擇主題內容：</span><div className="flex gap-2 flex-wrap">{Object.entries(PROMPT_THEMES).map(([key, theme]) => (<button key={key} onClick={() => setActiveTheme(key)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTheme === key ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-blue-600 border border-blue-200 hover:bg-blue-100'}`}>{theme.label}</button>))}</div></div>
-                                            <div className="flex flex-col gap-2"><span className="text-xs font-bold text-blue-800">2. 選擇畫風：</span><div className="flex gap-2 flex-wrap">{Object.entries(PROMPT_STYLES).map(([key, style]) => (<button key={key} onClick={() => setActiveStyle(key)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeStyle === key ? 'bg-purple-600 text-white shadow-md' : 'bg-white text-purple-600 border border-purple-200 hover:bg-purple-50'}`}>{style.label}</button>))}</div></div>
+                        <div className="text-center space-y-6 max-w-6xl mx-auto">
+                            
+                            <div className="flex flex-col lg:flex-row gap-8 mb-8 text-left">
+                                {/* Left Column: Prompt Master */}
+                                <div className="flex-1">
+                                    <button onClick={() => setShowPromptGuide(!showPromptGuide)} className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold py-3 px-4 rounded-xl border border-blue-200 transition-colors flex items-center justify-center gap-2 mb-4"><Wand2 className="w-5 h-5" />{showPromptGuide ? "隱藏 AI 提示詞大師" : "打開 AI 提示詞大師"}</button>
+                                    <div className={`collapse-content ${showPromptGuide ? 'collapse-open' : ''}`}>
+                                        <div className="mt-4 bg-white border border-blue-200 rounded-xl overflow-hidden shadow-sm text-left">
+                                             <div className="p-4 bg-blue-50 border-b border-blue-100 space-y-3">
+                                                <div className="flex flex-col gap-2"><span className="text-xs font-bold text-blue-800">1. 選擇主題內容：</span><div className="flex gap-2 flex-wrap">{Object.entries(PROMPT_THEMES).map(([key, theme]) => (<button key={key} onClick={() => setActiveTheme(key)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTheme === key ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-blue-600 border border-blue-200 hover:bg-blue-100'}`}>{theme.label}</button>))}</div></div>
+                                                <div className="flex flex-col gap-2"><span className="text-xs font-bold text-blue-800">2. 選擇畫風：</span><div className="flex gap-2 flex-wrap">{Object.entries(PROMPT_STYLES).map(([key, style]) => (<button key={key} onClick={() => setActiveStyle(key)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeStyle === key ? 'bg-purple-600 text-white shadow-md' : 'bg-white text-purple-600 border border-purple-200 hover:bg-purple-50'}`}>{style.label}</button>))}</div></div>
+                                            </div>
+                                            <PromptDisplay />
+                                            <div className="bg-slate-50 px-4 py-3 border-t border-slate-200 flex justify-between items-center"><span className="text-xs text-slate-500 font-medium">組合：<span className="text-blue-700 font-bold">{PROMPT_THEMES[activeTheme].label}</span></span><button onClick={handleCopyPrompt} className={`text-xs px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all ${copySuccess ? 'bg-green-500 text-white' : 'bg-slate-800 text-white hover:bg-black shadow-sm'}`}>{copySuccess ? <CheckCircle className="w-4 h-4"/> : <Copy className="w-4 h-4"/>}{copySuccess ? "已複製成功！" : "複製 Prompt"}</button></div>
                                         </div>
-                                        <PromptDisplay />
-                                        <div className="bg-slate-50 px-4 py-3 border-t border-slate-200 flex justify-between items-center"><span className="text-xs text-slate-500 font-medium">組合：<span className="text-blue-700 font-bold">{PROMPT_THEMES[activeTheme].label}</span></span><button onClick={handleCopyPrompt} className={`text-xs px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all ${copySuccess ? 'bg-green-500 text-white' : 'bg-slate-800 text-white hover:bg-black shadow-sm'}`}>{copySuccess ? <CheckCircle className="w-4 h-4"/> : <Copy className="w-4 h-4"/>}{copySuccess ? "已複製成功！" : "複製 Prompt"}</button></div>
+                                    </div>
+                                </div>
+
+                                {/* Right Column: Instructions */}
+                                <div className="flex-1 bg-green-50/50 p-6 rounded-2xl border border-green-100 text-left text-sm text-slate-600 space-y-4 h-fit">
+                                    <h3 className="font-bold text-lg text-slate-800">🌈✨ Meiko 的貼圖快速產生三步驟！</h3>
+                                    <p>想做LINE貼圖？超級簡單，跟著做就能一次上架成功！</p>
+
+                                    <div>
+                                        <div className="font-bold text-slate-800 mb-1">🔥 Step 1：先把你的貼圖「生」出來！</div>
+                                        <p>還沒有圖片？完全沒問題～<br/>
+                                        直接使用 Meiko 提供的 Prompt，加點你的創意調味，<br/>
+                                        用 Gemini Nano Banana Pro / ChatGPT / 其他AI工具 就能生成超可愛貼圖素材！<br/>
+                                        <span className="text-xs text-slate-400">（角色要胖要瘦要中二都隨你調 😎）</span></p>
+                                    </div>
+
+                                    <div>
+                                        <div className="font-bold text-slate-800 mb-1">✨ Step 2：用《LINE貼圖自動化助手》一鍵搞定切圖＋去背！</div>
+                                        <p>下載前記得先做兩件小事：</p>
+                                        <ul className="list-none pl-0 mt-1 space-y-1">
+                                            <li><span className="font-bold">① 選擇 main / tab 封面圖</span><br/>挑一張最能代表你角色靈魂的封面圖，按一下就設定完成！</li>
+                                            <li><span className="font-bold">② 設定檔名起始編號</span><br/>如果你正在生產第二組貼圖，把起始編號改成 13，<br/>這樣下載後全部 40 張貼圖（含 main、tab）會乖乖排好隊，<br/>輕鬆彙整進同一個壓縮檔，完全不會撞號 ✨</li>
+                                        </ul>
+                                    </div>
+
+                                    <div>
+                                        <div className="font-bold text-slate-800 mb-1">🚀 Step 3：到 LINE Creators Market 一鍵上傳！</div>
+                                        <p>打開 <a href="https://creator.line.me/zh-hant/" target="_blank" rel="noopener noreferrer" className="text-line font-bold hover:underline">Creators Market</a>，整包 ZIP 直接送上去～<br/>
+                                        一次上傳所有貼圖超省時，效率直接爆表！</p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* REVISED UPLOAD SECTION: Icon moved inside the box */}
-                            <div><h2 className="text-2xl font-bold text-slate-800 mb-2">上傳您的貼圖原始檔</h2><p className="text-slate-500">請上傳 AI 生成的 4x3 網格圖 (JPG/PNG)。</p></div>
-                            <div className="relative group w-full">
-                                <div className="border-2 border-dashed border-slate-300 rounded-2xl h-80 flex flex-col items-center justify-center bg-slate-50 group-hover:bg-green-50 group-hover:border-green-300 transition-all cursor-pointer overflow-hidden relative">
-                                    <input type="file" accept="image/*" onChange={handleUpload} className="absolute inset-0 opacity-0 cursor-pointer z-20" />
-                                    {originalSheet ? (
-                                        <div className="w-full h-full p-2 flex flex-col items-center justify-center relative z-10"><img src={originalSheet.src} className="max-w-full max-h-full object-contain shadow-sm rounded-lg" alt="Preview" /></div>
-                                    ) : (
-                                        <div className="flex flex-col items-center justify-center z-10 pointer-events-none">
-                                            {/* MOVED ICON: Green Arrow Box */}
-                                            <div className="w-20 h-20 bg-white text-line rounded-3xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-105 transition-transform border border-green-100">
-                                                <Upload className="w-10 h-10" />
+                            <div className="max-w-xl mx-auto space-y-6">
+                                <div><h2 className="text-2xl font-bold text-slate-800 mb-2">上傳您的貼圖原始檔</h2><p className="text-slate-500">請上傳 AI 生成的 4x3 網格圖 (JPG/PNG)。</p></div>
+                                <div className="relative group w-full">
+                                    <div className="border-2 border-dashed border-slate-300 rounded-2xl h-80 flex flex-col items-center justify-center bg-slate-50 group-hover:bg-green-50 group-hover:border-green-300 transition-all cursor-pointer overflow-hidden relative">
+                                        <input type="file" accept="image/*" onChange={handleUpload} className="absolute inset-0 opacity-0 cursor-pointer z-20" />
+                                        {originalSheet ? (
+                                            <div className="w-full h-full p-2 flex flex-col items-center justify-center relative z-10"><img src={originalSheet.src} className="max-w-full max-h-full object-contain shadow-sm rounded-lg" alt="Preview" /></div>
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center z-10 pointer-events-none">
+                                                {/* MOVED ICON: Green Arrow Box */}
+                                                <div className="w-20 h-20 bg-white text-line rounded-3xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-105 transition-transform border border-green-100">
+                                                    <Upload className="w-10 h-10" />
+                                                </div>
+                                                <span className="bg-white text-slate-700 px-6 py-2 rounded-full font-bold shadow-sm border border-slate-200 group-hover:text-line group-hover:border-green-200 transition-colors">選擇檔案</span>
+                                                <span className="text-xs text-slate-400 mt-3">或是將圖片拖曳至此</span>
                                             </div>
-                                            <span className="bg-white text-slate-700 px-6 py-2 rounded-full font-bold shadow-sm border border-slate-200 group-hover:text-line group-hover:border-green-200 transition-colors">選擇檔案</span>
-                                            <span className="text-xs text-slate-400 mt-3">或是將圖片拖曳至此</span>
-                                        </div>
-                                    )}
+                                        )}
+                                    </div>
                                 </div>
+                                {originalSheet && <button onClick={performSlice} className="w-full bg-line hover:bg-green-600 text-white py-4 rounded-xl font-bold shadow-md shadow-green-100 transition-all btn-press flex items-center justify-center gap-2">{isProcessing ? <Loader /> : <Scissors />} 開始切割</button>}
                             </div>
-                            {originalSheet && <button onClick={performSlice} className="w-full bg-line hover:bg-green-600 text-white py-4 rounded-xl font-bold shadow-md shadow-green-100 transition-all btn-press flex items-center justify-center gap-2">{isProcessing ? <Loader /> : <Scissors />} 開始切割</button>}
                         </div>
                     </div>
 
