@@ -164,48 +164,6 @@
 
         const logoSrc = "https://rain-galley-248.notion.site/image/attachment%3A1a4404e1-e6b1-4f29-a495-123224c6135a%3AMeiko_logo.png?table=block&id=2c04c228-35e5-80d2-b534-f270fb01613d&spaceId=cf48a189-fd68-4fe6-a35c-bf6538001b35&width=770&userId=&cache=v2";
 
-        const workerScript = `
-        self.onmessage = function(e) {
-            const { imageBitmap, id, targetColor, tolerance, smoothness, despill } = e.data;
-            const w = imageBitmap.width;
-            const h = imageBitmap.height;
-            const canvas = new OffscreenCanvas(w, h);
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(imageBitmap, 0, 0);
-            const imgData = ctx.getImageData(0, 0, w, h);
-            const data = imgData.data;
-            const tr = parseInt(targetColor.slice(1, 3), 16);
-            const tg = parseInt(targetColor.slice(3, 5), 16);
-            const tb = parseInt(targetColor.slice(5, 7), 16);
-            const distThreshold = tolerance * 4.42; 
-            const ramp = Math.max(1, smoothness * 5); 
-            for (let i = 0; i < data.length; i += 4) {
-                const r = data[i];
-                const g = data[i + 1];
-                const b = data[i + 2];
-                const dist = Math.sqrt((r - tr) * (r - tr) + (g - tg) * (g - tg) + (b - tb) * (b - tb));
-                let alpha = 255;
-                if (dist < distThreshold) alpha = 0; 
-                else if (dist < distThreshold + ramp) alpha = ((dist - distThreshold) / ramp) * 255;
-                if (despill && alpha > 0) {
-                    if (targetColor.toLowerCase() === '#00ff00') {
-                        if (g > r && g > b) data[i+1] = (r + b) / 2; 
-                    }
-                }
-                data[i + 3] = alpha;
-            }
-            ctx.putImageData(imgData, 0, 0);
-            canvas.convertToBlob({ type: 'image/png' }).then(blob => {
-                const reader = new FileReader();
-                reader.readAsDataURL(blob);
-                reader.onloadend = () => self.postMessage({ id, dataUrl: reader.result });
-            });
-        };
-        `;
-
-        const blob = new Blob([workerScript], { type: "text/javascript" });
-        const workerUrl = URL.createObjectURL(blob);
-
         const PROMPT_THEMES = {
             daily: { label: '日常用語', texts: '早安、晚安、謝謝、不客氣、對不起、沒問題、好的、收到、拜託、辛苦了、OK、等等', emotions: '喜、怒、哀、樂、驚訝、無語、放空、大哭', actions: '謝謝配雙手合十、OK比手勢、早安揮手、發呆流口水' },
             greet: { label: '打招呼', texts: 'Hello、Hi、早安、午安、晚安、你好、吃飽沒、好久不見、初次見面、歡迎、有空嗎、掰掰', emotions: '熱情、微笑、眨眼、期待、害羞、友善', actions: '揮手致意、90度鞠躬、從角落探頭、比手指愛心、拿著大聲公' },
@@ -250,9 +208,19 @@
             const workerRef = useRef(null);
 
             useEffect(() => {
-                workerRef.current = new Worker(workerUrl);
+                workerRef.current = new Worker('./worker.js');
                 workerRef.current.onmessage = (e) => {
-                    const { id, dataUrl } = e.data;
+                    const { id, processedImageData } = e.data;
+
+                    // Convert ImageData back to DataURL
+                    const canvas = document.createElement('canvas');
+                    canvas.width = processedImageData.width;
+                    canvas.height = processedImageData.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.putImageData(processedImageData, 0, 0);
+
+                    const dataUrl = canvas.toDataURL('image/png');
+
                     setFinalImages(prev => {
                         const exists = prev.find(img => img.id === id);
                         if (exists) return prev;
@@ -359,7 +327,7 @@
                     const workCanvas = document.createElement('canvas');
                     workCanvas.width = workW;
                     workCanvas.height = workH;
-                    const workCtx = workCanvas.getContext('2d');
+                    const workCtx = workCanvas.getContext('2d', { willReadFrequently: true });
                     const rawW = piece.rawCanvas.width;
                     const rawH = piece.rawCanvas.height;
                     const baseScale = Math.min(workW / rawW, workH / rawH);
@@ -369,15 +337,19 @@
                     const dx = (workW - drawW) / 2;
                     const dy = (workH - drawH) / 2;
                     workCtx.drawImage(piece.rawCanvas, 0, 0, rawW, rawH, dx, dy, drawW, drawH);
-                    createImageBitmap(workCanvas).then(bitmap => {
-                        workerRef.current.postMessage({
-                            imageBitmap: bitmap,
-                            id: piece.id,
-                            targetColor: targetColorHex,
-                            tolerance: colorTolerance,
-                            smoothness: smoothness,
-                            despill: despill
-                        }, [bitmap]);
+
+                    const imgData = workCtx.getImageData(0, 0, workW, workH);
+
+                    workerRef.current.postMessage({
+                        id: piece.id,
+                        rawImageData: imgData,
+                        removalMode: targetColorHex === '#00FF00' ? 'flood' : 'feather', // Green screen uses flood (magic wand), black uses feather
+                        targetColorHex: targetColorHex,
+                        colorTolerance: colorTolerance,
+                        erodeStrength: 0, // Default for now
+                        smoothness: smoothness,
+                        width: workW,
+                        height: workH
                     });
                 });
             };
