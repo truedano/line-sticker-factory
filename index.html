@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Line 貼圖自動化助手 - Meiko微課頻道</title>
+    <link rel="icon" type="image/png" href="./favicon.png" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -12,36 +14,51 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
-        
-        body { 
-            font-family: 'Noto Sans TC', sans-serif; 
-            background-color: #0f172a; /* Slate 900 - Dark Mode */
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #0f172a;
+            /* Slate 900 - Dark Mode */
             color: #f8fafc;
         }
 
         /* LINE Brand Colors */
-        .text-line { color: #06C755; }
-        .bg-line { background-color: #06C755; }
-        .bg-line:hover { background-color: #05b34c; } 
-        .border-line { border-color: #06C755; }
-        .ring-line { --tw-ring-color: #06C755; }
+        .text-line {
+            color: #06C755;
+        }
+
+        .bg-line {
+            background-color: #06C755;
+        }
+
+        .bg-line:hover {
+            background-color: #05b34c;
+        }
+
+        .border-line {
+            border-color: #06C755;
+        }
+
+        .ring-line {
+            --tw-ring-color: #06C755;
+        }
 
         /* Checkerboard pattern */
-        .grid-bg { 
-            background-image: linear-gradient(45deg, #334155 25%, transparent 25%), 
-                              linear-gradient(-45deg, #334155 25%, transparent 25%), 
-                              linear-gradient(45deg, transparent 75%, #334155 75%), 
-                              linear-gradient(-45deg, transparent 75%, #334155 75%);
+        .grid-bg {
+            background-image: linear-gradient(45deg, #334155 25%, transparent 25%),
+                linear-gradient(-45deg, #334155 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #334155 75%),
+                linear-gradient(-45deg, transparent 75%, #334155 75%);
             background-size: 16px 16px;
             background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
             background-color: #1e293b;
         }
 
-        .step-card { 
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+        .step-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
-        .custom-radio:checked + div {
+
+        .custom-radio:checked+div {
             border-color: #06C755;
             background-color: rgba(6, 199, 85, 0.1);
             color: #06C755;
@@ -51,30 +68,72 @@
         input[type="range"] {
             accent-color: #06C755;
         }
-        
-        .btn-press:active { transform: scale(0.98); }
-        
+
+        .btn-press:active {
+            transform: scale(0.98);
+        }
+
         .collapse-content {
             transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
             max-height: 0;
             opacity: 0;
             overflow: hidden;
         }
+
         .collapse-open {
             max-height: 1500px;
             opacity: 1;
         }
 
-        .prompt-content h2 { font-weight: 700; font-size: 1.1em; margin-bottom: 0.5em; color: #e2e8f0; border-bottom: 1px solid #334155; padding-bottom: 0.2em; margin-top: 1em; }
-        .prompt-content h2:first-child { margin-top: 0; }
-        .prompt-content p { margin-bottom: 0.5em; line-height: 1.6; font-size: 0.9em; color: #94a3b8; }
-        .prompt-content ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 0.5em; font-size: 0.9em; color: #94a3b8; }
-        
-        .var-highlight { color: #f87171; font-weight: bold; background-color: rgba(254, 242, 242, 0.1); padding: 0 4px; border-radius: 4px; }
-        .fixed-val { font-weight: bold; color: #38bdf8; } 
-        .no-highlight { color: inherit; font-weight: normal; } 
+        .prompt-content h2 {
+            font-weight: 700;
+            font-size: 1.1em;
+            margin-bottom: 0.5em;
+            color: #e2e8f0;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 0.2em;
+            margin-top: 1em;
+        }
+
+        .prompt-content h2:first-child {
+            margin-top: 0;
+        }
+
+        .prompt-content p {
+            margin-bottom: 0.5em;
+            line-height: 1.6;
+            font-size: 0.9em;
+            color: #94a3b8;
+        }
+
+        .prompt-content ul {
+            list-style-type: disc;
+            padding-left: 1.5em;
+            margin-bottom: 0.5em;
+            font-size: 0.9em;
+            color: #94a3b8;
+        }
+
+        .var-highlight {
+            color: #f87171;
+            font-weight: bold;
+            background-color: rgba(254, 242, 242, 0.1);
+            padding: 0 4px;
+            border-radius: 4px;
+        }
+
+        .fixed-val {
+            font-weight: bold;
+            color: #38bdf8;
+        }
+
+        .no-highlight {
+            color: inherit;
+            font-weight: normal;
+        }
     </style>
 </head>
+
 <body>
     <div id="root"></div>
 
@@ -85,23 +144,23 @@
         const Icon = ({ children, className, spin, ...props }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className || ''} ${spin ? 'animate-spin' : ''}`} {...props}>{children}</svg>
         );
-        const IconUpload = (props) => <Icon {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></Icon>;
-        const IconScissors = (props) => <Icon {...props}><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></Icon>;
-        const IconDownload = (props) => <Icon {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></Icon>;
-        const IconLoader = (props) => <Icon {...props} spin><path d="M21 12a9 9 0 1 1-6.219-8.56"/></Icon>;
-        const IconEraser = (props) => <Icon {...props}><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></Icon>;
-        const IconCheckCircle = (props) => <Icon {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></Icon>;
-        const IconMessageCircle = (props) => <Icon {...props}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></Icon>;
-        const IconHash = (props) => <Icon {...props}><line x1="4" x2="20" y1="9" y2="9"/><line x1="4" x2="20" y1="15" y2="15"/><line x1="10" x2="8" y1="3" y2="21"/><line x1="16" x2="14" y1="3" y2="21"/></Icon>;
-        const IconMoon = (props) => <Icon {...props}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></Icon>;
-        const IconSettings = (props) => <Icon {...props}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.72l-.15.1a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.72l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></Icon>;
-        const IconChevronDown = (props) => <Icon {...props}><path d="m6 9 6 6 6-6"/></Icon>;
-        const IconCopy = (props) => <Icon {...props}><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></Icon>;
-        const IconWand2 = (props) => <Icon {...props}><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></Icon>;
-        const IconStar = (props) => <Icon {...props}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></Icon>;
-        const IconTag = (props) => <Icon {...props}><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></Icon>;
-        const IconCrop = (props) => <Icon {...props}><path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"/><path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"/></Icon>;
-        const IconInfo = (props) => <Icon {...props}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></Icon>;
+        const IconUpload = (props) => <Icon {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></Icon>;
+        const IconScissors = (props) => <Icon {...props}><circle cx="6" cy="6" r="3" /><path d="M8.12 8.12 12 12" /><path d="M20 4 8.12 15.88" /><circle cx="6" cy="18" r="3" /><path d="M14.8 14.8 20 20" /></Icon>;
+        const IconDownload = (props) => <Icon {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></Icon>;
+        const IconLoader = (props) => <Icon {...props} spin><path d="M21 12a9 9 0 1 1-6.219-8.56" /></Icon>;
+        const IconEraser = (props) => <Icon {...props}><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21" /><path d="M22 21H7" /><path d="m5 11 9 9" /></Icon>;
+        const IconCheckCircle = (props) => <Icon {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></Icon>;
+        const IconMessageCircle = (props) => <Icon {...props}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></Icon>;
+        const IconHash = (props) => <Icon {...props}><line x1="4" x2="20" y1="9" y2="9" /><line x1="4" x2="20" y1="15" y2="15" /><line x1="10" x2="8" y1="3" y2="21" /><line x1="16" x2="14" y1="3" y2="21" /></Icon>;
+        const IconMoon = (props) => <Icon {...props}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></Icon>;
+        const IconSettings = (props) => <Icon {...props}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.72l-.15.1a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.72l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></Icon>;
+        const IconChevronDown = (props) => <Icon {...props}><path d="m6 9 6 6 6-6" /></Icon>;
+        const IconCopy = (props) => <Icon {...props}><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></Icon>;
+        const IconWand2 = (props) => <Icon {...props}><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z" /><path d="m14 7 3 3" /><path d="M5 6v4" /><path d="M19 14v4" /><path d="M10 2v2" /><path d="M7 8H3" /><path d="M21 16h-4" /><path d="M11 3H9" /></Icon>;
+        const IconStar = (props) => <Icon {...props}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></Icon>;
+        const IconTag = (props) => <Icon {...props}><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z" /><path d="M7 7h.01" /></Icon>;
+        const IconCrop = (props) => <Icon {...props}><path d="M6.13 1L6 16a2 2 0 0 0 2 2h15" /><path d="M1 6.13L16 6a2 2 0 0 1 2 2v15" /></Icon>;
+        const IconInfo = (props) => <Icon {...props}><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></Icon>;
 
         const logoSrc = "https://rain-galley-248.notion.site/image/attachment%3A1a4404e1-e6b1-4f29-a495-123224c6135a%3AMeiko_logo.png?table=block&id=2c04c228-35e5-80d2-b534-f270fb01613d&spaceId=cf48a189-fd68-4fe6-a35c-bf6538001b35&width=770&userId=&cache=v2";
 
@@ -168,26 +227,26 @@
 
         const App = () => {
             const [originalSheet, setOriginalSheet] = useState(null);
-            const [slicedPieces, setSlicedPieces] = useState([]); 
-            const [finalImages, setFinalImages] = useState([]); 
+            const [slicedPieces, setSlicedPieces] = useState([]);
+            const [finalImages, setFinalImages] = useState([]);
             const [mainId, setMainId] = useState(null);
             const [tabId, setTabId] = useState(null);
-            const [startNumber, setStartNumber] = useState(1); 
-            const [step, setStep] = useState(1); 
+            const [startNumber, setStartNumber] = useState(1);
+            const [step, setStep] = useState(1);
             const [isProcessing, setIsProcessing] = useState(false);
             const [processedCount, setProcessedCount] = useState(0);
-            const [showSettings, setShowSettings] = useState(false); 
+            const [showSettings, setShowSettings] = useState(false);
             const [showAdvanced, setShowAdvanced] = useState(true);
-            const [showPromptGuide, setShowPromptGuide] = useState(true); 
+            const [showPromptGuide, setShowPromptGuide] = useState(true);
             const [copySuccess, setCopySuccess] = useState(false);
             const [activeTheme, setActiveTheme] = useState('daily');
             const [activeStyle, setActiveStyle] = useState('qversion');
             const [autoRemoveBg, setAutoRemoveBg] = useState(true);
             const [targetColorHex, setTargetColorHex] = useState("#00ff00");
-            const [colorTolerance, setColorTolerance] = useState(30); 
-            const [smoothness, setSmoothness] = useState(2); 
-            const [despill, setDespill] = useState(true); 
-            const [zoomLevel, setZoomLevel] = useState(1.00); 
+            const [colorTolerance, setColorTolerance] = useState(30);
+            const [smoothness, setSmoothness] = useState(2);
+            const [despill, setDespill] = useState(true);
+            const [zoomLevel, setZoomLevel] = useState(1.00);
             const workerRef = useRef(null);
 
             useEffect(() => {
@@ -197,7 +256,7 @@
                     setFinalImages(prev => {
                         const exists = prev.find(img => img.id === id);
                         if (exists) return prev;
-                        return [...prev, { id, dataUrl, rawSource: null }].sort((a,b) => a.id - b.id);
+                        return [...prev, { id, dataUrl, rawSource: null }].sort((a, b) => a.id - b.id);
                     });
                     setProcessedCount(prev => prev + 1);
                 };
@@ -261,15 +320,15 @@
                     canvas.height = originalSheet.height;
                     const ctx = canvas.getContext('2d', { willReadFrequently: true });
                     ctx.drawImage(originalSheet, 0, 0);
-                    for(let r=0; r<rows; r++) {
-                        for(let c=0; c<cols; c++) {
+                    for (let r = 0; r < rows; r++) {
+                        for (let c = 0; c < cols; c++) {
                             const pCanvas = document.createElement('canvas');
                             pCanvas.width = pieceW;
                             pCanvas.height = pieceH;
                             const pCtx = pCanvas.getContext('2d');
-                            pCtx.drawImage(canvas, c*pieceW, r*pieceH, pieceW, pieceH, 0, 0, pieceW, pieceH);
+                            pCtx.drawImage(canvas, c * pieceW, r * pieceH, pieceW, pieceH, 0, 0, pieceW, pieceH);
                             pieces.push({
-                                id: r*cols+c+1,
+                                id: r * cols + c + 1,
                                 rawCanvas: pCanvas,
                                 previewUrl: pCanvas.toDataURL('image/png')
                             });
@@ -294,7 +353,7 @@
                 setFinalImages([]);
                 const targetW = 370;
                 const targetH = 320;
-                const workW = targetW * 2; 
+                const workW = targetW * 2;
                 const workH = targetH * 2;
                 slicedPieces.forEach(piece => {
                     const workCanvas = document.createElement('canvas');
@@ -303,7 +362,7 @@
                     const workCtx = workCanvas.getContext('2d');
                     const rawW = piece.rawCanvas.width;
                     const rawH = piece.rawCanvas.height;
-                    const baseScale = Math.min(workW/rawW, workH/rawH);
+                    const baseScale = Math.min(workW / rawW, workH / rawH);
                     const finalScale = baseScale * zoomLevel;
                     const drawW = rawW * finalScale;
                     const drawH = rawH * finalScale;
@@ -331,10 +390,10 @@
                         canvas.width = width;
                         canvas.height = height;
                         const ctx = canvas.getContext('2d');
-                        const scale = Math.min(width/img.width, height/img.height);
+                        const scale = Math.min(width / img.width, height / img.height);
                         const newW = img.width * scale;
                         const newH = img.height * scale;
-                        ctx.drawImage(img, 0, 0, img.width, img.height, (width-newW)/2, (height-newH)/2, newW, newH);
+                        ctx.drawImage(img, 0, 0, img.width, img.height, (width - newW) / 2, (height - newH) / 2, newW, newH);
                         resolve(canvas.toDataURL('image/png').split(',')[1]);
                     };
                     img.src = dataUrl;
@@ -347,26 +406,26 @@
                 const zip = new JSZip();
                 await Promise.all(finalImages.map(async (img, idx) => {
                     const b64 = await resizeImageFromUrl(img.dataUrl, 370, 320);
-                    zip.file(`${getFileName(idx)}.png`, b64, {base64:true});
+                    zip.file(`${getFileName(idx)}.png`, b64, { base64: true });
                 }));
                 if (mainId) {
                     const mainImg = finalImages.find(img => img.id === mainId);
-                    if (mainImg) zip.file("main.png", await resizeImageFromUrl(mainImg.dataUrl, 240, 240), {base64: true});
+                    if (mainImg) zip.file("main.png", await resizeImageFromUrl(mainImg.dataUrl, 240, 240), { base64: true });
                 }
                 if (tabId) {
                     const tabImg = finalImages.find(img => img.id === tabId);
-                    if (tabImg) zip.file("tab.png", await resizeImageFromUrl(tabImg.dataUrl, 96, 74), {base64: true});
+                    if (tabImg) zip.file("tab.png", await resizeImageFromUrl(tabImg.dataUrl, 96, 74), { base64: true });
                 }
-                zip.generateAsync({type:"blob"}).then(c => saveAs(c, "line_stickers_pack.zip"));
+                zip.generateAsync({ type: "blob" }).then(c => saveAs(c, "line_stickers_pack.zip"));
             };
 
             const applyPreset = (type) => {
                 if (type === 'green') {
                     setTargetColorHex("#00FF00");
-                    setColorTolerance(30); 
+                    setColorTolerance(30);
                     setSmoothness(2);
                     setDespill(true);
-                    setZoomLevel(1.00); 
+                    setZoomLevel(1.00);
                 } else if (type === 'black') {
                     setTargetColorHex("#000000");
                     setColorTolerance(15);
@@ -428,7 +487,7 @@
                             <div className="mt-2 text-sm text-slate-400 font-medium flex flex-row items-center gap-2">
                                 <img src={logoSrc} referrerPolicy="no-referrer" alt="Meiko Logo" className="w-8 h-8 rounded-full shadow-sm object-cover border border-slate-600" />
                                 <div className="flex items-center gap-1">
-                                    <a href="https://www.youtube.com/@meiko1" target="_blank" className="text-white hover:text-line hover:underline transition-colors font-bold">
+                                    <a href="https://www.youtube.com/@meiko1" target="_blank" rel="noopener noreferrer" className="text-white hover:text-line hover:underline transition-colors font-bold">
                                         Meiko微課頻道
                                     </a>
                                     <span className="text-slate-600 mx-1">|</span>
@@ -437,7 +496,7 @@
                             </div>
                         </div>
                         <div className="flex items-center bg-slate-900 rounded-full px-6 py-2 border border-slate-700">
-                             {[ { num: 1, label: '上傳與分割' }, { num: 2, label: '去背' }, { num: 3, label: '打包' } ].map((s, idx) => (
+                            {[{ num: 1, label: '上傳與分割' }, { num: 2, label: '去背' }, { num: 3, label: '打包' }].map((s, idx) => (
                                 <div key={s.num} className="flex items-center">
                                     <div className={`flex items-center gap-2 ${step >= s.num ? 'text-white' : 'text-slate-500'}`}>
                                         <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${step >= s.num ? 'bg-line text-white' : 'bg-slate-700 text-slate-500'}`}>{step > s.num ? <IconCheckCircle className="w-4 h-4" /> : s.num}</div>
@@ -492,14 +551,14 @@
                                 <div className="space-y-4">
                                     <div>
                                         <div className="font-bold text-line text-lg mb-1">Step 1：先把你的貼圖「生」出來！</div>
-                                        <p className="text-sm leading-relaxed text-slate-400">還沒有圖片？完全沒問題～<br/>直接使用下方 Meiko幫大家設計的【AI 提示詞大師】，挑選適合的prompt後，生成圖片(Prompt內橘色文字都是可以修改的)。加點你的創意調味，用 Gemini Nano Banana Pro / ChatGPT ...等AI工具 就能生成超可愛貼圖素材！</p>
+                                        <p className="text-sm leading-relaxed text-slate-400">還沒有圖片？完全沒問題～<br />直接使用下方 Meiko幫大家設計的【AI 提示詞大師】，挑選適合的prompt後，生成圖片(Prompt內橘色文字都是可以修改的)。加點你的創意調味，用 Gemini Nano Banana Pro / ChatGPT ...等AI工具 就能生成超可愛貼圖素材！</p>
                                     </div>
                                     <div>
                                         <div className="font-bold text-line text-lg mb-1">Step 2：用《LINE貼圖自動化助手》一鍵搞定切圖＋去背！</div>
                                         <p className="text-sm text-slate-400">下載前記得先做兩件小事：</p>
                                         <ul className="list-none pl-0 mt-1 space-y-2 text-xs text-slate-300">
-                                            <li className="bg-slate-900 p-3 rounded-lg border border-slate-700"><span className="font-bold text-white">① 選擇 main / tab 封面圖</span><br/>挑一張最能代表你角色靈魂的封面圖，按一下「Main 和 tab按鈕（建議使用同一張貼圖）」就設定完成，下載時可以一併下載下來。</li>
-                                            <li className="bg-slate-900 p-3 rounded-lg border border-slate-700"><span className="font-bold text-white">② 設定檔名起始編號</span><br/>如果你正在生產第二組貼圖，把起始編號改成 13，這樣下載後全部 40 張貼圖（含 main、tab）會乖乖排好隊，輕鬆彙整進同一個壓縮檔，完全不會撞號 ✨</li>
+                                            <li className="bg-slate-900 p-3 rounded-lg border border-slate-700"><span className="font-bold text-white">① 選擇 main / tab 封面圖</span><br />挑一張最能代表你角色靈魂的封面圖，按一下「Main 和 tab按鈕（建議使用同一張貼圖）」就設定完成，下載時可以一併下載下來。</li>
+                                            <li className="bg-slate-900 p-3 rounded-lg border border-slate-700"><span className="font-bold text-white">② 設定檔名起始編號</span><br />如果你正在生產第二組貼圖，把起始編號改成 13，這樣下載後全部 40 張貼圖（含 main、tab）會乖乖排好隊，輕鬆彙整進同一個壓縮檔，完全不會撞號 ✨</li>
                                         </ul>
                                     </div>
                                     <div>
@@ -515,7 +574,7 @@
 
                         <div className="bg-slate-800 rounded-3xl shadow-lg border border-slate-700 p-6 mb-8">
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="font-bold text-lg text-white flex items-center gap-2"><IconWand2 className="w-5 h-5 text-line"/> AI 提示詞大師</h3>
+                                <h3 className="font-bold text-lg text-white flex items-center gap-2"><IconWand2 className="w-5 h-5 text-line" /> AI 提示詞大師</h3>
                                 <button onClick={() => setShowPromptGuide(!showPromptGuide)} className="text-xs text-slate-400 hover:text-white flex items-center gap-1">
                                     {showPromptGuide ? "隱藏" : "展開"} <IconChevronDown className={`w-3 h-3 transition-transform ${showPromptGuide ? 'rotate-180' : ''}`} />
                                 </button>
@@ -542,7 +601,7 @@
                                 <PromptDisplay />
                                 <div className="mt-4 flex justify-end">
                                     <button onClick={handleCopyPrompt} className={`px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all ${copySuccess ? 'bg-green-600 text-white' : 'bg-white text-slate-900 hover:bg-slate-200'}`}>
-                                        {copySuccess ? <IconCheckCircle className="w-5 h-5"/> : <IconCopy className="w-5 h-5"/>}
+                                        {copySuccess ? <IconCheckCircle className="w-5 h-5" /> : <IconCopy className="w-5 h-5" />}
                                         {copySuccess ? "已複製成功！" : "複製 Prompt"}
                                     </button>
                                 </div>
@@ -564,14 +623,14 @@
                             <div className={`transition-all duration-500 bg-slate-900 rounded-2xl border border-slate-700 overflow-hidden ${showSettings ? 'w-full xl:w-1/3 opacity-100' : 'w-full xl:w-12 h-16 xl:h-auto opacity-80 cursor-pointer hover:bg-slate-800'}`}>
                                 <div onClick={() => setShowSettings(!showSettings)} className="p-6 flex items-center justify-between cursor-pointer">
                                     <div className={`flex items-center gap-2 font-bold text-white whitespace-nowrap ${!showSettings && 'xl:hidden'}`}>
-                                        <IconSettings className="w-5 h-5 text-line"/> 啟用智能去背
+                                        <IconSettings className="w-5 h-5 text-line" /> 啟用智能去背
                                     </div>
                                     <div className={`hidden xl:flex flex-col items-center gap-4 py-4 ${showSettings && 'hidden'}`}>
-                                        <IconSettings className="w-6 h-6 text-slate-400"/>
+                                        <IconSettings className="w-6 h-6 text-slate-400" />
                                         <span className="text-[10px] text-slate-500 writing-vertical-lr tracking-widest">點擊展開設定</span>
                                     </div>
                                     <div className={`relative inline-flex items-center cursor-pointer ${!showSettings && 'xl:hidden'}`}>
-                                        <input type="checkbox" checked={autoRemoveBg} onChange={(e)=> {e.stopPropagation(); setAutoRemoveBg(e.target.checked)}} className="sr-only peer"/>
+                                        <input type="checkbox" checked={autoRemoveBg} onChange={(e) => { e.stopPropagation(); setAutoRemoveBg(e.target.checked) }} className="sr-only peer" />
                                         <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-line"></div>
                                     </div>
                                 </div>
@@ -581,39 +640,39 @@
                                             <div>
                                                 <div className="flex justify-between text-xs text-slate-400 mb-2 font-medium"><span>快速設定 (Presets)</span></div>
                                                 <div className="grid grid-cols-2 gap-2">
-                                                    <button onClick={()=>applyPreset('black')} className={`px-3 py-3 rounded-xl border text-xs font-bold flex flex-col items-center justify-center gap-2 transition ${targetColorHex === '#000000' ? 'bg-slate-800 text-white border-slate-600 shadow-md' : 'bg-slate-900 text-slate-400 border-slate-700 hover:border-slate-500'}`}><IconMoon className="w-4 h-4" /> <span>黑底去背</span></button>
-                                                    <button onClick={()=>applyPreset('green')} className={`px-3 py-3 rounded-xl border text-xs font-bold flex flex-col items-center justify-center gap-2 transition ${targetColorHex === '#00FF00' ? 'bg-green-900/30 text-green-400 border-green-700 shadow-sm' : 'bg-slate-900 text-slate-400 border-slate-700 hover:border-green-800'}`}><div className="w-4 h-4 bg-green-500 rounded-full"></div> <span>綠幕去背</span></button>
+                                                    <button onClick={() => applyPreset('black')} className={`px-3 py-3 rounded-xl border text-xs font-bold flex flex-col items-center justify-center gap-2 transition ${targetColorHex === '#000000' ? 'bg-slate-800 text-white border-slate-600 shadow-md' : 'bg-slate-900 text-slate-400 border-slate-700 hover:border-slate-500'}`}><IconMoon className="w-4 h-4" /> <span>黑底去背</span></button>
+                                                    <button onClick={() => applyPreset('green')} className={`px-3 py-3 rounded-xl border text-xs font-bold flex flex-col items-center justify-center gap-2 transition ${targetColorHex === '#00FF00' ? 'bg-green-900/30 text-green-400 border-green-700 shadow-sm' : 'bg-slate-900 text-slate-400 border-slate-700 hover:border-green-800'}`}><div className="w-4 h-4 bg-green-500 rounded-full"></div> <span>綠幕去背</span></button>
                                                 </div>
                                             </div>
-                                            <button onClick={()=>setShowAdvanced(!showAdvanced)} className="w-full flex items-center justify-between text-xs text-slate-400 hover:text-white pt-2 border-t border-slate-700">
-                                                <span className="flex items-center gap-1"><IconSettings className="w-3 h-3"/> 顯示進階設定</span>
+                                            <button onClick={() => setShowAdvanced(!showAdvanced)} className="w-full flex items-center justify-between text-xs text-slate-400 hover:text-white pt-2 border-t border-slate-700">
+                                                <span className="flex items-center gap-1"><IconSettings className="w-3 h-3" /> 顯示進階設定</span>
                                                 <IconChevronDown className={`w-3 h-3 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
                                             </button>
                                             <div className={`collapse-content ${showAdvanced ? 'collapse-open' : ''}`}>
                                                 <div className="pt-4 space-y-4">
                                                     <div className="bg-slate-800 p-3 rounded-lg border border-slate-600 shadow-sm">
                                                         <div className="flex justify-between text-[10px] text-slate-400 mb-1">
-                                                            <span className="flex items-center gap-1"><IconCrop className="w-3 h-3"/> 裁切縮放 (去除黑邊)</span>
+                                                            <span className="flex items-center gap-1"><IconCrop className="w-3 h-3" /> 裁切縮放 (去除黑邊)</span>
                                                             <span className="font-bold text-line">{Math.round((zoomLevel - 1) * 100)}%</span>
                                                         </div>
-                                                        <input type="range" min="1.00" max="1.50" step="0.01" value={zoomLevel} onChange={(e)=>setZoomLevel(Number(e.target.value))} className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer"/>
+                                                        <input type="range" min="1.00" max="1.50" step="0.01" value={zoomLevel} onChange={(e) => setZoomLevel(Number(e.target.value))} className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer" />
                                                         <div className="text-[10px] text-slate-500 mt-1">若兩側仍有黑邊，請將數值往右拉大</div>
                                                     </div>
                                                     <div className="bg-slate-800 p-3 rounded-lg border border-slate-600 shadow-sm">
                                                         <div className="flex justify-between text-[10px] text-slate-400 mb-1"><span>目標顏色</span><span className="font-mono">{targetColorHex}</span></div>
-                                                        <input type="color" value={targetColorHex} onChange={(e)=>setTargetColorHex(e.target.value)} className="w-full h-8 rounded cursor-pointer border border-slate-600 p-0" />
+                                                        <input type="color" value={targetColorHex} onChange={(e) => setTargetColorHex(e.target.value)} className="w-full h-8 rounded cursor-pointer border border-slate-600 p-0" />
                                                     </div>
                                                     <div className="bg-slate-800 p-3 rounded-lg border border-slate-600 shadow-sm">
                                                         <div className="flex justify-between text-[10px] text-slate-400 mb-1"><span>色彩容許度 (Tolerance)</span><span>{colorTolerance}</span></div>
-                                                        <input type="range" min="1" max="100" value={colorTolerance} onChange={(e)=>setColorTolerance(Number(e.target.value))} className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer"/>
+                                                        <input type="range" min="1" max="100" value={colorTolerance} onChange={(e) => setColorTolerance(Number(e.target.value))} className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer" />
                                                     </div>
                                                     <div className="bg-slate-800 p-3 rounded-lg border border-slate-600 shadow-sm">
                                                         <div className="flex justify-between text-[10px] text-slate-400 mb-1"><span>邊緣柔化 (Smoothness)</span><span>{smoothness}</span></div>
-                                                        <input type="range" min="0" max="10" step="1" value={smoothness} onChange={(e)=>setSmoothness(Number(e.target.value))} className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer"/>
+                                                        <input type="range" min="0" max="10" step="1" value={smoothness} onChange={(e) => setSmoothness(Number(e.target.value))} className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer" />
                                                     </div>
                                                     <div className="flex items-center justify-between bg-slate-800 p-3 rounded-lg border border-slate-600 shadow-sm">
                                                         <span className="text-[10px] text-slate-400">溢色去除 (Despill)</span>
-                                                        <input type="checkbox" checked={despill} onChange={(e)=>setDespill(e.target.checked)} className="accent-green-500 w-4 h-4"/>
+                                                        <input type="checkbox" checked={despill} onChange={(e) => setDespill(e.target.checked)} className="accent-green-500 w-4 h-4" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -623,7 +682,7 @@
                             </div>
                         </div>
                         <div className="flex justify-center gap-4 pt-8 border-t border-slate-700 mt-6">
-                            <button onClick={()=>setStep(1)} className="px-6 py-3 rounded-xl font-bold text-slate-400 bg-slate-900 hover:bg-slate-700 hover:text-white transition">重新上傳</button>
+                            <button onClick={() => setStep(1)} className="px-6 py-3 rounded-xl font-bold text-slate-400 bg-slate-900 hover:bg-slate-700 hover:text-white transition">重新上傳</button>
                             <button onClick={performProcessing} disabled={isProcessing} className="bg-line hover:bg-green-600 text-white px-12 py-3 rounded-xl font-bold shadow-lg shadow-green-900 transition-all btn-press flex items-center justify-center gap-2 min-w-[240px]">
                                 {isProcessing ? <><IconLoader /><span>處理中 ({processedCount}/12)</span></> : <><IconEraser />執行去背</>}
                             </button>
@@ -631,23 +690,23 @@
                     </div>
 
                     <div className={`step-card bg-slate-800 rounded-3xl shadow-lg border border-slate-700 p-8 mb-8 ${step !== 3 && 'hidden'}`}>
-                         <div className="mb-8 border-b border-slate-700 pb-6">
-                            <h2 className="text-2xl font-bold text-white flex items-center gap-2 mb-2"><IconCheckCircle className="text-line"/>設定與打包</h2>
+                        <div className="mb-8 border-b border-slate-700 pb-6">
+                            <h2 className="text-2xl font-bold text-white flex items-center gap-2 mb-2"><IconCheckCircle className="text-line" />設定與打包</h2>
                             <p className="text-slate-400 text-sm">請勾選主圖(Main)與標籤圖(Tab) <span className="text-xs text-slate-500">(可選)</span>。</p>
                         </div>
-                        
+
                         <div className="flex flex-col xl:flex-row gap-6 items-end mb-8">
                             <div className="w-full xl:flex-1 bg-yellow-500/10 border border-yellow-500/30 p-5 rounded-xl text-lg text-yellow-200">
-                                <div className="font-bold flex items-center gap-2 mb-3 text-yellow-400 text-xl"><IconInfo className="w-6 h-6"/> 下載前記得先做兩件小事：</div>
+                                <div className="font-bold flex items-center gap-2 mb-3 text-yellow-400 text-xl"><IconInfo className="w-6 h-6" /> 下載前記得先做兩件小事：</div>
                                 <ul className="list-disc pl-6 space-y-3 opacity-90 text-base md:text-lg">
                                     <li>選擇 <span className="text-white font-bold bg-yellow-600/30 px-1 rounded">main / tab 封面圖</span>：挑一張最能代表你角色靈魂的封面圖，按一下就設定完成！</li>
                                     <li>設定 <span className="text-white font-bold bg-yellow-600/30 px-1 rounded">檔名起始編號</span>：第二組貼圖請改為 13，下載後 40 張貼圖自動排隊，完全不撞號 ✨</li>
                                 </ul>
                             </div>
-                            
+
                             <div className="w-full xl:w-auto flex flex-row items-stretch gap-3">
                                 <div className="bg-slate-900 px-4 py-2 rounded-xl border border-slate-600 flex flex-col justify-center min-w-[140px]">
-                                    <span className="text-xs font-bold text-slate-400 flex items-center gap-1 mb-1"><IconHash className="w-3 h-3"/> 起始編號</span>
+                                    <span className="text-xs font-bold text-slate-400 flex items-center gap-1 mb-1"><IconHash className="w-3 h-3" /> 起始編號</span>
                                     <input type="number" min="1" value={startNumber} onChange={(e) => setStartNumber(Math.max(1, parseInt(e.target.value) || 1))} className="w-full bg-slate-800 border border-slate-600 text-white rounded-lg text-center font-bold text-lg focus:ring-2 focus:ring-green-500 outline-none py-1" />
                                 </div>
                                 <button onClick={downloadZip} className="flex-1 bg-line hover:bg-green-600 text-white px-8 py-4 rounded-xl font-bold shadow-lg transition-all btn-press flex items-center justify-center gap-2 text-lg whitespace-nowrap"><IconDownload className="w-6 h-6" /> 下載完整 ZIP</button>
@@ -661,24 +720,24 @@
                                     <div className="text-center text-sm font-bold text-slate-400 mb-4 bg-slate-800 rounded py-1">{getFileName(idx)}.png</div>
                                     <div className="space-y-2">
                                         <label className="flex items-center gap-2 cursor-pointer group">
-                                            <input type="radio" name="main_select" checked={mainId === img.id} onChange={() => setMainId(img.id)} className="hidden custom-radio"/>
+                                            <input type="radio" name="main_select" checked={mainId === img.id} onChange={() => setMainId(img.id)} className="hidden custom-radio" />
                                             <div className={`flex-1 text-xs border rounded-lg px-2 py-2 flex items-center gap-1 justify-center transition-all ${mainId === img.id ? 'bg-green-900/40 border-line text-line font-bold' : 'bg-slate-800 border-slate-600 text-slate-500 group-hover:bg-slate-700 group-hover:border-slate-500'}`}><IconStar className="w-3 h-3" /> Main</div>
                                         </label>
                                         <label className="flex items-center gap-2 cursor-pointer group">
-                                            <input type="radio" name="tab_select" checked={tabId === img.id} onChange={() => setTabId(img.id)} className="hidden custom-radio"/>
+                                            <input type="radio" name="tab_select" checked={tabId === img.id} onChange={() => setTabId(img.id)} className="hidden custom-radio" />
                                             <div className={`flex-1 text-xs border rounded-lg px-2 py-2 flex items-center gap-1 justify-center transition-all ${tabId === img.id ? 'bg-green-900/40 border-line text-line font-bold' : 'bg-slate-800 border-slate-600 text-slate-500 group-hover:bg-slate-700 group-hover:border-slate-500'}`}><IconTag className="w-3 h-3" /> Tab</div>
                                         </label>
                                     </div>
                                 </div>
                             ))}
                         </div>
-                        <div className="text-center mt-10"><button onClick={()=>setStep(1)} className="text-slate-500 hover:text-slate-300 text-sm font-medium transition-colors underline">處理下一張原始圖</button></div>
+                        <div className="text-center mt-10"><button onClick={() => setStep(1)} className="text-slate-500 hover:text-slate-300 text-sm font-medium transition-colors underline">處理下一張原始圖</button></div>
                     </div>
-                    
+
                     <footer className="text-center text-slate-500 mt-12 mb-8 space-y-2">
                         <div className="text-lg font-bold">© 2025 Meiko 微課頻道 | LINE Sticker Factory</div>
                         <div className="text-sm">
-                            歡迎前往 <a href="https://www.youtube.com/@meiko1" target="_blank" rel="noreferrer" className="text-line font-bold hover:underline">【Meiko微課頻道】</a> 學習更多 AI 應用、Excel、Power Query、資料處理的技巧。
+                            歡迎前往 <a href="https://www.youtube.com/@meiko1" target="_blank" rel="noopener noreferrer" className="text-line font-bold hover:underline">【Meiko微課頻道】</a> 學習更多 AI 應用、Excel、Power Query、資料處理的技巧。
                         </div>
                         <div className="text-sm">
                             聯繫信箱：<a href="mailto:meikoedux@gmail.com" className="hover:text-slate-300 transition-colors">meikoedux@gmail.com</a>
@@ -692,4 +751,5 @@
         root.render(<App />);
     </script>
 </body>
+
 </html>
