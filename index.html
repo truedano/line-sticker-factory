@@ -484,16 +484,7 @@
                                 <IconMessageCircle className="w-8 h-8 text-line" />
                                 Line 貼圖自動化助手
                             </h1>
-                            <div className="mt-2 text-sm text-slate-400 font-medium flex flex-row items-center gap-2">
-                                <img src={logoSrc} referrerPolicy="no-referrer" alt="Meiko Logo" className="w-8 h-8 rounded-full shadow-sm object-cover border border-slate-600" />
-                                <div className="flex items-center gap-1">
-                                    <a href="https://www.youtube.com/@meiko1" target="_blank" rel="noopener noreferrer" className="text-white hover:text-line hover:underline transition-colors font-bold">
-                                        Meiko微課頻道
-                                    </a>
-                                    <span className="text-slate-600 mx-1">|</span>
-                                    <span className="text-line font-bold">飆速製作Line貼圖工廠</span>
-                                </div>
-                            </div>
+
                         </div>
                         <div className="flex items-center bg-slate-900 rounded-full px-6 py-2 border border-slate-700">
                             {[{ num: 1, label: '上傳與分割' }, { num: 2, label: '去背' }, { num: 3, label: '打包' }].map((s, idx) => (
@@ -734,15 +725,7 @@
                         <div className="text-center mt-10"><button onClick={() => setStep(1)} className="text-slate-500 hover:text-slate-300 text-sm font-medium transition-colors underline">處理下一張原始圖</button></div>
                     </div>
 
-                    <footer className="text-center text-slate-500 mt-12 mb-8 space-y-2">
-                        <div className="text-lg font-bold">© 2025 Meiko 微課頻道 | LINE Sticker Factory</div>
-                        <div className="text-sm">
-                            歡迎前往 <a href="https://www.youtube.com/@meiko1" target="_blank" rel="noopener noreferrer" className="text-line font-bold hover:underline">【Meiko微課頻道】</a> 學習更多 AI 應用、Excel、Power Query、資料處理的技巧。
-                        </div>
-                        <div className="text-sm">
-                            聯繫信箱：<a href="mailto:meikoedux@gmail.com" className="hover:text-slate-300 transition-colors">meikoedux@gmail.com</a>
-                        </div>
-                    </footer>
+
                 </div>
             );
         };
