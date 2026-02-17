@@ -1,4 +1,4 @@
-# Line 貼圖自動化助手 (Line Sticker Factory)
+# Line 貼圖自動化助手 (Line Sticker Factory) ![Version](https://img.shields.io/badge/version-1.0.0-06C755?style=flat-square)
 
 這是一個專為 LINE 貼圖創作者設計的自動化工具，旨在簡化從 AI 生圖到最終貼圖打包的流程。透過本工具，您可以輕鬆將一張 4x3 的 AI 生成角色網格圖，自動切割、去背並打包成符合 LINE 官方規範的貼圖包。
 
@@ -24,6 +24,11 @@
     *   自動調整圖片尺寸至 LINE 規定的 `370x320` px。
     *   支援選取並自動生成 `Main` (240x240) 與 `Tab` (96x74) 圖片。
     *   **智慧檔名編號**：可自訂起始編號（例如第二組貼圖從 13 開始），下載後的 ZIP 檔內檔案會自動排序，方便管理。
+
+*   **💎 核心美學 (Premium UI/UX)**
+    *   **玻璃擬物化設計 (Glassmorphism)**：現代化的透明磨砂質感。
+    *   **品牌化視覺**：深度整合 LINE 品牌色彩與 Outfit/Inter 字體。
+    *   **流暢動畫**：包含滑入、微彈跳與漸變效果，提升創作體驗。
 
 ## 🛠️ 技術疊棧 (Tech Stack)
 
@@ -81,4 +86,4 @@ npm run build
     *   點擊「下載完整 ZIP」，即可獲得準備好上傳 LINE Creators Market 的檔案包！
 
 ---
-Built with ❤️ by Meiko微課頻道
+Built with ❤️ for Creators

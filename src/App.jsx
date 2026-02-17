@@ -6,6 +6,7 @@ import {
     MessageCircle, Hash, Moon, Settings, ChevronDown, Copy,
     Wand2, Star, Tag, Crop, Info
 } from 'lucide-react';
+import { version } from '../package.json';
 
 const PROMPT_THEMES = {
     daily: { label: '日常用語', texts: '早安、晚安、謝謝、不客氣、對不起、沒問題、好的、收到、拜託、辛苦了、OK、等等', emotions: '喜、怒、哀、樂、驚訝、無語、放空、大哭', actions: '謝謝配雙手合十、OK比手勢、早安揮手、發呆流口水' },
@@ -328,8 +329,11 @@ const App = () => {
                         <div className="p-3 bg-line rounded-2xl shadow-lg shadow-green-500/20">
                             <MessageCircle className="w-8 h-8 text-white" />
                         </div>
-                        <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
+                        <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight flex items-center gap-3">
                             Line 貼圖自動化助手
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-line/10 text-line border border-line/20 translate-y-[2px]">
+                                v{version}
+                            </span>
                         </h1>
                     </div>
                     <p className="text-slate-400 font-medium ml-1">快速分割、去背、打包您的 AI 貼圖</p>
