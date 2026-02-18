@@ -15,7 +15,8 @@ const PROMPT_THEMES = {
     response: { label: '回應篇', texts: '真的假的、笑死、確?、好喔、??、!!!、無言、傻眼、厲害、佩服、+1、路過', emotions: '震驚到變形、翻白眼、懷疑眼神、豎起大拇指、敷衍假笑', actions: '比讚、雙手打叉(NG)、單手扶額頭、吃瓜看戲、比出 OK 手勢' },
     work: { label: '上班族', texts: '收到、馬上改、開會中、加班、準時下班、心累、報告長官、辛苦了、求放過、薪水呢、不想上班、加油', emotions: '眼神死、崩潰大哭、職業假笑、黑眼圈深重、燃燒鬥志', actions: '瘋狂敲鍵盤、吊點滴喝咖啡、趴在桌上靈魂出竅、標準敬禮、舉白旗投降' },
     couple: { label: '老公老婆', texts: '愛你、想你、抱抱、親親、寶貝、老公、老婆、在幹嘛、快回家、買給我、原諒我、啾咪', emotions: '害羞臉紅、色瞇瞇、撒嬌水汪汪大眼、生氣鼓臉、陶醉', actions: '抱緊處理、發射飛吻、跪算盤謝罪、摸頭殺、壁咚' },
-    meme: { label: '迷因搞笑', texts: '是在哈囉、我就爛、阿姨我不想努力了、像極了愛情、可憐哪、嚇到吃手手、沒在怕、本斥但大、真香、歸剛欸、突破盲腸、怕', emotions: '極度嘲諷臉、堅定眼神、猥瑣笑容、崩壞顏藝、鄙視眼神', actions: '攤手無奈、指指點點、戴墨鏡耍帥、拿著鹹魚攻擊、謎之舞步' }
+    meme: { label: '迷因搞笑', texts: '是在哈囉、我就爛、阿姨我不想努力了、像極了愛情、可憐哪、嚇到吃手手、沒在怕、本斥但大、真香、歸剛欸、突破盲腸、怕', emotions: '極度嘲諷臉、堅定眼神、猥瑣笑容、崩壞顏藝、鄙視眼神', actions: '攤手無奈、指指點點、戴墨鏡耍帥、拿著鹹魚攻擊、謎之舞步' },
+    custom: { label: '🌟 自訂主題', texts: '', emotions: '', actions: '自訂動作描述' }
 };
 
 const PROMPT_STYLES = {
@@ -49,6 +50,8 @@ const App = () => {
     const [smoothness, setSmoothness] = useState(2);
     const [despill, setDespill] = useState(true);
     const [zoomLevel, setZoomLevel] = useState(1.00);
+    const [customTexts, setCustomTexts] = useState('您的自訂文字（例如：加油、想睡覺、嘿嘿、你好棒）');
+    const [customEmotions, setCustomEmotions] = useState('描述表情風格（例如：浮誇的大笑、無奈的苦笑、充滿星星的眼神）');
     const workerRef = useRef(null);
 
     useEffect(() => {
@@ -108,7 +111,10 @@ const App = () => {
     const getPromptText = () => {
         const theme = PROMPT_THEMES[activeTheme];
         const style = PROMPT_STYLES[activeStyle];
-        return `✅ 12 格角色貼圖集｜Prompt 建議\n請參考上傳圖片中的角色，生成 一張包含 12 個不同動作的角色貼圖集，也不要使用任何emoji表情符號。\n\n[角色與風格設定]\n角色一致性：必須完全維持原圖主角的髮型、服裝、五官與整體外觀特徵。\n構圖風格：畫面僅包含「角色 + 文字」，不包含任何場景背景。\n畫風設定：【${style.desc}】。\n貼紙風格（去背友善）：角色與文字外圍皆需加入 粗白色外框（Sticker Style）。背景統一為 #00FF00（純綠色），不可有雜點。\n\n[畫面佈局與尺寸規格]\n整體為 4 × 3 佈局，共 12 張貼圖。總尺寸：1480 × 960 px。\n每張小圖約 370 × 320 px（自動等比縮放填滿排列）。每張貼圖四周預留約 0.2 cm Padding，避免畫面互相黏住。\n鏡頭多樣化：全身 + 半身混合，必須包含正面、側面、俯角等不同視角。\n\n[文字設計]\n語言：【台灣繁體中文】\n文字內容：【${theme.texts}】\n字型風格：【可愛 Q 版字型，顏色鮮豔、易讀，多色彩混合，絕對禁止使用任何綠色（包含深綠、淺綠、螢光綠、藍綠）與黑色，因為會導致去背錯誤。請改用紅、藍、紫、橘、黃等高對比色彩。】\n排版：文字大小約佔單張貼圖 1/3，文字可適度壓在衣服邊角等非重要區域，不能遮臉，也不要使用任何emoji表情符號。\n\n[表情與動作設計]\n表情必須明顯、誇張、情緒豐富：【${theme.emotions}】\n角色動作需與文字情境一致：例如【${theme.actions}】\n12 格皆須為 不同動作與不同表情。\n\n[輸出格式]\n一張大圖，內含 4 × 3 的 12 張貼圖。背景必須為 純綠色 #00FF00。每格角色 + 文字均附上粗白邊。`;
+        const finalTexts = activeTheme === 'custom' ? customTexts : theme.texts;
+        const finalEmotions = activeTheme === 'custom' ? customEmotions : theme.emotions;
+
+        return `✅ 12 格角色貼圖集｜Prompt 建議\n請參考上傳圖片中的角色，生成 一張包含 12 個不同動作的角色貼圖集，也不要使用任何emoji表情符號。\n\n[角色與風格設定]\n角色一致性：必須完全維持原圖主角的髮型、服裝、五官與整體外觀特徵。\n構圖風格：畫面僅包含「角色 + 文字」，不包含任何場景背景。\n畫風設定：【${style.desc}】。\n貼紙風格（去背友善）：角色與文字外圍皆需加入 粗白色外框（Sticker Style）。背景統一為 #00FF00（純綠色），不可有雜點。\n\n[畫面佈局與尺寸規格]\n整體為 4 × 3 佈局，共 12 張貼圖。總尺寸：1480 × 960 px。\n每張小圖約 370 × 320 px（自動等比縮放填滿排列）。每張貼圖四周預留約 0.2 cm Padding，避免畫面互相黏住。\n鏡頭多樣化：全身 + 半身混合，必須包含正面、側面、俯角等不同視角。\n\n[文字設計]\n語言：【台灣繁體中文】\n文字內容：【${finalTexts}】\n字型風格：【可愛 Q 版字型，顏色鮮豔、易讀，多色彩混合，絕對禁止使用任何綠色（包含深綠、淺綠、螢光綠、藍綠）與黑色，因為會導致去背錯誤。請改用紅、藍、紫、橘、黃等高對比色彩。】\n排版：文字大小約佔單張貼圖 1/3，文字可適度壓在衣服邊角等非重要區域，不能遮臉，也不要使用任何emoji表情符號。\n\n[表情與動作設計]\n表情必須明顯、誇張、情緒豐富：【${finalEmotions}】\n角色動作需與文字情境一致：例如【${theme.actions}】\n12 格皆須為 不同動作與不同表情。\n\n[輸出格式]\n一張大圖，內含 4 × 3 的 12 張貼圖。背景必須為 純綠色 #00FF00。每格角色 + 文字均附上粗白邊。`;
     };
 
     const handleCopyPrompt = () => {
@@ -299,19 +305,18 @@ const App = () => {
                         </h2>
                         <ul className="space-y-2 mt-3">
                             <li><span className="text-slate-400">語言：</span><span className="var-highlight">台灣繁體中文</span></li>
-                            <li><span className="text-slate-400">內容：</span><span className="var-highlight">{theme.texts}</span></li>
+                            <li><span className="text-slate-400">內容：</span><span className="var-highlight">{activeTheme === 'custom' ? customTexts : theme.texts}</span></li>
                             <li><span className="text-slate-400">配色：</span>使用高對比鮮豔色彩。絕對禁止使用綠色系與黑色。</li>
                             <li><span className="text-slate-400">排版：</span>大小約佔 1/3，可壓在衣服邊角，<span className="text-red-400 font-bold">不可遮臉</span>。</li>
                         </ul>
                     </section>
-
                     <section>
                         <h2 className="text-line border-green-500/30 flex items-center gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-line"></div>
                             表情與動作設計
                         </h2>
                         <ul className="space-y-2 mt-3">
-                            <li><span className="text-slate-400">情緒清單：</span><span className="var-highlight">{theme.emotions}</span></li>
+                            <li><span className="text-slate-400">情緒清單：</span><span className="var-highlight">{activeTheme === 'custom' ? customEmotions : theme.emotions}</span></li>
                             <li><span className="text-slate-400">建議動作：</span><span className="var-highlight">{theme.actions}</span></li>
                             <li><span className="text-white font-bold italic">12 格皆須為不同動作與表情，展現角色張力。</span></li>
                         </ul>
@@ -482,6 +487,28 @@ const App = () => {
                                         </button>
                                     ))}
                                 </div>
+                                {activeTheme === 'custom' && (
+                                    <div className="mt-6 space-y-4 animate-fade-in">
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">自訂文字內容 (以逗號分隔)</label>
+                                            <textarea
+                                                value={customTexts}
+                                                onChange={(e) => setCustomTexts(e.target.value)}
+                                                className="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl p-3 text-sm focus:ring-1 focus:ring-indigo-500 outline-none h-20 resize-none"
+                                                placeholder="例如：加油、辛苦了、想睡覺..."
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">自訂情緒/表情描述</label>
+                                            <textarea
+                                                value={customEmotions}
+                                                onChange={(e) => setCustomEmotions(e.target.value)}
+                                                className="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl p-3 text-sm focus:ring-1 focus:ring-indigo-500 outline-none h-20 resize-none"
+                                                placeholder="例如：浮誇的表情、眼神死、幸福感爆棚..."
+                                            />
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                             <div className="p-6 bg-slate-900/60 rounded-[1.5rem] border border-slate-700/50 hover:border-slate-600 transition-colors">
                                 <span className="block text-xs font-bold text-purple-400 uppercase tracking-widest mb-4">2. 選擇視覺風格</span>
