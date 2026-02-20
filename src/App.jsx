@@ -7,26 +7,10 @@ import {
     Wand2, Star, Tag, Crop, Info
 } from 'lucide-react';
 import { version } from '../package.json';
+import { PROMPT_THEMES, PROMPT_STYLES } from './data';
+import PromptDisplay from './components/PromptDisplay';
 
-const PROMPT_THEMES = {
-    daily: { label: '日常用語', texts: '早安、晚安、謝謝、不客氣、對不起、沒問題、好的、收到、拜託、辛苦了、OK、等等', emotions: '喜、怒、哀、樂、驚訝、無語、放空、大哭', actions: '謝謝配雙手合十、OK比手勢、早安揮手、發呆流口水' },
-    greet: { label: '打招呼', texts: 'Hello、Hi、早安、午安、晚安、你好、吃飽沒、好久不見、初次見面、歡迎、有空嗎、掰掰', emotions: '熱情、微笑、眨眼、期待、害羞、友善', actions: '揮手致意、90度鞠躬、從角落探頭、比手指愛心、拿著大聲公' },
-    holiday: { label: '節日祝福', texts: '新年快樂、恭喜發財、生日快樂、聖誕快樂、情人節快樂、中秋快樂、母親節快樂、父親節快樂、端午安康、萬聖節快樂、Happy New Year、紅包拿來', emotions: '喜氣洋洋、興奮、溫馨、大笑、感動、派對臉', actions: '雙手拿紅包、點燃鞭炮、捧著生日蛋糕、送出禮物盒、舉杯慶祝' },
-    response: { label: '回應篇', texts: '真的假的、笑死、確?、好喔、??、!!!、無言、傻眼、厲害、佩服、+1、路過', emotions: '震驚到變形、翻白眼、懷疑眼神、豎起大拇指、敷衍假笑', actions: '比讚、雙手打叉(NG)、單手扶額頭、吃瓜看戲、比出 OK 手勢' },
-    work: { label: '上班族', texts: '收到、馬上改、開會中、加班、準時下班、心累、報告長官、辛苦了、求放過、薪水呢、不想上班、加油', emotions: '眼神死、崩潰大哭、職業假笑、黑眼圈深重、燃燒鬥志', actions: '瘋狂敲鍵盤、吊點滴喝咖啡、趴在桌上靈魂出竅、標準敬禮、舉白旗投降' },
-    couple: { label: '老公老婆', texts: '愛你、想你、抱抱、親親、寶貝、老公、老婆、在幹嘛、快回家、買給我、原諒我、啾咪', emotions: '害羞臉紅、色瞇瞇、撒嬌水汪汪大眼、生氣鼓臉、陶醉', actions: '抱緊處理、發射飛吻、跪算盤謝罪、摸頭殺、壁咚' },
-    meme: { label: '迷因搞笑', texts: '是在哈囉、我就爛、阿姨我不想努力了、像極了愛情、可憐哪、嚇到吃手手、沒在怕、本斥但大、真香、歸剛欸、突破盲腸、怕', emotions: '極度嘲諷臉、堅定眼神、猥瑣笑容、崩壞顏藝、鄙視眼神', actions: '攤手無奈、指指點點、戴墨鏡耍帥、拿著鹹魚攻擊、謎之舞步' },
-    custom: { label: '🌟 自訂主題', texts: '', emotions: '', actions: '自訂動作描述' }
-};
 
-const PROMPT_STYLES = {
-    qversion: { label: '通用 Q 版', desc: '可愛、活潑、2D平面' },
-    realistic: { label: '寫實風格', desc: '細緻、擬真、高質感' },
-    threed: { label: '3D 立體', desc: 'Blender風格、圓潤、光影' },
-    sketch: { label: '手繪塗鴉', desc: '線條感、童趣、蠟筆' },
-    pixel: { label: '像素風', desc: '復古遊戲、8-bit' },
-    anime: { label: '日系動漫', desc: '大眼、賽璐璐上色' }
-};
 
 const App = () => {
     const [originalSheet, setOriginalSheet] = useState(null);
@@ -281,74 +265,7 @@ const App = () => {
         }
     };
 
-    const PromptDisplay = () => {
-        const theme = PROMPT_THEMES[activeTheme];
-        const style = PROMPT_STYLES[activeStyle];
-        return (
-            <div className="prompt-content text-sm font-inter bg-slate-950/80 p-8 rounded-[2rem] border border-white/5 h-[450px] overflow-y-auto shadow-inner custom-scrollbar relative">
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-line opacity-50"></div>
 
-                <div className="font-bold text-2xl mb-6 text-white flex items-center gap-2">
-                    <span className="text-line">✅</span> 12 格角色貼圖集｜AI Prompt 建議
-                </div>
-
-                <p className="text-slate-300 leading-relaxed mb-8 text-base">
-                    請參考上傳圖片中的角色特徵，在您常用的 AI 生圖工具中輸入以下指令，生成一張包含 12 個不同動作的貼圖大圖（切勿包含任何表情符號 Emoji）。
-                </p>
-
-                <div className="space-y-8">
-                    <section>
-                        <h2 className="text-indigo-400 border-indigo-500/30 flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
-                            角色與風格設定
-                        </h2>
-                        <ul className="space-y-2 mt-3">
-                            <li><span className="text-slate-400">核心要求：</span>必須完全維持原圖主角的髮型、服裝、五官與整體外觀特徵。</li>
-                            <li><span className="text-slate-400">構圖邏輯：</span>畫面僅包含「角色 + 文字」，不包含任何複雜背景。</li>
-                            <li><span className="text-slate-400">風格關鍵字：</span><span className="var-highlight">{style.desc}</span></li>
-                            <li><span className="text-slate-400">去背優化：</span>角色與文字需加入 <span className="text-white font-medium">粗白色外框 (Sticker Style)</span>。背景統一為 <span className="fixed-val">#00FF00 (純綠色)</span>。</li>
-                        </ul>
-                    </section>
-
-                    <section>
-                        <h2 className="text-purple-400 border-purple-500/30 flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
-                            畫面佈局與尺寸規格
-                        </h2>
-                        <ul className="space-y-2 mt-3">
-                            <li>整體為 <span className="text-white font-medium">4 × 3 佈局</span>，共 12 張貼圖。總尺寸：<span className="fixed-val">1480 × 960 px</span>。</li>
-                            <li>每張貼圖四周預留適度 <span className="text-slate-400 italic">Padding</span>，避免畫面互相黏住。</li>
-                            <li><span className="text-slate-400">視角：</span>全身 + 半身混合，包含正面、側面、俯角等。</li>
-                        </ul>
-                    </section>
-
-                    <section>
-                        <h2 className="text-sky-400 border-sky-500/30 flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-sky-400"></div>
-                            文字設計細節
-                        </h2>
-                        <ul className="space-y-2 mt-3">
-                            <li><span className="text-slate-400">語言：</span><span className="var-highlight">台灣繁體中文</span></li>
-                            <li><span className="text-slate-400">內容：</span><span className="var-highlight">{activeTheme === 'custom' ? customTexts : theme.texts}</span></li>
-                            <li><span className="text-slate-400">配色：</span>使用高對比鮮豔色彩。絕對禁止使用綠色系與黑色。</li>
-                            <li><span className="text-slate-400">排版：</span>大小約佔 1/3，可壓在衣服邊角，<span className="text-red-400 font-bold">不可遮臉</span>。</li>
-                        </ul>
-                    </section>
-                    <section>
-                        <h2 className="text-line border-green-500/30 flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-line"></div>
-                            表情與動作設計
-                        </h2>
-                        <ul className="space-y-2 mt-3">
-                            <li><span className="text-slate-400">情緒清單：</span><span className="var-highlight">{activeTheme === 'custom' ? customEmotions : theme.emotions}</span></li>
-                            <li><span className="text-slate-400">建議動作：</span><span className="var-highlight">{theme.actions}</span></li>
-                            <li><span className="text-white font-bold italic">12 格皆須為不同動作與表情，展現角色張力。</span></li>
-                        </ul>
-                    </section>
-                </div>
-            </div>
-        );
-    };
 
     return (
         <div className="min-h-screen p-4 md:p-8 max-w-7xl mx-auto pb-32">
@@ -551,7 +468,12 @@ const App = () => {
                         </div>
 
                         <div className="relative">
-                            <PromptDisplay />
+                            <PromptDisplay
+                                activeTheme={activeTheme}
+                                activeStyle={activeStyle}
+                                customTexts={customTexts}
+                                customEmotions={customEmotions}
+                            />
                             <div className="absolute bottom-6 right-6">
                                 <button
                                     onClick={handleCopyPrompt}
