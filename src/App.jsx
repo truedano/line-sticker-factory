@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { version } from '../package.json';
-import { PROMPT_THEMES, PROMPT_STYLES } from './data';
+import { PROMPT_THEMES, PROMPT_STYLES, GRID_MODES } from './data';
 import Header from './components/Header';
 import UploadSection from './components/UploadSection';
 import RemoveBgSection from './components/RemoveBgSection';
@@ -14,6 +14,7 @@ const App = () => {
     const [tabId, setTabId] = useState(null);
     const [startNumber, setStartNumber] = useState(1);
     const [step, setStep] = useState(1);
+    const [gridMode, setGridMode] = useState('4x3');
     const [showPromptGuide, setShowPromptGuide] = useState(true);
     const [copySuccess, setCopySuccess] = useState(false);
 
@@ -30,6 +31,8 @@ const App = () => {
     const [customEmotions, setCustomEmotions] = useState('描述表情風格（例如：浮誇的大笑、無奈的苦笑、充滿星星的眼神）');
 
     // Custom Hooks
+    const gridConfig = GRID_MODES[gridMode];
+
     const {
         slicedPieces, setSlicedPieces,
         finalImages, setFinalImages,
@@ -46,13 +49,13 @@ const App = () => {
     }, []);
 
     useEffect(() => {
-        if (processedCount === 12 && isProcessing) {
+        if (processedCount === gridConfig.total && isProcessing) {
             setIsProcessing(false);
             setMainId(1);
             setTabId(1);
             setStep(3);
         }
-    }, [processedCount, isProcessing, setIsProcessing]);
+    }, [processedCount, isProcessing, setIsProcessing, gridConfig.total]);
 
     const handleUpload = (e) => {
         const file = e.target.files[0];
@@ -74,12 +77,17 @@ const App = () => {
     const getPromptText = () => {
         const theme = PROMPT_THEMES[activeTheme];
         const style = PROMPT_STYLES[activeStyle];
-        const finalTexts = activeTheme === 'custom' ? customTexts : theme.texts;
-        const finalEmotions = activeTheme === 'custom' ? customEmotions : theme.emotions;
+        const is24 = gridMode === '6x4';
+        const finalTexts = activeTheme === 'custom' ? customTexts : (is24 ? theme.texts24 : theme.texts);
+        const finalEmotions = activeTheme === 'custom' ? customEmotions : (is24 ? theme.emotions24 : theme.emotions);
+        const finalActions = is24 ? theme.actions24 : theme.actions;
+        const totalCount = gridConfig.total;
+        const layoutLabel = is24 ? '6 × 4' : '4 × 3';
+        const sizeLabel = `${gridConfig.width} × ${gridConfig.height} px`;
 
-        return `✅ 12 格角色貼圖集｜AI Prompt 建議
+        return `✅ ${totalCount} 格角色貼圖集｜AI Prompt 建議
 
-請參考上傳圖片中的角色特徵，在您常用的 AI 生圖工具中輸入以下指令，生成一張包含 12 個不同動作的貼圖大圖（切勿包含任何表情符號 Emoji）。
+請參考上傳圖片中的角色特徵，在您常用的 AI 生圖工具中輸入以下指令，生成一張包含 ${totalCount} 個不同動作的貼圖大圖（切勿包含任何表情符號 Emoji）。
 
 角色與風格設定
 • 核心要求：必須完全維持原圖主角的髮型、服裝、五官與整體外觀特徵。
@@ -88,7 +96,7 @@ const App = () => {
 • 去背優化：角色與文字需加入 粗白色外框 (Sticker Style)。背景統一為 #00FF00 (純綠色)。
 
 畫面佈局與尺寸規格
-• 整體為 4 × 3 佈局，共 12 張貼圖。總尺寸：1480 × 960 px。
+• 整體為 ${layoutLabel} 佈局，共 ${totalCount} 張貼圖。總尺寸：${sizeLabel}。
 • 每張貼圖四周預留適度 Padding，避免畫面互相黏住。
 • 視角：全身 + 半身混合，包含正面、側面、俯角等。
 
@@ -100,8 +108,8 @@ const App = () => {
 
 表情與動作設計
 • 情緒清單：${finalEmotions}
-• 建議動作：${theme.actions}
-• 12 格皆須為不同動作與表情，展現角色張力。`;
+• 建議動作：${finalActions}
+• ${totalCount} 格皆須為不同動作與表情，展現角色張力。`;
     };
 
     const handleCopyPrompt = () => {
@@ -136,7 +144,7 @@ const App = () => {
                 originalSheet={originalSheet}
                 handleUpload={handleUpload}
                 isProcessing={isProcessing}
-                performSlice={() => performSlice(originalSheet, setStep)}
+                performSlice={() => performSlice(originalSheet, setStep, gridConfig.cols, gridConfig.rows)}
                 showPromptGuide={showPromptGuide}
                 setShowPromptGuide={setShowPromptGuide}
                 activeTheme={activeTheme}
@@ -151,6 +159,10 @@ const App = () => {
                 copySuccess={copySuccess}
                 PROMPT_THEMES={PROMPT_THEMES}
                 PROMPT_STYLES={PROMPT_STYLES}
+                gridMode={gridMode}
+                setGridMode={setGridMode}
+                gridConfig={gridConfig}
+                GRID_MODES={GRID_MODES}
             />
 
             <RemoveBgSection
@@ -170,6 +182,7 @@ const App = () => {
                 isProcessing={isProcessing}
                 processedCount={processedCount}
                 setStep={setStep}
+                gridConfig={gridConfig}
             />
 
             <DownloadSection

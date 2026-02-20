@@ -30,13 +30,11 @@ const useImageProcessing = (autoRemoveBg, targetColorHex, colorTolerance, smooth
         return () => { workerRef.current.terminate(); }
     }, []);
 
-    const performSlice = (originalSheet, setStep) => {
+    const performSlice = (originalSheet, setStep, cols = 4, rows = 3) => {
         if (!originalSheet) return;
         setIsProcessing(true);
         setTimeout(() => {
             const pieces = [];
-            const cols = 4;
-            const rows = 3;
             const pieceW = originalSheet.width / cols;
             const pieceH = originalSheet.height / rows;
             const canvas = document.createElement('canvas');

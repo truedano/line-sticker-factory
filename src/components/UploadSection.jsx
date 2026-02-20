@@ -1,5 +1,5 @@
 import React from 'react';
-import { Upload, Scissors, Loader, Star, ChevronDown, Info, Wand2, CheckCircle, Copy } from 'lucide-react';
+import { Upload, Scissors, Loader, Star, ChevronDown, Info, Wand2, CheckCircle, Copy, Grid3X3 } from 'lucide-react';
 import PromptDisplay from './PromptDisplay';
 
 const UploadSection = ({
@@ -21,7 +21,11 @@ const UploadSection = ({
     handleCopyPrompt,
     copySuccess,
     PROMPT_THEMES,
-    PROMPT_STYLES
+    PROMPT_STYLES,
+    gridMode,
+    setGridMode,
+    gridConfig,
+    GRID_MODES
 }) => {
     return (
         <div className={`transition-all duration-500 transform ${step !== 1 ? 'opacity-0 translate-y-4 pointer-events-none absolute' : 'opacity-100 translate-y-0 relative'}`}>
@@ -31,19 +35,40 @@ const UploadSection = ({
 
                     <div className="mb-10 max-w-2xl mx-auto">
                         <h2 className="text-3xl font-bold text-white mb-6">上傳您的貼圖原始檔</h2>
+
+                        {/* 網格模式選擇 */}
+                        <div className="mb-6 p-4 bg-slate-900/60 rounded-2xl border border-slate-700/50">
+                            <span className="block text-xs font-bold text-line uppercase tracking-widest mb-3 flex items-center gap-2">
+                                <Grid3X3 className="w-4 h-4" />
+                                選擇佈局模式
+                            </span>
+                            <div className="grid grid-cols-2 gap-3">
+                                {Object.entries(GRID_MODES).map(([key, mode]) => (
+                                    <button
+                                        key={key}
+                                        onClick={() => setGridMode(key)}
+                                        className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${gridMode === key ? 'bg-line/15 border-line text-white shadow-lg shadow-green-500/10' : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200'}`}
+                                    >
+                                        <span className="text-lg font-bold">{mode.label}</span>
+                                        <span className="text-xs opacity-70">{mode.width} × {mode.height} px</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
                         <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-700/50 p-6 rounded-2xl text-left">
                             <p className="mb-4 font-semibold text-slate-200 flex items-center gap-2">
                                 <Info className="w-5 h-5 text-sky-400" />
-                                請上傳 AI 生成的 4x3 網格圖 (JPG/PNG)
+                                請上傳 AI 生成的 {gridConfig.cols}x{gridConfig.rows} 網格圖 (JPG/PNG)
                             </p>
                             <ul className="space-y-3 text-sm text-slate-400 list-none">
                                 <li className="flex items-start gap-2">
                                     <div className="w-1.5 h-1.5 rounded-full bg-line mt-1.5 shrink-0"></div>
-                                    <span>佈局格式：<span className="text-white font-medium">4 欄 × 3 列</span>，共 12 張貼圖</span>
+                                    <span>佈局格式：<span className="text-white font-medium">{gridConfig.cols} 欄 × {gridConfig.rows} 列</span>，共 {gridConfig.total} 張貼圖</span>
                                 </li>
                                 <li className="flex items-start gap-2">
                                     <div className="w-1.5 h-1.5 rounded-full bg-line mt-1.5 shrink-0"></div>
-                                    <span>建議尺寸：<span className="text-sky-400 font-mono">2560 × 1664 px</span></span>
+                                    <span>建議尺寸：<span className="text-sky-400 font-mono">{gridConfig.width} × {gridConfig.height} px</span></span>
                                 </li>
                             </ul>
                         </div>
@@ -191,6 +216,7 @@ const UploadSection = ({
                             activeStyle={activeStyle}
                             customTexts={customTexts}
                             customEmotions={customEmotions}
+                            gridMode={gridMode}
                         />
                         <div className="absolute bottom-6 right-6">
                             <button

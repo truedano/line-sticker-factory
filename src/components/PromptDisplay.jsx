@@ -1,20 +1,28 @@
 import React from 'react';
-import { PROMPT_THEMES, PROMPT_STYLES } from '../data';
+import { PROMPT_THEMES, PROMPT_STYLES, GRID_MODES } from '../data';
 
-const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions }) => {
+const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, gridMode = '4x3' }) => {
     const theme = PROMPT_THEMES[activeTheme];
     const style = PROMPT_STYLES[activeStyle];
+    const gridConfig = GRID_MODES[gridMode];
+    const is24 = gridMode === '6x4';
+    const totalCount = gridConfig.total;
+    const layoutLabel = is24 ? '6 × 4' : '4 × 3';
+    const sizeLabel = `${gridConfig.width} × ${gridConfig.height} px`;
+    const textsToShow = activeTheme === 'custom' ? customTexts : (is24 ? theme.texts24 : theme.texts);
+    const emotionsToShow = activeTheme === 'custom' ? customEmotions : (is24 ? theme.emotions24 : theme.emotions);
+    const actionsToShow = is24 ? theme.actions24 : theme.actions;
 
     return (
         <div className="prompt-content text-sm font-inter bg-slate-950/80 p-8 rounded-[2rem] border border-white/5 h-[450px] overflow-y-auto shadow-inner custom-scrollbar relative">
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-line opacity-50"></div>
 
             <div className="font-bold text-2xl mb-6 text-white flex items-center gap-2">
-                <span className="text-line">✅</span> 12 格角色貼圖集｜AI Prompt 建議
+                <span className="text-line">✅</span> {totalCount} 格角色貼圖集｜AI Prompt 建議
             </div>
 
             <p className="text-slate-300 leading-relaxed mb-8 text-base">
-                請參考上傳圖片中的角色特徵，在您常用的 AI 生圖工具中輸入以下指令，生成一張包含 12 個不同動作的貼圖大圖（切勿包含任何表情符號 Emoji）。
+                請參考上傳圖片中的角色特徵，在您常用的 AI 生圖工具中輸入以下指令，生成一張包含 {totalCount} 個不同動作的貼圖大圖（切勿包含任何表情符號 Emoji）。
             </p>
 
             <div className="space-y-8">
@@ -37,7 +45,7 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions }
                         畫面佈局與尺寸規格
                     </h2>
                     <ul className="space-y-2 mt-3">
-                        <li>整體為 <span className="text-white font-medium">4 × 3 佈局</span>，共 12 張貼圖。總尺寸：<span className="fixed-val">1480 × 960 px</span>。</li>
+                        <li>整體為 <span className="text-white font-medium">{layoutLabel} 佈局</span>，共 {totalCount} 張貼圖。總尺寸：<span className="fixed-val">{sizeLabel}</span>。</li>
                         <li>每張貼圖四周預留適度 <span className="text-slate-400 italic">Padding</span>，避免畫面互相黏住。</li>
                         <li><span className="text-slate-400">視角：</span>全身 + 半身混合，包含正面、側面、俯角等。</li>
                     </ul>
@@ -50,7 +58,7 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions }
                     </h2>
                     <ul className="space-y-2 mt-3">
                         <li><span className="text-slate-400">語言：</span><span className="var-highlight">台灣繁體中文</span></li>
-                        <li><span className="text-slate-400">內容：</span><span className="var-highlight">{activeTheme === 'custom' ? customTexts : theme.texts}</span></li>
+                        <li><span className="text-slate-400">內容：</span><span className="var-highlight">{textsToShow}</span></li>
                         <li><span className="text-slate-400">配色：</span>使用高對比鮮豔色彩。絕對禁止使用綠色系與黑色。</li>
                         <li><span className="text-slate-400">排版：</span>大小約佔 1/3，可壓在衣服邊角，<span className="text-red-400 font-bold">不可遮臉</span>。</li>
                     </ul>
@@ -61,9 +69,9 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions }
                         表情與動作設計
                     </h2>
                     <ul className="space-y-2 mt-3">
-                        <li><span className="text-slate-400">情緒清單：</span><span className="var-highlight">{activeTheme === 'custom' ? customEmotions : theme.emotions}</span></li>
-                        <li><span className="text-slate-400">建議動作：</span><span className="var-highlight">{theme.actions}</span></li>
-                        <li><span className="text-white font-bold italic">12 格皆須為不同動作與表情，展現角色張力。</span></li>
+                        <li><span className="text-slate-400">情緒清單：</span><span className="var-highlight">{emotionsToShow}</span></li>
+                        <li><span className="text-slate-400">建議動作：</span><span className="var-highlight">{actionsToShow}</span></li>
+                        <li><span className="text-white font-bold italic">{totalCount} 格皆須為不同動作與表情，展現角色張力。</span></li>
                     </ul>
                 </section>
             </div>

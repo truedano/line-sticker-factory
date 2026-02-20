@@ -17,7 +17,8 @@ const RemoveBgSection = ({
     performProcessing,
     isProcessing,
     processedCount,
-    setStep
+    setStep,
+    gridConfig
 }) => {
     return (
         <div className={`step-card glass-card rounded-[3rem] p-8 md:p-12 mb-12 transform transition-all duration-700 ${step !== 2 ? 'opacity-0 scale-95 pointer-events-none absolute' : 'opacity-100 scale-100 relative'}`}>
@@ -25,9 +26,9 @@ const RemoveBgSection = ({
                 <div className="w-full xl:flex-1">
                     <div className="mb-8">
                         <h2 className="text-3xl font-bold text-white mb-2">分割與去背預覽</h2>
-                        <p className="text-slate-400 font-medium font-inter">檢查您的 12 個貼圖資源，並調整去背參數</p>
+                        <p className="text-slate-400 font-medium font-inter">檢查您的 {gridConfig.total} 個貼圖資源，並調整去背參數</p>
                     </div>
-                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 md:gap-6">
+                    <div className={`grid gap-4 md:gap-6 ${gridConfig.cols === 6 ? 'grid-cols-3 md:grid-cols-6 lg:grid-cols-6' : 'grid-cols-3 md:grid-cols-4 lg:grid-cols-4'}`}>
                         {slicedPieces.map((p) => (
                             <div key={p.id} className="aspect-square bg-slate-900/80 rounded-2xl border border-white/5 p-3 flex items-center justify-center shadow-inner group relative overflow-hidden">
                                 <div className="absolute top-2 left-2 w-5 h-5 bg-slate-800 rounded-lg flex items-center justify-center text-[10px] font-bold text-slate-500 border border-slate-700">{p.id}</div>
@@ -103,7 +104,7 @@ const RemoveBgSection = ({
                                 className="w-full bg-line hover:bg-line/90 text-white py-5 rounded-2xl font-bold shadow-xl shadow-green-500/20 transition-all btn-press flex items-center justify-center gap-3 disabled:opacity-70 disabled:grayscale"
                             >
                                 {isProcessing ? (
-                                    <><Loader className="animate-spin w-6 h-6" /><span>處理中 {processedCount}/12</span></>
+                                    <><Loader className="animate-spin w-6 h-6" /><span>處理中 {processedCount}/{gridConfig.total}</span></>
                                 ) : (
                                     <><Eraser className="w-6 h-6" /><span>執行智能去背</span></>
                                 )}
