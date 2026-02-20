@@ -1,66 +1,48 @@
-import React, { useState, useEffect, useRef } from 'react';
-import JSZip from 'jszip';
-import { saveAs } from 'file-saver';
-import {
-    Loader, Copy
-} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { version } from '../package.json';
 import { PROMPT_THEMES, PROMPT_STYLES } from './data';
 import Header from './components/Header';
 import UploadSection from './components/UploadSection';
 import RemoveBgSection from './components/RemoveBgSection';
 import DownloadSection from './components/DownloadSection';
-
-
+import useImageProcessing from './hooks/useImageProcessing';
+import useStickerPack from './hooks/useStickerPack';
 
 const App = () => {
     const [originalSheet, setOriginalSheet] = useState(null);
-    const [slicedPieces, setSlicedPieces] = useState([]);
-    const [finalImages, setFinalImages] = useState([]);
     const [mainId, setMainId] = useState(null);
     const [tabId, setTabId] = useState(null);
     const [startNumber, setStartNumber] = useState(1);
     const [step, setStep] = useState(1);
-    const [isProcessing, setIsProcessing] = useState(false);
-    const [processedCount, setProcessedCount] = useState(0);
-    const [showSettings, setShowSettings] = useState(false);
-    const [showAdvanced, setShowAdvanced] = useState(true);
     const [showPromptGuide, setShowPromptGuide] = useState(true);
     const [copySuccess, setCopySuccess] = useState(false);
+
+    // Settings State
     const [activeTheme, setActiveTheme] = useState('daily');
     const [activeStyle, setActiveStyle] = useState('qversion');
     const [autoRemoveBg, setAutoRemoveBg] = useState(true);
-    const [targetColorHex, setTargetColorHex] = useState("#00ff00");
+    const [targetColorHex, setTargetColorHex] = useState("#00FF00");
     const [colorTolerance, setColorTolerance] = useState(30);
     const [smoothness, setSmoothness] = useState(2);
     const [despill, setDespill] = useState(true);
     const [zoomLevel, setZoomLevel] = useState(1.00);
     const [customTexts, setCustomTexts] = useState('您的自訂文字（例如：加油、想睡覺、嘿嘿、你好棒）');
     const [customEmotions, setCustomEmotions] = useState('描述表情風格（例如：浮誇的大笑、無奈的苦笑、充滿星星的眼神）');
-    const workerRef = useRef(null);
+
+    // Custom Hooks
+    const {
+        slicedPieces, setSlicedPieces,
+        finalImages, setFinalImages,
+        isProcessing, setIsProcessing,
+        processedCount,
+        performSlice,
+        performProcessing
+    } = useImageProcessing(autoRemoveBg, targetColorHex, colorTolerance, smoothness, zoomLevel);
+
+    const { downloadZip, getFileName } = useStickerPack(finalImages, mainId, tabId, startNumber);
 
     useEffect(() => {
-        // In Vite, assets in public folder are served at root path
-        workerRef.current = new Worker('./worker.js');
-        workerRef.current.onmessage = (e) => {
-            const { id, processedImageData } = e.data;
-
-            const canvas = document.createElement('canvas');
-            canvas.width = processedImageData.width;
-            canvas.height = processedImageData.height;
-            const ctx = canvas.getContext('2d');
-            ctx.putImageData(processedImageData, 0, 0);
-
-            const dataUrl = canvas.toDataURL('image/png');
-
-            setFinalImages(prev => {
-                const exists = prev.find(img => img.id === id);
-                if (exists) return prev;
-                return [...prev, { id, dataUrl, rawSource: null }].sort((a, b) => a.id - b.id);
-            });
-            setProcessedCount(prev => prev + 1);
-        };
-        return () => { workerRef.current.terminate(); }
+        applyPreset('green');
     }, []);
 
     useEffect(() => {
@@ -70,11 +52,7 @@ const App = () => {
             setTabId(1);
             setStep(3);
         }
-    }, [processedCount, isProcessing]);
-
-    useEffect(() => {
-        applyPreset('green');
-    }, []);
+    }, [processedCount, isProcessing, setIsProcessing]);
 
     const handleUpload = (e) => {
         const file = e.target.files[0];
@@ -133,123 +111,6 @@ const App = () => {
         });
     };
 
-    const performSlice = () => {
-        if (!originalSheet) return;
-        setIsProcessing(true);
-        setTimeout(() => {
-            const pieces = [];
-            const cols = 4;
-            const rows = 3;
-            const pieceW = originalSheet.width / cols;
-            const pieceH = originalSheet.height / rows;
-            const canvas = document.createElement('canvas');
-            canvas.width = originalSheet.width;
-            canvas.height = originalSheet.height;
-            const ctx = canvas.getContext('2d', { willReadFrequently: true });
-            ctx.drawImage(originalSheet, 0, 0);
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < cols; c++) {
-                    const pCanvas = document.createElement('canvas');
-                    pCanvas.width = pieceW;
-                    pCanvas.height = pieceH;
-                    const pCtx = pCanvas.getContext('2d');
-                    pCtx.drawImage(canvas, c * pieceW, r * pieceH, pieceW, pieceH, 0, 0, pieceW, pieceH);
-                    pieces.push({
-                        id: r * cols + c + 1,
-                        rawCanvas: pCanvas,
-                        previewUrl: pCanvas.toDataURL('image/png')
-                    });
-                }
-            }
-            setSlicedPieces(pieces);
-            setStep(2);
-            setIsProcessing(false);
-        }, 50);
-    };
-
-    const performProcessing = async () => {
-        if (!autoRemoveBg) {
-            setFinalImages(slicedPieces.map(piece => ({ id: piece.id, dataUrl: piece.previewUrl })));
-            setMainId(1);
-            setTabId(1);
-            setStep(3);
-            return;
-        }
-        setIsProcessing(true);
-        setProcessedCount(0);
-        setFinalImages([]);
-        const targetW = 370;
-        const targetH = 320;
-        const workW = targetW * 2;
-        const workH = targetH * 2;
-        slicedPieces.forEach(piece => {
-            const workCanvas = document.createElement('canvas');
-            workCanvas.width = workW;
-            workCanvas.height = workH;
-            const workCtx = workCanvas.getContext('2d', { willReadFrequently: true });
-            const rawW = piece.rawCanvas.width;
-            const rawH = piece.rawCanvas.height;
-            const baseScale = Math.min(workW / rawW, workH / rawH);
-            const finalScale = baseScale * zoomLevel;
-            const drawW = rawW * finalScale;
-            const drawH = rawH * finalScale;
-            const dx = (workW - drawW) / 2;
-            const dy = (workH - drawH) / 2;
-            workCtx.drawImage(piece.rawCanvas, 0, 0, rawW, rawH, dx, dy, drawW, drawH);
-
-            const imgData = workCtx.getImageData(0, 0, workW, workH);
-
-            workerRef.current.postMessage({
-                id: piece.id,
-                rawImageData: imgData,
-                removalMode: targetColorHex === '#00FF00' ? 'flood' : 'feather',
-                targetColorHex: targetColorHex,
-                colorTolerance: colorTolerance,
-                erodeStrength: 0,
-                smoothness: smoothness,
-                width: workW,
-                height: workH
-            });
-        });
-    };
-
-    const resizeImageFromUrl = (dataUrl, width, height) => {
-        return new Promise((resolve) => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                const scale = Math.min(width / img.width, height / img.height);
-                const newW = img.width * scale;
-                const newH = img.height * scale;
-                ctx.drawImage(img, 0, 0, img.width, img.height, (width - newW) / 2, (height - newH) / 2, newW, newH);
-                resolve(canvas.toDataURL('image/png').split(',')[1]);
-            };
-            img.src = dataUrl;
-        });
-    };
-
-    const getFileName = (index) => (startNumber + index).toString().padStart(2, '0');
-
-    const downloadZip = async () => {
-        const zip = new JSZip();
-        await Promise.all(finalImages.map(async (img, idx) => {
-            const b64 = await resizeImageFromUrl(img.dataUrl, 370, 320);
-            zip.file(`${getFileName(idx)}.png`, b64, { base64: true });
-        }));
-        if (mainId) {
-            const mainImg = finalImages.find(img => img.id === mainId);
-            if (mainImg) zip.file("main.png", await resizeImageFromUrl(mainImg.dataUrl, 240, 240), { base64: true });
-        }
-        if (tabId) {
-            const tabImg = finalImages.find(img => img.id === tabId);
-            if (tabImg) zip.file("tab.png", await resizeImageFromUrl(tabImg.dataUrl, 96, 74), { base64: true });
-        }
-        zip.generateAsync({ type: "blob" }).then(c => saveAs(c, "line_stickers_pack.zip"));
-    };
-
     const applyPreset = (type) => {
         if (type === 'green') {
             setTargetColorHex("#00FF00");
@@ -266,8 +127,6 @@ const App = () => {
         }
     };
 
-
-
     return (
         <div className="min-h-screen p-4 md:p-8 max-w-7xl mx-auto pb-32">
             <Header step={step} version={version} />
@@ -277,7 +136,7 @@ const App = () => {
                 originalSheet={originalSheet}
                 handleUpload={handleUpload}
                 isProcessing={isProcessing}
-                performSlice={performSlice}
+                performSlice={() => performSlice(originalSheet, setStep)}
                 showPromptGuide={showPromptGuide}
                 setShowPromptGuide={setShowPromptGuide}
                 activeTheme={activeTheme}
@@ -307,7 +166,7 @@ const App = () => {
                 setColorTolerance={setColorTolerance}
                 despill={despill}
                 setDespill={setDespill}
-                performProcessing={performProcessing}
+                performProcessing={() => performProcessing(setStep, setMainId, setTabId)}
                 isProcessing={isProcessing}
                 processedCount={processedCount}
                 setStep={setStep}
