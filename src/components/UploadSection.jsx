@@ -42,12 +42,12 @@ const UploadSection = ({
                                 <Grid3X3 className="w-4 h-4" />
                                 選擇佈局模式
                             </span>
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-3 gap-3">
                                 {Object.entries(GRID_MODES).map(([key, mode]) => (
                                     <button
                                         key={key}
                                         onClick={() => setGridMode(key)}
-                                        className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${gridMode === key ? 'bg-line/15 border-line text-white shadow-lg shadow-green-500/10' : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200'}`}
+                                        className={`p-3 rounded-xl border-2 flex flex-col items-center gap-1 transition-all ${gridMode === key ? 'bg-line/15 border-line text-white shadow-lg shadow-green-500/10' : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200'}`}
                                     >
                                         <span className="text-lg font-bold">{mode.label}</span>
                                         <span className="text-xs opacity-70">{mode.width} × {mode.height} px</span>

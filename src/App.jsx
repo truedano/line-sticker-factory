@@ -74,15 +74,22 @@ const App = () => {
         reader.readAsDataURL(file);
     };
 
+    const getThemeField = (theme, field) => {
+        const key32 = `${field}32`;
+        const key24 = `${field}24`;
+        if (gridMode === '8x4' && theme[key32]) return theme[key32];
+        if ((gridMode === '6x4' || gridMode === '8x4') && theme[key24]) return theme[key24];
+        return theme[field];
+    };
+
     const getPromptText = () => {
         const theme = PROMPT_THEMES[activeTheme];
         const style = PROMPT_STYLES[activeStyle];
-        const is24 = gridMode === '6x4';
-        const finalTexts = activeTheme === 'custom' ? customTexts : (is24 ? theme.texts24 : theme.texts);
-        const finalEmotions = activeTheme === 'custom' ? customEmotions : (is24 ? theme.emotions24 : theme.emotions);
-        const finalActions = is24 ? theme.actions24 : theme.actions;
+        const finalTexts = activeTheme === 'custom' ? customTexts : getThemeField(theme, 'texts');
+        const finalEmotions = activeTheme === 'custom' ? customEmotions : getThemeField(theme, 'emotions');
+        const finalActions = getThemeField(theme, 'actions');
         const totalCount = gridConfig.total;
-        const layoutLabel = is24 ? '6 × 4' : '4 × 3';
+        const layoutLabel = `${gridConfig.cols} × ${gridConfig.rows}`;
         const sizeLabel = `${gridConfig.width} × ${gridConfig.height} px`;
 
         return `✅ ${totalCount} 格角色貼圖集｜AI Prompt 建議

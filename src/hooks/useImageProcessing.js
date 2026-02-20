@@ -30,13 +30,18 @@ const useImageProcessing = (autoRemoveBg, targetColorHex, colorTolerance, smooth
         return () => { workerRef.current.terminate(); }
     }, []);
 
-    const performSlice = (originalSheet, setStep, cols = 4, rows = 3) => {
+    const performSlice = (originalSheet, setStep, cols = 4, rows = 3, cropPercent = 3) => {
         if (!originalSheet) return;
         setIsProcessing(true);
         setTimeout(() => {
             const pieces = [];
-            const pieceW = originalSheet.width / cols;
-            const pieceH = originalSheet.height / rows;
+            const cellW = originalSheet.width / cols;
+            const cellH = originalSheet.height / rows;
+            // 從每個格子的四邊各內縮 cropPercent%，避免切到相鄰貼圖
+            const insetX = Math.round(cellW * cropPercent / 100);
+            const insetY = Math.round(cellH * cropPercent / 100);
+            const pieceW = cellW - insetX * 2;
+            const pieceH = cellH - insetY * 2;
             const canvas = document.createElement('canvas');
             canvas.width = originalSheet.width;
             canvas.height = originalSheet.height;
@@ -44,11 +49,13 @@ const useImageProcessing = (autoRemoveBg, targetColorHex, colorTolerance, smooth
             ctx.drawImage(originalSheet, 0, 0);
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < cols; c++) {
+                    const srcX = c * cellW + insetX;
+                    const srcY = r * cellH + insetY;
                     const pCanvas = document.createElement('canvas');
                     pCanvas.width = pieceW;
                     pCanvas.height = pieceH;
                     const pCtx = pCanvas.getContext('2d');
-                    pCtx.drawImage(canvas, c * pieceW, r * pieceH, pieceW, pieceH, 0, 0, pieceW, pieceH);
+                    pCtx.drawImage(canvas, srcX, srcY, pieceW, pieceH, 0, 0, pieceW, pieceH);
                     pieces.push({
                         id: r * cols + c + 1,
                         rawCanvas: pCanvas,
@@ -82,6 +89,9 @@ const useImageProcessing = (autoRemoveBg, targetColorHex, colorTolerance, smooth
             workCanvas.width = workW;
             workCanvas.height = workH;
             const workCtx = workCanvas.getContext('2d', { willReadFrequently: true });
+            // 先用目標背景色填滿整張畫布，確保 Flood Fill 能從角落正確啟動
+            workCtx.fillStyle = targetColorHex;
+            workCtx.fillRect(0, 0, workW, workH);
             const rawW = piece.rawCanvas.width;
             const rawH = piece.rawCanvas.height;
             const baseScale = Math.min(workW / rawW, workH / rawH);

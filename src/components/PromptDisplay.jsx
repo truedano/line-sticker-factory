@@ -5,13 +5,21 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
     const theme = PROMPT_THEMES[activeTheme];
     const style = PROMPT_STYLES[activeStyle];
     const gridConfig = GRID_MODES[gridMode];
-    const is24 = gridMode === '6x4';
     const totalCount = gridConfig.total;
-    const layoutLabel = is24 ? '6 × 4' : '4 × 3';
+    const layoutLabel = `${gridConfig.cols} × ${gridConfig.rows}`;
     const sizeLabel = `${gridConfig.width} × ${gridConfig.height} px`;
-    const textsToShow = activeTheme === 'custom' ? customTexts : (is24 ? theme.texts24 : theme.texts);
-    const emotionsToShow = activeTheme === 'custom' ? customEmotions : (is24 ? theme.emotions24 : theme.emotions);
-    const actionsToShow = is24 ? theme.actions24 : theme.actions;
+
+    const getField = (field) => {
+        const key32 = `${field}32`;
+        const key24 = `${field}24`;
+        if (gridMode === '8x4' && theme[key32]) return theme[key32];
+        if ((gridMode === '6x4' || gridMode === '8x4') && theme[key24]) return theme[key24];
+        return theme[field];
+    };
+
+    const textsToShow = activeTheme === 'custom' ? customTexts : getField('texts');
+    const emotionsToShow = activeTheme === 'custom' ? customEmotions : getField('emotions');
+    const actionsToShow = getField('actions');
 
     return (
         <div className="prompt-content text-sm font-inter bg-slate-950/80 p-8 rounded-[2rem] border border-white/5 h-[450px] overflow-y-auto shadow-inner custom-scrollbar relative">
