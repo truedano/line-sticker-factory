@@ -67,7 +67,7 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
                     <ul className="space-y-2 mt-3">
                         <li><span className="text-slate-400">語言：</span><span className="var-highlight">台灣繁體中文</span></li>
                         <li><span className="text-slate-400">內容：</span><span className="var-highlight">{textsToShow}</span></li>
-                        <li><span className="text-slate-400">配色：</span>使用高對比鮮豔色彩。絕對禁止使用綠色系與黑色。</li>
+                        <li><span className="text-slate-400">配色：</span>每張貼圖的文字顏色必須各不相同，從以下色系中輪流選用：<span className="var-highlight">紅色、橘色、黃色、藍色、紫色、粉紅色、白色、深藍色、棕色、酒紅色</span>。絕對禁止使用綠色系與黑色。確保整套貼圖的文字色彩豐富多元、不重複。</li>
                         <li><span className="text-slate-400">排版：</span>大小約佔 1/3，可壓在衣服邊角，<span className="text-red-400 font-bold">不可遮臉</span>。</li>
                     </ul>
                 </section>
