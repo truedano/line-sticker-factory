@@ -1,7 +1,8 @@
 import React from 'react';
+import { Copy, CheckCircle } from 'lucide-react';
 import { PROMPT_THEMES, PROMPT_STYLES, GRID_MODES } from '../data';
 
-const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, gridMode = '4x3' }) => {
+const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, gridMode = '4x3', handleCopyPrompt, copySuccess }) => {
     const theme = PROMPT_THEMES[activeTheme];
     const style = PROMPT_STYLES[activeStyle];
     const gridConfig = GRID_MODES[gridMode];
@@ -25,8 +26,19 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
         <div className="prompt-content text-sm font-inter bg-slate-950/80 p-8 rounded-[2rem] border border-white/5 h-[450px] overflow-y-auto shadow-inner custom-scrollbar relative">
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-line opacity-50"></div>
 
-            <div className="font-bold text-2xl mb-6 text-white flex items-center gap-2">
-                <span className="text-line">✅</span> {totalCount} 格角色貼圖集｜AI Prompt 建議
+            <div className="flex items-center justify-between mb-6">
+                <div className="font-bold text-2xl text-white flex items-center gap-2">
+                    <span className="text-line">✅</span> {totalCount} 格角色貼圖集｜AI Prompt 建議
+                </div>
+                {handleCopyPrompt && (
+                    <button
+                        onClick={handleCopyPrompt}
+                        className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all transform active:scale-95 shrink-0 ${copySuccess ? 'bg-green-500 text-white shadow-green-500/20' : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'}`}
+                    >
+                        {copySuccess ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                        <span>{copySuccess ? "已複製" : "複製 AI 提示詞"}</span>
+                    </button>
+                )}
             </div>
 
             <p className="text-slate-300 leading-relaxed mb-8 text-base">

@@ -210,24 +210,15 @@ const UploadSection = ({
                         </div>
                     </div>
 
-                    <div className="relative">
-                        <PromptDisplay
-                            activeTheme={activeTheme}
-                            activeStyle={activeStyle}
-                            customTexts={customTexts}
-                            customEmotions={customEmotions}
-                            gridMode={gridMode}
-                        />
-                        <div className="absolute bottom-6 right-6">
-                            <button
-                                onClick={handleCopyPrompt}
-                                className={`px-8 py-4 rounded-2xl font-bold flex items-center gap-3 transition-all transform active:scale-95 shadow-xl ${copySuccess ? 'bg-green-500 text-white shadow-green-500/20' : 'bg-white text-slate-900 hover:bg-slate-100'}`}
-                            >
-                                {copySuccess ? <CheckCircle className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
-                                <span>{copySuccess ? "已複製到剪貼簿" : "複製 AI 提示詞"}</span>
-                            </button>
-                        </div>
-                    </div>
+                    <PromptDisplay
+                        activeTheme={activeTheme}
+                        activeStyle={activeStyle}
+                        customTexts={customTexts}
+                        customEmotions={customEmotions}
+                        gridMode={gridMode}
+                        handleCopyPrompt={handleCopyPrompt}
+                        copySuccess={copySuccess}
+                    />
                 </div>
             </div>
         </div>
