@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { version } from '../package.json';
-import { PROMPT_THEMES, PROMPT_STYLES, GRID_MODES } from './data';
+import { PRODUCT_TYPES, PROMPT_THEMES, PROMPT_STYLES, GRID_MODES, EMOJI_GRID_MODES, EMOJI_PROMPT_THEMES } from './data';
 import Header from './components/Header';
 import UploadSection from './components/UploadSection';
 import RemoveBgSection from './components/RemoveBgSection';
@@ -9,6 +9,7 @@ import useImageProcessing from './hooks/useImageProcessing';
 import useStickerPack from './hooks/useStickerPack';
 
 const App = () => {
+    const [productType, setProductType] = useState('sticker');
     const [originalSheet, setOriginalSheet] = useState(null);
     const [mainId, setMainId] = useState(null);
     const [tabId, setTabId] = useState(null);
@@ -30,8 +31,14 @@ const App = () => {
     const [customTexts, setCustomTexts] = useState('您的自訂文字（例如：加油、想睡覺、嘿嘿、你好棒）');
     const [customEmotions, setCustomEmotions] = useState('描述表情風格（例如：浮誇的大笑、無奈的苦笑、充滿星星的眼神）');
 
-    // Custom Hooks
-    const gridConfig = GRID_MODES[gridMode];
+    // Derived config based on product type
+    const isEmoji = productType === 'emoji';
+    const productConfig = PRODUCT_TYPES[productType];
+    const gridModes = isEmoji ? EMOJI_GRID_MODES : GRID_MODES;
+    const promptThemes = isEmoji ? EMOJI_PROMPT_THEMES : PROMPT_THEMES;
+    // 安全取得 gridConfig：如果當前 gridMode 在目前的 gridModes 中不存在，使用第一個可用模式
+    const effectiveGridMode = gridModes[gridMode] ? gridMode : Object.keys(gridModes)[0];
+    const gridConfig = gridModes[effectiveGridMode];
 
     const {
         slicedPieces, setSlicedPieces,
@@ -42,20 +49,40 @@ const App = () => {
         performProcessing
     } = useImageProcessing(autoRemoveBg, targetColorHex, colorTolerance, smoothness, zoomLevel);
 
-    const { downloadZip, getFileName } = useStickerPack(finalImages, mainId, tabId, startNumber);
+    const { downloadZip, getFileName } = useStickerPack(finalImages, mainId, tabId, startNumber, productType);
 
     useEffect(() => {
         applyPreset('green');
     }, []);
 
+    // 切換產品類型時重設相關 state
+    useEffect(() => {
+        const availableModes = Object.keys(gridModes);
+        if (!availableModes.includes(gridMode)) {
+            setGridMode(availableModes[0]);
+        }
+        // 重設主題（因為表情貼/靜態貼圖的主題不同）
+        setActiveTheme('daily');
+        // 重設流程
+        setOriginalSheet(null);
+        setSlicedPieces([]);
+        setFinalImages([]);
+        setStep(1);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [productType]);
+
     useEffect(() => {
         if (processedCount === gridConfig.total && isProcessing) {
             setIsProcessing(false);
-            setMainId(1);
+            if (productConfig.hasMain) {
+                setMainId(1);
+            } else {
+                setMainId(null);
+            }
             setTabId(1);
             setStep(3);
         }
-    }, [processedCount, isProcessing, setIsProcessing, gridConfig.total]);
+    }, [processedCount, isProcessing, setIsProcessing, gridConfig.total, productConfig.hasMain]);
 
     const handleUpload = (e) => {
         const file = e.target.files[0];
@@ -76,22 +103,65 @@ const App = () => {
 
     const getThemeField = (theme, field) => {
         const total = gridConfig.total;
-        if (total !== 12) {
-            const key = `${field}${total}`;
-            if (theme[key]) return theme[key];
-        }
+        // 嘗試找到匹配 total 的特殊 key
+        const key = `${field}${total}`;
+        if (theme[key]) return theme[key];
+        // 對靜態貼圖回退到預設（12 張）的情況
+        if (!isEmoji && total !== 12) return theme[field];
         return theme[field];
     };
 
     const getPromptText = () => {
-        const theme = PROMPT_THEMES[activeTheme];
+        const theme = promptThemes[activeTheme];
         const style = PROMPT_STYLES[activeStyle];
-        const finalTexts = activeTheme === 'custom' ? customTexts : getThemeField(theme, 'texts');
-        const finalEmotions = activeTheme === 'custom' ? customEmotions : getThemeField(theme, 'emotions');
-        const finalActions = getThemeField(theme, 'actions');
         const totalCount = gridConfig.total;
         const layoutLabel = `${gridConfig.cols} × ${gridConfig.rows}`;
         const sizeLabel = `${gridConfig.width} × ${gridConfig.height} px`;
+
+        if (isEmoji) {
+            const finalEmotions = activeTheme === 'custom' ? customEmotions : getThemeField(theme, 'emotions');
+            const finalActions = getThemeField(theme, 'actions');
+            const cellW = Math.round(gridConfig.width / gridConfig.cols);
+            const cellH = Math.round(gridConfig.height / gridConfig.rows);
+
+            return `✅ ${totalCount} 格角色表情貼集｜AI Prompt 建議
+
+⚠️ 圖片解析度（最重要，務必遵守）
+• 輸出圖片的精確像素尺寸必須為：寬 ${gridConfig.width} px × 高 ${gridConfig.height} px。
+• 每格固定 ${cellW} × ${cellH} px，共 ${gridConfig.cols} 欄 × ${gridConfig.rows} 列 = ${totalCount} 格。
+• 請在 AI 生圖工具中將解析度/畫布大小設定為 ${gridConfig.width}×${gridConfig.height}，不可使用其他尺寸。
+
+請參考上傳圖片中的角色特徵，生成一張 ${gridConfig.width}×${gridConfig.height} px 的表情貼大圖，包含 ${totalCount} 個不同表情（切勿包含任何表情符號 Emoji）。
+
+角色與風格設定
+• 核心要求：必須完全維持原圖主角的髮型、服裝、五官與整體外觀特徵。
+• 構圖邏輯：表情貼「不含文字」，純粹以角色的表情和動作傳達情緒。
+• 風格關鍵字：${style.desc}
+• 去背優化：角色需加入 粗白色外框 (Sticker Style)。背景統一為 #00FF00 (純綠色)。
+
+畫面佈局（${gridConfig.width} × ${gridConfig.height} px）
+• 整體畫布：${gridConfig.width} × ${gridConfig.height} px（不可偏差）。
+• 佈局：${gridConfig.cols} 欄 × ${gridConfig.rows} 列，每格 ${cellW}×${cellH} px，共 ${totalCount} 格。
+• 所有 ${totalCount} 個格子必須排列整齊，呈現嚴格的均等網格，格子之間不可有間隙、分隔線或邊框。
+• 每格內的角色必須「畫滿整格」：角色（含白色外框）應佔據單格面積的 85% 以上。
+• 嚴禁在格子內留下大面積空白綠色背景。
+• 視角：以臉部大特寫和上半身為主，確保縮小到極小時仍能清楚辨識表情。
+
+表情貼設計原則
+• 設計簡潔、輪廓清晰：避免太過複雜的細節、漸層或極小的文字，使用較粗的線條描繪輪廓。
+• 單獨傳送會放大：讓放大後的畫質維持良好，避免出現鋸齒。
+• 深色背景兼容：確保圖案邊緣或配色在淺色與深色背景下都容易辨識。
+
+表情與動作設計
+• 情緒清單：${finalEmotions}
+• 建議動作：${finalActions}
+• ${totalCount} 格皆須為不同表情與動作，展現角色張力。`;
+        }
+
+        // 原始靜態貼圖 Prompt
+        const finalTexts = activeTheme === 'custom' ? customTexts : getThemeField(theme, 'texts');
+        const finalEmotions = activeTheme === 'custom' ? customEmotions : getThemeField(theme, 'emotions');
+        const finalActions = getThemeField(theme, 'actions');
 
         return `✅ ${totalCount} 格角色貼圖集｜AI Prompt 建議
 
@@ -145,14 +215,14 @@ const App = () => {
 
     return (
         <div className="min-h-screen p-4 md:p-8 max-w-7xl mx-auto pb-32">
-            <Header step={step} version={version} />
+            <Header step={step} version={version} productType={productType} setProductType={setProductType} />
 
             <UploadSection
                 step={step}
                 originalSheet={originalSheet}
                 handleUpload={handleUpload}
                 isProcessing={isProcessing}
-                performSlice={() => performSlice(originalSheet, setStep, gridConfig.cols, gridConfig.rows)}
+                performSlice={() => performSlice(originalSheet, setStep, gridConfig.cols, gridConfig.rows, isEmoji ? 0 : 3)}
                 showPromptGuide={showPromptGuide}
                 setShowPromptGuide={setShowPromptGuide}
                 activeTheme={activeTheme}
@@ -165,12 +235,13 @@ const App = () => {
                 setCustomEmotions={setCustomEmotions}
                 handleCopyPrompt={handleCopyPrompt}
                 copySuccess={copySuccess}
-                PROMPT_THEMES={PROMPT_THEMES}
+                promptThemes={promptThemes}
                 PROMPT_STYLES={PROMPT_STYLES}
                 gridMode={gridMode}
                 setGridMode={setGridMode}
                 gridConfig={gridConfig}
-                GRID_MODES={GRID_MODES}
+                gridModes={gridModes}
+                productType={productType}
             />
 
             <RemoveBgSection
@@ -186,7 +257,7 @@ const App = () => {
                 setColorTolerance={setColorTolerance}
                 despill={despill}
                 setDespill={setDespill}
-                performProcessing={() => performProcessing(setStep, setMainId, setTabId)}
+                performProcessing={() => performProcessing(setStep, setMainId, setTabId, productType)}
                 isProcessing={isProcessing}
                 processedCount={processedCount}
                 setStep={setStep}
@@ -205,6 +276,8 @@ const App = () => {
                 downloadZip={downloadZip}
                 getFileName={getFileName}
                 setStep={setStep}
+                productType={productType}
+                productConfig={productConfig}
             />
         </div>
     );

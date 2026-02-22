@@ -35,27 +35,32 @@ const useImageProcessing = (autoRemoveBg, targetColorHex, colorTolerance, smooth
         setIsProcessing(true);
         setTimeout(() => {
             const pieces = [];
-            const cellW = originalSheet.width / cols;
-            const cellH = originalSheet.height / rows;
-            // 從每個格子的四邊各內縮 cropPercent%，避免切到相鄰貼圖
-            const insetX = Math.round(cellW * cropPercent / 100);
-            const insetY = Math.round(cellH * cropPercent / 100);
-            const pieceW = cellW - insetX * 2;
-            const pieceH = cellH - insetY * 2;
+            const imgW = originalSheet.width;
+            const imgH = originalSheet.height;
             const canvas = document.createElement('canvas');
-            canvas.width = originalSheet.width;
-            canvas.height = originalSheet.height;
+            canvas.width = imgW;
+            canvas.height = imgH;
             const ctx = canvas.getContext('2d', { willReadFrequently: true });
             ctx.drawImage(originalSheet, 0, 0);
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < cols; c++) {
-                    const srcX = c * cellW + insetX;
-                    const srcY = r * cellH + insetY;
+                    // 用 Math.round 精確計算每格的起始與結束像素位置，避免浮點數累積誤差
+                    const x1 = Math.round(c * imgW / cols);
+                    const y1 = Math.round(r * imgH / rows);
+                    const x2 = Math.round((c + 1) * imgW / cols);
+                    const y2 = Math.round((r + 1) * imgH / rows);
+                    const rawW = x2 - x1;
+                    const rawH = y2 - y1;
+                    // 內縮 cropPercent% 避免切到相鄰貼圖（表情貼為 0）
+                    const insetX = Math.round(rawW * cropPercent / 100);
+                    const insetY = Math.round(rawH * cropPercent / 100);
+                    const pieceW = rawW - insetX * 2;
+                    const pieceH = rawH - insetY * 2;
                     const pCanvas = document.createElement('canvas');
                     pCanvas.width = pieceW;
                     pCanvas.height = pieceH;
                     const pCtx = pCanvas.getContext('2d');
-                    pCtx.drawImage(canvas, srcX, srcY, pieceW, pieceH, 0, 0, pieceW, pieceH);
+                    pCtx.drawImage(canvas, x1 + insetX, y1 + insetY, pieceW, pieceH, 0, 0, pieceW, pieceH);
                     pieces.push({
                         id: r * cols + c + 1,
                         rawCanvas: pCanvas,
@@ -69,10 +74,12 @@ const useImageProcessing = (autoRemoveBg, targetColorHex, colorTolerance, smooth
         }, 50);
     };
 
-    const performProcessing = async (setStep, setMainId, setTabId) => {
+    const performProcessing = async (setStep, setMainId, setTabId, productType = 'sticker') => {
         if (!autoRemoveBg) {
             setFinalImages(slicedPieces.map(piece => ({ id: piece.id, dataUrl: piece.previewUrl })));
-            setMainId(1);
+            if (productType === 'sticker') {
+                setMainId(1);
+            }
             setTabId(1);
             setStep(3);
             return;
@@ -80,8 +87,11 @@ const useImageProcessing = (autoRemoveBg, targetColorHex, colorTolerance, smooth
         setIsProcessing(true);
         setProcessedCount(0);
         setFinalImages([]);
-        const targetW = 370;
-        const targetH = 320;
+
+        // 表情貼使用 180x180（正方形），靜態貼圖使用 370x320
+        const isEmoji = productType === 'emoji';
+        const targetW = isEmoji ? 180 : 370;
+        const targetH = isEmoji ? 180 : 320;
         const workW = targetW * 2;
         const workH = targetH * 2;
         slicedPieces.forEach(piece => {
