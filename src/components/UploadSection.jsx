@@ -42,7 +42,7 @@ const UploadSection = ({
                                 <Grid3X3 className="w-4 h-4" />
                                 選擇佈局模式
                             </span>
-                            <div className="grid grid-cols-3 gap-3">
+                            <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
                                 {Object.entries(GRID_MODES).map(([key, mode]) => (
                                     <button
                                         key={key}

@@ -75,10 +75,11 @@ const App = () => {
     };
 
     const getThemeField = (theme, field) => {
-        const key32 = `${field}32`;
-        const key24 = `${field}24`;
-        if (gridMode === '8x4' && theme[key32]) return theme[key32];
-        if ((gridMode === '6x4' || gridMode === '8x4') && theme[key24]) return theme[key24];
+        const total = gridConfig.total;
+        if (total !== 12) {
+            const key = `${field}${total}`;
+            if (theme[key]) return theme[key];
+        }
         return theme[field];
     };
 
