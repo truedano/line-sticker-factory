@@ -89,7 +89,7 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
                         <ul className="space-y-2 mt-3">
                             <li>整體畫布：<span className="text-red-400 font-bold">{gridConfig.width} × {gridConfig.height} px</span>（不可偏差）。</li>
                             <li>佈局：{gridConfig.cols} 欄 × {gridConfig.rows} 列，每格 <span className="fixed-val">{Math.round(gridConfig.width / gridConfig.cols)}×{Math.round(gridConfig.height / gridConfig.rows)} px</span>，共 {totalCount} 格。</li>
-                            <li>所有 {totalCount} 個格子必須排列整齊，呈現嚴格的均等網格，格子之間<span className="text-red-400 font-bold">不可有間隙、分隔線或邊框</span>。</li>
+                            <li>所有 {totalCount} 個格子必須排列整齊，呈現嚴格的均等網格。 <span className="text-red-400 font-bold">絕對禁止畫出任何實體的網格線、分隔線、邊框或底框，背景必須是一整片純粹連續的綠色</span>。</li>
                             <li>每格內的角色必須<span className="text-amber-400 font-bold">「畫滿整格」</span>：角色（含白色外框）應佔據單格面積的 <span className="text-amber-400 font-bold">85% 以上</span>。</li>
                             <li><span className="text-red-400 font-bold">嚴禁</span>在格子內留下大面積空白綠色背景。</li>
                             <li><span className="text-slate-400">視角：</span>以臉部大特寫和上半身為主，確保縮小到極小時仍能清楚辨識表情。</li>
@@ -169,6 +169,7 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
                     </h2>
                     <ul className="space-y-2 mt-3">
                         <li>整體為 <span className="text-white font-medium">{layoutLabel} 佈局</span>，共 {totalCount} 張貼圖。總尺寸：<span className="fixed-val">{sizeLabel}</span>。</li>
+                        <li>所有 {totalCount} 個貼圖必須排列整齊，呈現嚴格的均等網格。 <span className="text-red-400 font-bold">絕對禁止畫出任何實體的網格線、分隔線、邊框或底框，背景必須是一整片純粹連續的綠色</span>。</li>
                         <li>每張貼圖四周預留適度 <span className="text-slate-400 italic">Padding</span>，避免畫面互相黏住。</li>
                         <li><span className="text-slate-400">視角：</span>全身 + 半身混合，包含正面、側面、俯角等。</li>
                     </ul>
