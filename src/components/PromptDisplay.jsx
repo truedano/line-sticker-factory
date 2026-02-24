@@ -72,7 +72,7 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
                         </h2>
                         <ul className="space-y-2 mt-3">
                             <li><span className="text-slate-400">核心要求：</span>必須完全維持原圖主角的髮型、服裝、五官與整體外觀特徵。</li>
-                            <li><span className="text-slate-400">構圖邏輯：</span>表情貼<span className="text-amber-400 font-bold">「不含文字」</span>，純粹以角色的表情和動作傳達情緒。</li>
+                            <li><span className="text-slate-400">構圖邏輯：</span>以角色的表情和動作傳達情緒，可搭配<span className="text-amber-400 font-bold">「簡單少量的文字」</span>（如：OK、讚、哈等短語）。</li>
                             <li><span className="text-slate-400">風格關鍵字：</span><span className="var-highlight">{style.desc}</span></li>
                             <li><span className="text-slate-400">去背優化：</span>角色需加入 <span className="text-white font-medium">粗白色外框 (Sticker Style)</span>。背景統一為 <span className="fixed-val">#00FF00 (純綠色)</span>。</li>
                         </ul>

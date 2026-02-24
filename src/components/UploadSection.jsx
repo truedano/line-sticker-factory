@@ -232,7 +232,7 @@ const UploadSection = ({
                                         <div className="absolute left-0 top-0 w-6 h-6 rounded-full bg-slate-800 border border-slate-700 text-[10px] font-bold flex items-center justify-center text-amber-500">01</div>
                                         <div className="font-bold text-white mb-1">生成表情貼</div>
                                         <p className="text-xs text-slate-400 leading-relaxed">
-                                            使用下方 AI 提示詞產生表情貼大圖。注意：表情貼<span className="text-amber-400 font-bold">不需要文字</span>，「畫滿畫布」是關鍵。
+                                            使用下方 AI 提示詞產生表情貼大圖。注意：表情貼可包含<span className="text-amber-400 font-bold">少量簡單文字</span>，「畫滿畫布」是關鍵。
                                         </p>
                                     </div>
                                     <div className="relative pl-8">
