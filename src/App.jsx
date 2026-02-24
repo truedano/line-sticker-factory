@@ -22,6 +22,7 @@ const App = () => {
     // Settings State
     const [activeTheme, setActiveTheme] = useState('daily');
     const [activeStyle, setActiveStyle] = useState('qversion');
+    const [isEmojiTextEnabled, setIsEmojiTextEnabled] = useState(false);
     const [autoRemoveBg, setAutoRemoveBg] = useState(true);
     const [targetColorHex, setTargetColorHex] = useState("#00FF00");
     const [colorTolerance, setColorTolerance] = useState(30);
@@ -135,9 +136,8 @@ const App = () => {
 
 角色與風格設定
 • 核心要求：必須完全維持原圖主角的髮型、服裝、五官與整體外觀特徵。
-• 構圖邏輯：以角色的表情和動作傳達情緒，可搭配「簡單少量的文字」（如：OK、讚、哈等短語）。
-• 文字配色：每格的文字顏色必須各不相同，從以下色系中輪流選用：紅色、橘色、黃色、藍色、紫色、粉紅色、白色、深藍色、棕色、酒紅色。絕對禁止使用綠色系與黑色。確保整套表情貼的文字色彩豐富多元、不重複。
-• 風格關鍵字：${style.desc}
+• 構圖邏輯：${isEmojiTextEnabled ? '以角色的表情和動作傳達情緒，可搭配「簡單少量的文字」（如：OK、讚、哈等短語）。' : '表情貼「不含文字」，純粹以角色的表情和動作傳達情緒。'}
+${isEmojiTextEnabled ? '• 文字配色：每格的文字顏色必須各不相同，從以下色系中輪流選用：紅色、橘色、黃色、藍色、紫色、粉紅色、白色、深藍色、棕色、酒紅色。絕對禁止使用綠色系與黑色。確保整套表情貼的文字色彩豐富多元、不重複。\n' : ''}• 風格關鍵字：${style.desc}
 • 去背優化：角色需加入 粗白色外框 (Sticker Style)。背景統一為 #00FF00 (純綠色)。
 
 畫面佈局（${gridConfig.width} × ${gridConfig.height} px）
@@ -230,6 +230,8 @@ const App = () => {
                 setActiveTheme={setActiveTheme}
                 activeStyle={activeStyle}
                 setActiveStyle={setActiveStyle}
+                isEmojiTextEnabled={isEmojiTextEnabled}
+                setIsEmojiTextEnabled={setIsEmojiTextEnabled}
                 customTexts={customTexts}
                 setCustomTexts={setCustomTexts}
                 customEmotions={customEmotions}

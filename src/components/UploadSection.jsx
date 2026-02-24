@@ -26,7 +26,9 @@ const UploadSection = ({
     setGridMode,
     gridConfig,
     gridModes,
-    productType
+    productType,
+    isEmojiTextEnabled,
+    setIsEmojiTextEnabled
 }) => {
     const isEmoji = productType === 'emoji';
     const [showGrid, setShowGrid] = useState(true);
@@ -303,7 +305,7 @@ const UploadSection = ({
                 </div>
 
                 <div className={`transition-all duration-700 ${showPromptGuide ? 'opacity-100 max-h-[1200px]' : 'opacity-0 max-h-0 overflow-hidden'}`}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div className={`grid grid-cols-1 md:grid-cols-2 ${isEmoji ? 'lg:grid-cols-3' : ''} gap-6 mb-8`}>
                         <div className="p-6 bg-slate-900/60 rounded-[1.5rem] border border-slate-700/50 hover:border-slate-600 transition-colors">
                             <span className="block text-xs font-bold text-indigo-400 uppercase tracking-widest mb-4">
                                 1. 選擇{isEmoji ? '表情主題' : '主題內容'}
@@ -358,11 +360,31 @@ const UploadSection = ({
                                 ))}
                             </div>
                         </div>
+                        {isEmoji && (
+                            <div className="p-6 bg-slate-900/60 rounded-[1.5rem] border border-slate-700/50 hover:border-slate-600 transition-colors md:col-span-2 lg:col-span-1">
+                                <span className="block text-xs font-bold text-sky-400 uppercase tracking-widest mb-4">3. 表情貼文字設定</span>
+                                <div className="flex gap-4 items-center">
+                                    <button
+                                        onClick={() => setIsEmojiTextEnabled(false)}
+                                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${!isEmojiTextEnabled ? 'bg-sky-600 text-white border-sky-500 shadow-lg shadow-sky-500/20' : 'bg-slate-800/80 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-200'}`}
+                                    >
+                                        不含文字 (純表情)
+                                    </button>
+                                    <button
+                                        onClick={() => setIsEmojiTextEnabled(true)}
+                                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${isEmojiTextEnabled ? 'bg-sky-600 text-white border-sky-500 shadow-lg shadow-sky-500/20' : 'bg-slate-800/80 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-200'}`}
+                                    >
+                                        搭配少量文字
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <PromptDisplay
                         activeTheme={activeTheme}
                         activeStyle={activeStyle}
+                        isEmojiTextEnabled={isEmojiTextEnabled}
                         customTexts={customTexts}
                         customEmotions={customEmotions}
                         gridMode={gridMode}

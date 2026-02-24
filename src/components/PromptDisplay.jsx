@@ -2,7 +2,7 @@ import React from 'react';
 import { Copy, CheckCircle } from 'lucide-react';
 import { PROMPT_THEMES, PROMPT_STYLES, GRID_MODES, EMOJI_GRID_MODES, EMOJI_PROMPT_THEMES } from '../data';
 
-const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, gridMode = '4x3', handleCopyPrompt, copySuccess, productType = 'sticker' }) => {
+const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, gridMode = '4x3', handleCopyPrompt, copySuccess, productType = 'sticker', isEmojiTextEnabled }) => {
     const isEmoji = productType === 'emoji';
     const promptThemes = isEmoji ? EMOJI_PROMPT_THEMES : PROMPT_THEMES;
     const gridModes = isEmoji ? EMOJI_GRID_MODES : GRID_MODES;
@@ -72,8 +72,10 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
                         </h2>
                         <ul className="space-y-2 mt-3">
                             <li><span className="text-slate-400">核心要求：</span>必須完全維持原圖主角的髮型、服裝、五官與整體外觀特徵。</li>
-                            <li><span className="text-slate-400">構圖邏輯：</span>以角色的表情和動作傳達情緒，可搭配<span className="text-amber-400 font-bold">「簡單少量的文字」</span>（如：OK、讚、哈等短語）。</li>
-                            <li><span className="text-slate-400">文字配色：</span>每格的文字顏色必須各不相同，從以下色系中輪流選用：<span className="var-highlight">紅色、橘色、黃色、藍色、紫色、粉紅色、白色、深藍色、棕色、酒紅色</span>。絕對禁止使用綠色系與黑色。確保整套表情貼的文字色彩豐富多元、不重複。</li>
+                            <li><span className="text-slate-400">構圖邏輯：</span>{isEmojiTextEnabled ? <><span className="text-white font-medium">以角色的表情和動作傳達情緒</span>，可搭配<span className="text-amber-400 font-bold">「簡單少量的文字」</span>（如：OK、讚、哈等短語）。</> : <>表情貼<span className="text-amber-400 font-bold">「不含文字」</span>，純粹以角色的表情和動作傳達情緒。</>}</li>
+                            {isEmojiTextEnabled && (
+                                <li><span className="text-slate-400">文字配色：</span>每格的文字顏色必須各不相同，從以下色系中輪流選用：<span className="var-highlight">紅色、橘色、黃色、藍色、紫色、粉紅色、白色、深藍色、棕色、酒紅色</span>。絕對禁止使用綠色系與黑色。確保整套表情貼的文字色彩豐富多元、不重複。</li>
+                            )}
                             <li><span className="text-slate-400">風格關鍵字：</span><span className="var-highlight">{style.desc}</span></li>
                             <li><span className="text-slate-400">去背優化：</span>角色需加入 <span className="text-white font-medium">粗白色外框 (Sticker Style)</span>。背景統一為 <span className="fixed-val">#00FF00 (純綠色)</span>。</li>
                         </ul>
