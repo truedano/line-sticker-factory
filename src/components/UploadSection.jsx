@@ -85,6 +85,142 @@ const UploadSection = ({
 
     return (
         <div className={`transition-all duration-500 transform ${step !== 1 ? 'opacity-0 translate-y-4 pointer-events-none absolute' : 'opacity-100 translate-y-0 relative'}`}>
+            {/* 網格模式選擇 */}
+            <div className="mb-8 p-6 md:p-8 bg-slate-900/60 rounded-[2.5rem] border border-slate-700/50">
+                <span className="block text-sm font-bold text-line uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <Grid3X3 className="w-5 h-5" />
+                    選擇佈局模式
+                </span>
+                <div className={`grid gap-3 ${Object.keys(gridModes).length <= 5 ? 'grid-cols-3 md:grid-cols-5' : 'grid-cols-3 md:grid-cols-5'}`}>
+                    {Object.entries(gridModes).map(([key, mode]) => (
+                        <button
+                            key={key}
+                            onClick={() => setGridMode(key)}
+                            className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all ${gridMode === key
+                                ? (isEmoji ? 'bg-amber-500/15 border-amber-500 text-white shadow-lg shadow-amber-500/10' : 'bg-line/15 border-line text-white shadow-lg shadow-green-500/10')
+                                : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200'}`}
+                        >
+                            <span className="text-xl font-bold">{mode.label}</span>
+                            <span className="text-sm opacity-70">{mode.width} × {mode.height} px</span>
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div className="glass-card rounded-[2.5rem] p-8 md:p-10 mb-12">
+                <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-700/50">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center">
+                            <Wand2 className="w-6 h-6 text-indigo-400" />
+                        </div>
+                        <h3 className="font-bold text-2xl text-white">AI 提示詞大師</h3>
+                    </div>
+                    <button onClick={() => setShowPromptGuide(!showPromptGuide)} className="bg-slate-800/80 hover:bg-slate-700 px-4 py-2 rounded-full text-xs font-bold text-slate-300 transition-all flex items-center gap-2 border border-slate-700">
+                        {showPromptGuide ? "隱藏面板" : "展開面板"}
+                        <ChevronDown className={`w-4 h-4 transition-transform duration-500 ${showPromptGuide ? 'rotate-180' : ''}`} />
+                    </button>
+                </div>
+
+                <div className={`transition-all duration-700 ${showPromptGuide ? 'opacity-100 max-h-[1200px]' : 'opacity-0 max-h-0 overflow-hidden'}`}>
+                    <div className={`grid grid-cols-1 md:grid-cols-2 ${isEmoji ? 'lg:grid-cols-3' : ''} gap-6 mb-8`}>
+                        <div className="p-6 bg-slate-900/60 rounded-[1.5rem] border border-slate-700/50 hover:border-slate-600 transition-colors">
+                            <span className="block text-xs font-bold text-indigo-400 uppercase tracking-widest mb-4">
+                                1. 選擇{isEmoji ? '表情主題' : '主題內容'}
+                            </span>
+                            <div className="flex gap-2 flex-wrap">
+                                {Object.entries(promptThemes).map(([key, theme]) => (
+                                    <button
+                                        key={key}
+                                        onClick={() => setActiveTheme(key)}
+                                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${activeTheme === key ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-500/20' : 'bg-slate-800/80 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-200'}`}
+                                    >
+                                        {theme.label}
+                                    </button>
+                                ))}
+                            </div>
+                            {activeTheme === 'custom' && (
+                                <div className="mt-6 space-y-4 animate-fade-in">
+                                    {!isEmoji && (
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">自訂文字內容 (以逗號分隔)</label>
+                                            <textarea
+                                                value={customTexts}
+                                                onChange={(e) => setCustomTexts(e.target.value)}
+                                                className="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl p-3 text-sm focus:ring-1 focus:ring-indigo-500 outline-none h-20 resize-none"
+                                                placeholder="例如：加油、辛苦了、想睡覺..."
+                                            />
+                                        </div>
+                                    )}
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">自訂情緒/表情描述</label>
+                                        <textarea
+                                            value={customEmotions}
+                                            onChange={(e) => setCustomEmotions(e.target.value)}
+                                            className="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl p-3 text-sm focus:ring-1 focus:ring-indigo-500 outline-none h-20 resize-none"
+                                            placeholder="例如：浮誇的表情、眼神死、幸福感爆棚..."
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">自訂角色動作描述</label>
+                                        <textarea
+                                            value={customActions}
+                                            onChange={(e) => setCustomActions(e.target.value)}
+                                            className="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl p-3 text-sm focus:ring-1 focus:ring-indigo-500 outline-none h-20 resize-none"
+                                            placeholder="例如：雙手比讚、開心地揮手、拿著大聲公..."
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <div className="p-6 bg-slate-900/60 rounded-[1.5rem] border border-slate-700/50 hover:border-slate-600 transition-colors">
+                            <span className="block text-xs font-bold text-purple-400 uppercase tracking-widest mb-4">2. 選擇視覺風格</span>
+                            <div className="flex gap-2 flex-wrap">
+                                {Object.entries(PROMPT_STYLES).map(([key, style]) => (
+                                    <button
+                                        key={key}
+                                        onClick={() => setActiveStyle(key)}
+                                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${activeStyle === key ? 'bg-purple-600 text-white border-purple-500 shadow-lg shadow-purple-500/20' : 'bg-slate-800/80 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-200'}`}
+                                    >
+                                        {style.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        {isEmoji && (
+                            <div className="p-6 bg-slate-900/60 rounded-[1.5rem] border border-slate-700/50 hover:border-slate-600 transition-colors md:col-span-2 lg:col-span-1">
+                                <span className="block text-xs font-bold text-sky-400 uppercase tracking-widest mb-4">3. 表情貼文字設定</span>
+                                <div className="flex gap-4 items-center">
+                                    <button
+                                        onClick={() => setIsEmojiTextEnabled(false)}
+                                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${!isEmojiTextEnabled ? 'bg-sky-600 text-white border-sky-500 shadow-lg shadow-sky-500/20' : 'bg-slate-800/80 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-200'}`}
+                                    >
+                                        不含文字 (純表情)
+                                    </button>
+                                    <button
+                                        onClick={() => setIsEmojiTextEnabled(true)}
+                                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${isEmojiTextEnabled ? 'bg-sky-600 text-white border-sky-500 shadow-lg shadow-sky-500/20' : 'bg-slate-800/80 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-200'}`}
+                                    >
+                                        搭配少量文字
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <PromptDisplay
+                        activeTheme={activeTheme}
+                        activeStyle={activeStyle}
+                        isEmojiTextEnabled={isEmojiTextEnabled}
+                        customTexts={customTexts}
+                        customEmotions={customEmotions}
+                        customActions={customActions}
+                        gridMode={gridMode}
+                        handleCopyPrompt={handleCopyPrompt}
+                        copySuccess={copySuccess}
+                        productType={productType}
+                    />
+                </div>
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-10">
                 <div className="lg:col-span-8 glass-card rounded-[2.5rem] p-8 md:p-12 text-center relative overflow-hidden group">
                     <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent ${isEmoji ? 'via-amber-500' : 'via-line'} to-transparent opacity-30`}></div>
@@ -121,28 +257,6 @@ const UploadSection = ({
                                 </ul>
                             </div>
                         )}
-
-                        {/* 網格模式選擇 */}
-                        <div className="mb-6 p-4 bg-slate-900/60 rounded-2xl border border-slate-700/50">
-                            <span className="block text-xs font-bold text-line uppercase tracking-widest mb-3 flex items-center gap-2">
-                                <Grid3X3 className="w-4 h-4" />
-                                選擇佈局模式
-                            </span>
-                            <div className={`grid gap-3 ${Object.keys(gridModes).length <= 5 ? 'grid-cols-3 md:grid-cols-5' : 'grid-cols-3 md:grid-cols-5'}`}>
-                                {Object.entries(gridModes).map(([key, mode]) => (
-                                    <button
-                                        key={key}
-                                        onClick={() => setGridMode(key)}
-                                        className={`p-3 rounded-xl border-2 flex flex-col items-center gap-1 transition-all ${gridMode === key
-                                            ? (isEmoji ? 'bg-amber-500/15 border-amber-500 text-white shadow-lg shadow-amber-500/10' : 'bg-line/15 border-line text-white shadow-lg shadow-green-500/10')
-                                            : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200'}`}
-                                    >
-                                        <span className="text-lg font-bold">{mode.label}</span>
-                                        <span className="text-xs opacity-70">{mode.width} × {mode.height} px</span>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
 
                         <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-700/50 p-6 rounded-2xl text-left">
                             <p className="mb-4 font-semibold text-slate-200 flex items-center gap-2">
@@ -292,120 +406,6 @@ const UploadSection = ({
                 </div>
             </div>
 
-            <div className="glass-card rounded-[2.5rem] p-8 md:p-10 mb-12">
-                <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-700/50">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center">
-                            <Wand2 className="w-6 h-6 text-indigo-400" />
-                        </div>
-                        <h3 className="font-bold text-2xl text-white">AI 提示詞大師</h3>
-                    </div>
-                    <button onClick={() => setShowPromptGuide(!showPromptGuide)} className="bg-slate-800/80 hover:bg-slate-700 px-4 py-2 rounded-full text-xs font-bold text-slate-300 transition-all flex items-center gap-2 border border-slate-700">
-                        {showPromptGuide ? "隱藏面板" : "展開面板"}
-                        <ChevronDown className={`w-4 h-4 transition-transform duration-500 ${showPromptGuide ? 'rotate-180' : ''}`} />
-                    </button>
-                </div>
-
-                <div className={`transition-all duration-700 ${showPromptGuide ? 'opacity-100 max-h-[1200px]' : 'opacity-0 max-h-0 overflow-hidden'}`}>
-                    <div className={`grid grid-cols-1 md:grid-cols-2 ${isEmoji ? 'lg:grid-cols-3' : ''} gap-6 mb-8`}>
-                        <div className="p-6 bg-slate-900/60 rounded-[1.5rem] border border-slate-700/50 hover:border-slate-600 transition-colors">
-                            <span className="block text-xs font-bold text-indigo-400 uppercase tracking-widest mb-4">
-                                1. 選擇{isEmoji ? '表情主題' : '主題內容'}
-                            </span>
-                            <div className="flex gap-2 flex-wrap">
-                                {Object.entries(promptThemes).map(([key, theme]) => (
-                                    <button
-                                        key={key}
-                                        onClick={() => setActiveTheme(key)}
-                                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${activeTheme === key ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-500/20' : 'bg-slate-800/80 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-200'}`}
-                                    >
-                                        {theme.label}
-                                    </button>
-                                ))}
-                            </div>
-                            {activeTheme === 'custom' && (
-                                <div className="mt-6 space-y-4 animate-fade-in">
-                                    {!isEmoji && (
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">自訂文字內容 (以逗號分隔)</label>
-                                            <textarea
-                                                value={customTexts}
-                                                onChange={(e) => setCustomTexts(e.target.value)}
-                                                className="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl p-3 text-sm focus:ring-1 focus:ring-indigo-500 outline-none h-20 resize-none"
-                                                placeholder="例如：加油、辛苦了、想睡覺..."
-                                            />
-                                        </div>
-                                    )}
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">自訂情緒/表情描述</label>
-                                        <textarea
-                                            value={customEmotions}
-                                            onChange={(e) => setCustomEmotions(e.target.value)}
-                                            className="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl p-3 text-sm focus:ring-1 focus:ring-indigo-500 outline-none h-20 resize-none"
-                                            placeholder="例如：浮誇的表情、眼神死、幸福感爆棚..."
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">自訂角色動作描述</label>
-                                        <textarea
-                                            value={customActions}
-                                            onChange={(e) => setCustomActions(e.target.value)}
-                                            className="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl p-3 text-sm focus:ring-1 focus:ring-indigo-500 outline-none h-20 resize-none"
-                                            placeholder="例如：雙手比讚、開心地揮手、拿著大聲公..."
-                                        />
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                        <div className="p-6 bg-slate-900/60 rounded-[1.5rem] border border-slate-700/50 hover:border-slate-600 transition-colors">
-                            <span className="block text-xs font-bold text-purple-400 uppercase tracking-widest mb-4">2. 選擇視覺風格</span>
-                            <div className="flex gap-2 flex-wrap">
-                                {Object.entries(PROMPT_STYLES).map(([key, style]) => (
-                                    <button
-                                        key={key}
-                                        onClick={() => setActiveStyle(key)}
-                                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${activeStyle === key ? 'bg-purple-600 text-white border-purple-500 shadow-lg shadow-purple-500/20' : 'bg-slate-800/80 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-200'}`}
-                                    >
-                                        {style.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                        {isEmoji && (
-                            <div className="p-6 bg-slate-900/60 rounded-[1.5rem] border border-slate-700/50 hover:border-slate-600 transition-colors md:col-span-2 lg:col-span-1">
-                                <span className="block text-xs font-bold text-sky-400 uppercase tracking-widest mb-4">3. 表情貼文字設定</span>
-                                <div className="flex gap-4 items-center">
-                                    <button
-                                        onClick={() => setIsEmojiTextEnabled(false)}
-                                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${!isEmojiTextEnabled ? 'bg-sky-600 text-white border-sky-500 shadow-lg shadow-sky-500/20' : 'bg-slate-800/80 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-200'}`}
-                                    >
-                                        不含文字 (純表情)
-                                    </button>
-                                    <button
-                                        onClick={() => setIsEmojiTextEnabled(true)}
-                                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${isEmojiTextEnabled ? 'bg-sky-600 text-white border-sky-500 shadow-lg shadow-sky-500/20' : 'bg-slate-800/80 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-200'}`}
-                                    >
-                                        搭配少量文字
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    <PromptDisplay
-                        activeTheme={activeTheme}
-                        activeStyle={activeStyle}
-                        isEmojiTextEnabled={isEmojiTextEnabled}
-                        customTexts={customTexts}
-                        customEmotions={customEmotions}
-                        customActions={customActions}
-                        gridMode={gridMode}
-                        handleCopyPrompt={handleCopyPrompt}
-                        copySuccess={copySuccess}
-                        productType={productType}
-                    />
-                </div>
-            </div>
         </div>
     );
 };
