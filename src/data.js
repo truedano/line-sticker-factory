@@ -164,7 +164,7 @@ export const PROMPT_THEMES = {
         actions24: '攤手無奈、指指點點、戴墨鏡耍帥、拿著鹹魚攻擊、謎之舞步、躺在地上耍賴、邊哭邊吃、丟出紅牌、雙手插腰霸氣站、蹲在角落畫圈圈、掀桌',
         actions32: '攤手無奈、指指點點、戴墨鏡耍帥、拿著鹹魚攻擊、謎之舞步、躺在地上耍賴、邊哭邊吃、丟出紅牌、雙手插腰霸氣站、蹲在角落畫圈圈、掀桌、雙腳跺地、原地轉圈圈、騎掃把飛走、舉起正義之錘、腳底抹油開溜'
     },
-    custom: { label: '🌟 自訂主題', texts8: '', texts: '', texts16: '', texts24: '', texts32: '', emotions8: '', emotions: '', emotions16: '', emotions24: '', emotions32: '', actions8: '自訂動作描述', actions: '自訂動作描述', actions16: '自訂動作描述', actions24: '自訂動作描述', actions32: '自訂動作描述' }
+    custom: { label: '🌟 自訂主題', texts8: '', texts: '', texts16: '', texts24: '', texts32: '', emotions8: '', emotions: '', emotions16: '', emotions24: '', emotions32: '', actions8: '', actions: '', actions16: '', actions24: '', actions32: '' }
 };
 
 export const PROMPT_STYLES = {
@@ -255,6 +255,6 @@ export const EMOJI_PROMPT_THEMES = {
     custom: {
         label: '🌟 自訂主題',
         emotions8: '', emotions: '', emotions16: '', emotions24: '', emotions32: '', emotions40: '',
-        actions8: '比讚、揮手、雙手合十、搖頭、比耶、捂臉、雙手攤開、摀住嘴巴、拍手、敬禮、點頭、雙手比愛心', actions: '比讚、揮手、雙手合十、搖頭、比耶、捂臉、雙手攤開、摀住嘴巴、拍手、敬禮、點頭、雙手比愛心', actions16: '比讚、揮手、雙手合十、搖頭、比耶、捂臉、雙手攤開、摀住嘴巴、拍手、敬禮、點頭、雙手比愛心', actions24: '比讚、揮手、雙手合十、搖頭、比耶、捂臉、雙手攤開、摀住嘴巴、拍手、敬禮、點頭、雙手比愛心', actions32: '比讚、揮手、雙手合十、搖頭、比耶、捂臉、雙手攤開、摀住嘴巴、拍手、敬禮、點頭、雙手比愛心', actions40: '比讚、揮手、雙手合十、搖頭、比耶、捂臉、雙手攤開、摀住嘴巴、拍手、敬禮、點頭、雙手比愛心'
+        actions8: '', actions: '', actions16: '', actions24: '', actions32: '', actions40: ''
     }
 };

@@ -2,7 +2,7 @@ import React from 'react';
 import { Copy, CheckCircle } from 'lucide-react';
 import { PROMPT_THEMES, PROMPT_STYLES, GRID_MODES, EMOJI_GRID_MODES, EMOJI_PROMPT_THEMES } from '../data';
 
-const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, gridMode = '4x3', handleCopyPrompt, copySuccess, productType = 'sticker', isEmojiTextEnabled }) => {
+const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, customActions, gridMode = '4x3', handleCopyPrompt, copySuccess, productType = 'sticker', isEmojiTextEnabled }) => {
     const isEmoji = productType === 'emoji';
     const promptThemes = isEmoji ? EMOJI_PROMPT_THEMES : PROMPT_THEMES;
     const gridModes = isEmoji ? EMOJI_GRID_MODES : GRID_MODES;
@@ -22,7 +22,7 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
     };
 
     const emotionsToShow = activeTheme === 'custom' ? customEmotions : getField('emotions');
-    const actionsToShow = getField('actions');
+    const actionsToShow = activeTheme === 'custom' ? customActions : getField('actions');
 
     // 靜態貼圖才需要文字
     const textsToShow = !isEmoji && (activeTheme === 'custom' ? customTexts : getField('texts'));

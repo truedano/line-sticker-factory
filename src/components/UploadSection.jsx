@@ -18,6 +18,8 @@ const UploadSection = ({
     setCustomTexts,
     customEmotions,
     setCustomEmotions,
+    customActions,
+    setCustomActions,
     handleCopyPrompt,
     copySuccess,
     promptThemes,
@@ -343,6 +345,15 @@ const UploadSection = ({
                                             placeholder="例如：浮誇的表情、眼神死、幸福感爆棚..."
                                         />
                                     </div>
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">自訂角色動作描述</label>
+                                        <textarea
+                                            value={customActions}
+                                            onChange={(e) => setCustomActions(e.target.value)}
+                                            className="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl p-3 text-sm focus:ring-1 focus:ring-indigo-500 outline-none h-20 resize-none"
+                                            placeholder="例如：雙手比讚、開心地揮手、拿著大聲公..."
+                                        />
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -387,6 +398,7 @@ const UploadSection = ({
                         isEmojiTextEnabled={isEmojiTextEnabled}
                         customTexts={customTexts}
                         customEmotions={customEmotions}
+                        customActions={customActions}
                         gridMode={gridMode}
                         handleCopyPrompt={handleCopyPrompt}
                         copySuccess={copySuccess}
