@@ -1,4 +1,4 @@
-# Line 貼圖自動化助手 (Line Sticker Factory) ![Version](https://img.shields.io/badge/version-1.2.0-06C755?style=flat-square)
+# Line 貼圖自動化助手 (Line Sticker Factory) ![Version](https://img.shields.io/badge/version-1.3.0-06C755?style=flat-square)
 
 這是一個專為 LINE 貼圖創作者設計的自動化工具，旨在簡化從 AI 生圖到最終貼圖打包的流程。透過本工具，您可以輕鬆將 AI 生成的角色網格圖，自動切割、去背並打包成符合 LINE 官方規範的貼圖包。
 
@@ -35,6 +35,7 @@
 
 *   **🪄 專業去背 (Background Removal)**
     *   **綠幕/黑底去背**：針對 AI 生圖常用的綠底或黑底進行優化。
+    *   **💎 Gemini 水印自動移除 (v1.3.0 新增)**：採用「反向 Alpha 混合」技術，自動移除 Gemini 生成圖片右下角的 AI 水印，還原純淨背景。
     *   **進階調整**：
         *   **色彩容許度 (Tolerance)**：精準控制去背範圍。
         *   **邊緣柔化 (Smoothness)**：消除鋸齒邊緣。
@@ -113,6 +114,10 @@ npm run build
 6.  **打包下載**：只需選擇 Tab 圖（表情貼不需要 Main），下載 ZIP（檔名為三位數 `001.png`）。
 
 ## 📝 更新日誌
+
+### v1.3.0 (2026-03-01)
+*   **💎 Gemini 水印自動移除 (Gemini Watermark Removal)**：新增自動移除 Google Gemini 生成圖片右下角 AI 水印的功能。採用反向 Alpha 混合技術，能有效還原被水印覆蓋的背景色彩，解決 AI 生圖的常見痛點。
+*   **⚙️ 智慧開關**：上傳區塊新增「自動移除 Gemini 水印」開關，使用者可根據需求自由開啟或關閉。
 
 ### v1.2.0 (2026-03-01)
 *   **🌈 多重佈景主題選擇 (Theme Selection)**：新增佈景主題選擇器，支援多種色彩主題無縫切換，滿足不同創作者的視覺喜好。
