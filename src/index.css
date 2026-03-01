@@ -5,18 +5,95 @@
 @import "tailwindcss/utilities";
 
 :root {
+    --tw-slate-50: 248 250 252;
+    --tw-slate-100: 241 245 249;
+    --tw-slate-200: 226 232 240;
+    --tw-slate-300: 203 213 225;
+    --tw-slate-400: 148 163 184;
+    --tw-slate-500: 100 116 139;
+    --tw-slate-600: 71 85 105;
+    --tw-slate-700: 51 65 85;
+    --tw-slate-800: 30 41 59;
+    --tw-slate-900: 15 23 42;
+    --tw-slate-950: 2 6 23;
+
+    --bg-page-start: #1e293b;
+    --bg-page-end: #0f172a;
+    --text-primary: #f8fafc;
+
     --line-green: #06C755;
     --line-green-hover: #05b34c;
     --line-green-glow: rgba(6, 199, 85, 0.4);
-    --glass-bg: rgba(15, 23, 42, 0.7);
+    
+    --glass-bg: rgb(15 23 42 / 0.7);
     --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] {
+    --tw-slate-50: 15 23 42;
+    --tw-slate-100: 30 41 59;
+    --tw-slate-200: 51 65 85;
+    --tw-slate-300: 71 85 105;
+    --tw-slate-400: 100 116 139;
+    --tw-slate-500: 148 163 184;
+    --tw-slate-600: 203 213 225;
+    --tw-slate-700: 226 232 240;
+    --tw-slate-800: 241 245 249;
+    --tw-slate-900: 248 250 252;
+    --tw-slate-950: 255 255 255;
+
+    --bg-page-start: #f8fafc;
+    --bg-page-end: #e2e8f0;
+    --text-primary: #0f172a;
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="ocean"] {
+    --tw-slate-50: 240 249 255;
+    --tw-slate-100: 224 242 254;
+    --tw-slate-200: 186 230 253;
+    --tw-slate-300: 125 211 252;
+    --tw-slate-400: 56 189 248;
+    --tw-slate-500: 14 165 233;
+    --tw-slate-600: 2 132 199;
+    --tw-slate-700: 3 105 161;
+    --tw-slate-800: 7 89 133;
+    --tw-slate-900: 12 74 110;
+    --tw-slate-950: 8 47 73;
+
+    --bg-page-start: #082f49;
+    --bg-page-end: #0c4a6e;
+    --text-primary: #f0f9ff;
+    --glass-bg: rgba(8, 47, 73, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="matcha"] {
+    --tw-slate-50: 236 253 245;
+    --tw-slate-100: 209 250 229;
+    --tw-slate-200: 167 243 208;
+    --tw-slate-300: 110 231 183;
+    --tw-slate-400: 52 211 153;
+    --tw-slate-500: 16 185 129;
+    --tw-slate-600: 5 150 105;
+    --tw-slate-700: 4 120 87;
+    --tw-slate-800: 6 95 70;
+    --tw-slate-900: 6 78 59;
+    --tw-slate-950: 2 44 34;
+
+    --bg-page-start: #14532d;
+    --bg-page-end: #166534;
+    --text-primary: #f0fdf4;
+    --glass-bg: rgba(6, 78, 59, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
 }
 
 body {
     font-family: 'Inter', 'Noto Sans TC', sans-serif;
-    background: radial-gradient(circle at top center, #1e293b 0%, #0f172a 100%);
+    background: radial-gradient(circle at top center, var(--bg-page-start) 0%, var(--bg-page-end) 100%);
     background-attachment: fixed;
-    color: #f8fafc;
+    color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
 }
 
@@ -37,14 +114,14 @@ h4 {
 }
 
 .glass-card {
-    background: rgba(30, 41, 59, 0.5);
+    background: rgb(var(--tw-slate-800) / 0.5);
     backdrop-filter: blur(8px);
     border: 1px solid var(--glass-border);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card:hover {
-    background: rgba(30, 41, 59, 0.7);
+    background: rgb(var(--tw-slate-800) / 0.7);
     border-color: rgba(6, 199, 85, 0.3);
     transform: translateY(-2px);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
@@ -102,13 +179,13 @@ h4 {
 /* Checkerboard pattern */
 .grid-bg {
     background-image:
-        linear-gradient(45deg, rgba(51, 65, 85, 0.3) 25%, transparent 25%),
-        linear-gradient(-45deg, rgba(51, 65, 85, 0.3) 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, rgba(51, 65, 85, 0.3) 75%),
-        linear-gradient(-45deg, transparent 75%, rgba(51, 65, 85, 0.3) 75%);
+        linear-gradient(45deg, rgb(var(--tw-slate-700) / 0.3) 25%, transparent 25%),
+        linear-gradient(-45deg, rgb(var(--tw-slate-700) / 0.3) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgb(var(--tw-slate-700) / 0.3) 75%),
+        linear-gradient(-45deg, transparent 75%, rgb(var(--tw-slate-700) / 0.3) 75%);
     background-size: 16px 16px;
     background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
-    background-color: #1e293b;
+    background-color: rgb(var(--tw-slate-800));
     border-radius: 12px;
 }
 
