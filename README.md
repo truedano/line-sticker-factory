@@ -1,4 +1,4 @@
-# Line 貼圖自動化助手 (Line Sticker Factory) ![Version](https://img.shields.io/badge/version-1.1.1-06C755?style=flat-square)
+# Line 貼圖自動化助手 (Line Sticker Factory) ![Version](https://img.shields.io/badge/version-1.2.0-06C755?style=flat-square)
 
 這是一個專為 LINE 貼圖創作者設計的自動化工具，旨在簡化從 AI 生圖到最終貼圖打包的流程。透過本工具，您可以輕鬆將 AI 生成的角色網格圖，自動切割、去背並打包成符合 LINE 官方規範的貼圖包。
 
@@ -113,6 +113,10 @@ npm run build
 6.  **打包下載**：只需選擇 Tab 圖（表情貼不需要 Main），下載 ZIP（檔名為三位數 `001.png`）。
 
 ## 📝 更新日誌
+
+### v1.2.0 (2026-03-01)
+*   **🌈 多重佈景主題選擇 (Theme Selection)**：新增佈景主題選擇器，支援多種色彩主題無縫切換，滿足不同創作者的視覺喜好。
+*   **🔄 介面動線優化 (Section Layout Update)**：重新調整「結果預覽」與「上傳切割」區塊的位置順序，讓操作流程更直覺、提升整體使用者體驗。
 
 ### v1.1.1 (2026-03-01)
 *   **🔠 表情貼文字支援**：新增「表情貼包含文字」開關設定，支援在生成表情貼時加入多色文字（系統將自動排除綠色及黑色，確保文字清晰與後續去背順利）。
