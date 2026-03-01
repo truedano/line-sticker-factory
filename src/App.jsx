@@ -7,6 +7,7 @@ import RemoveBgSection from './components/RemoveBgSection';
 import DownloadSection from './components/DownloadSection';
 import useImageProcessing from './hooks/useImageProcessing';
 import useStickerPack from './hooks/useStickerPack';
+import { removeGeminiWatermark } from './utils/removeGeminiWatermark';
 
 const App = () => {
     const [productType, setProductType] = useState('sticker');
@@ -23,6 +24,7 @@ const App = () => {
     const [activeTheme, setActiveTheme] = useState('daily');
     const [activeStyle, setActiveStyle] = useState('qversion');
     const [isEmojiTextEnabled, setIsEmojiTextEnabled] = useState(false);
+    const [autoRemoveGeminiWatermark, setAutoRemoveGeminiWatermark] = useState(true);
     const [autoRemoveBg, setAutoRemoveBg] = useState(true);
     const [targetColorHex, setTargetColorHex] = useState("#00FF00");
     const [colorTolerance, setColorTolerance] = useState(30);
@@ -92,8 +94,18 @@ const App = () => {
         const reader = new FileReader();
         reader.onload = (ev) => {
             const img = new Image();
-            img.onload = () => {
-                setOriginalSheet(img);
+            img.onload = async () => {
+                let finalImg = img;
+                if (autoRemoveGeminiWatermark) {
+                    setIsProcessing(true);
+                    try {
+                        finalImg = await removeGeminiWatermark(img);
+                    } catch (err) {
+                        console.error('Error removing watermark:', err);
+                    }
+                    setIsProcessing(false);
+                }
+                setOriginalSheet(finalImg);
                 setSlicedPieces([]);
                 setFinalImages([]);
                 setStep(1);
@@ -249,6 +261,8 @@ ${isEmojiTextEnabled ? '• 文字配色：每格的文字顏色必須各不相�
                 gridConfig={gridConfig}
                 gridModes={gridModes}
                 productType={productType}
+                autoRemoveGeminiWatermark={autoRemoveGeminiWatermark}
+                setAutoRemoveGeminiWatermark={setAutoRemoveGeminiWatermark}
             />
 
             <RemoveBgSection

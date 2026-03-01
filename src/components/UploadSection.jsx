@@ -30,7 +30,9 @@ const UploadSection = ({
     gridModes,
     productType,
     isEmojiTextEnabled,
-    setIsEmojiTextEnabled
+    setIsEmojiTextEnabled,
+    autoRemoveGeminiWatermark,
+    setAutoRemoveGeminiWatermark
 }) => {
     const isEmoji = productType === 'emoji';
     const [showGrid, setShowGrid] = useState(true);
@@ -280,6 +282,21 @@ const UploadSection = ({
                                 )}
                             </ul>
                         </div>
+
+                        {/* 浮水印移除開關 */}
+                        <div className="mt-4 flex items-center justify-between p-4 bg-slate-900/60 rounded-2xl border border-slate-700/50 hover:border-slate-500/80 transition-all cursor-pointer" onClick={() => setAutoRemoveGeminiWatermark(!autoRemoveGeminiWatermark)}>
+                            <div className="flex items-center gap-3">
+                                <Wand2 className={`w-5 h-5 ${autoRemoveGeminiWatermark ? 'text-indigo-400' : 'text-slate-500'}`} />
+                                <div className="text-left">
+                                    <h4 className="font-bold text-slate-200 text-sm">✨ 自動抹除 Gemini 浮水印</h4>
+                                    <p className="text-xs text-slate-400">使用無痕反向 Alpha 混合技術 (上傳時生效)</p>
+                                </div>
+                            </div>
+                            <div className={`w-12 h-6 rounded-full p-1 transition-colors ${autoRemoveGeminiWatermark ? 'bg-indigo-500' : 'bg-slate-700'}`}>
+                                <div className={`w-4 h-4 rounded-full bg-white transition-transform ${autoRemoveGeminiWatermark ? 'translate-x-6' : 'translate-x-0'}`} />
+                            </div>
+                        </div>
+
                     </div>
 
                     <div className="relative w-full max-w-xl mx-auto">
