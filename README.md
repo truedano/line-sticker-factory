@@ -1,4 +1,4 @@
-# Line 貼圖自動化助手 (Line Sticker Factory) ![Version](https://img.shields.io/badge/version-1.3.0-06C755?style=flat-square)
+# Line 貼圖自動化助手 (Line Sticker Factory) ![Version](https://img.shields.io/badge/version-1.3.1-06C755?style=flat-square)
 
 這是一個專為 LINE 貼圖創作者設計的自動化工具，旨在簡化從 AI 生圖到最終貼圖打包的流程。透過本工具，您可以輕鬆將 AI 生成的角色網格圖，自動切割、去背並打包成符合 LINE 官方規範的貼圖包。
 
@@ -114,6 +114,9 @@ npm run build
 6.  **打包下載**：只需選擇 Tab 圖（表情貼不需要 Main），下載 ZIP（檔名為三位數 `001.png`）。
 
 ## 📝 更新日誌
+
+### v1.3.1 (2026-03-01)
+*   **💾 使用者設定本地端持久化 (Persistent Settings)**：新增全域設定（如：產品類型、佈景主題、Gemini 水印開關、文字開關等）的 `localStorage` 持久化存儲功能。確保在重新整理頁面或重啟瀏覽器後，使用者的偏好設定依然保留，提供更流暢的操作體驗。
 
 ### v1.3.0 (2026-03-01)
 *   **💎 Gemini 水印自動移除 (Gemini Watermark Removal)**：新增自動移除 Google Gemini 生成圖片右下角 AI 水印的功能。採用反向 Alpha 混合技術，能有效還原被水印覆蓋的背景色彩，解決 AI 生圖的常見痛點。
