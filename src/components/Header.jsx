@@ -1,9 +1,10 @@
 import React from 'react';
 import { MessageCircle, CheckCircle, Image, SmilePlus } from 'lucide-react';
+import ThemeSelector from './ThemeSelector';
 
 const Header = ({ step, version, productType, setProductType }) => {
     return (
-        <header className="mb-10 glass-effect p-6 md:p-8 rounded-[2rem] flex flex-col gap-6 animate-fade-in">
+        <header className="relative z-50 mb-10 glass-effect p-6 md:p-8 rounded-[2rem] flex flex-col gap-6 animate-fade-in">
             <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
                 <div className="flex flex-col items-center lg:items-start">
                     <div className="flex items-center gap-4 mb-2">
@@ -41,40 +42,48 @@ const Header = ({ step, version, productType, setProductType }) => {
                 </div>
             </div>
 
-            {/* 產品類型切換 */}
-            <div className="flex items-center justify-center gap-3">
-                <button
-                    onClick={() => setProductType('sticker')}
-                    className={`flex items-center gap-3 px-6 py-3.5 rounded-2xl font-bold text-sm transition-all duration-300 border-2 ${productType === 'sticker'
+            {/* 產品類型切換與其他操作 */}
+            <div className="w-full flex flex-col md:flex-row items-center justify-between gap-4 relative">
+                <div className="hidden md:block md:flex-1"></div> {/* Spacer for center alignment */}
+
+                <div className="flex flex-wrap items-center justify-center gap-3 z-10">
+                    <button
+                        onClick={() => setProductType('sticker')}
+                        className={`flex items-center gap-3 px-6 py-3.5 rounded-2xl font-bold text-sm transition-all duration-300 border-2 ${productType === 'sticker'
                             ? 'bg-line/15 border-line text-white shadow-lg shadow-green-500/10'
                             : 'bg-slate-800/50 border-slate-700/50 text-slate-400 hover:border-slate-500 hover:text-slate-200 hover:bg-slate-800'
-                        }`}
-                >
-                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${productType === 'sticker' ? 'bg-line/20' : 'bg-slate-700/50'
-                        }`}>
-                        <Image className="w-4 h-4" />
-                    </div>
-                    <div className="text-left">
-                        <div className="font-bold">LINE 靜態貼圖</div>
-                        <div className="text-[10px] opacity-60">370×320 px</div>
-                    </div>
-                </button>
-                <button
-                    onClick={() => setProductType('emoji')}
-                    className={`flex items-center gap-3 px-6 py-3.5 rounded-2xl font-bold text-sm transition-all duration-300 border-2 ${productType === 'emoji'
+                            }`}
+                    >
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${productType === 'sticker' ? 'bg-line/20' : 'bg-slate-700/50'
+                            }`}>
+                            <Image className="w-4 h-4" />
+                        </div>
+                        <div className="text-left">
+                            <div className="font-bold">LINE 靜態貼圖</div>
+                            <div className="text-[10px] opacity-60">370×320 px</div>
+                        </div>
+                    </button>
+                    <button
+                        onClick={() => setProductType('emoji')}
+                        className={`flex items-center gap-3 px-6 py-3.5 rounded-2xl font-bold text-sm transition-all duration-300 border-2 ${productType === 'emoji'
                             ? 'bg-amber-500/15 border-amber-500 text-white shadow-lg shadow-amber-500/10'
                             : 'bg-slate-800/50 border-slate-700/50 text-slate-400 hover:border-slate-500 hover:text-slate-200 hover:bg-slate-800'
-                        }`}
-                >
-                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${productType === 'emoji' ? 'bg-amber-500/20' : 'bg-slate-700/50'
-                        }`}>
-                        <SmilePlus className="w-4 h-4" />
-                    </div>
-                    <div className="text-left">
-                        <div className="font-bold">LINE 表情貼</div>
-                        <div className="text-[10px] opacity-60">180×180 px</div>
-                    </div>
-                </button>
+                            }`}
+                    >
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${productType === 'emoji' ? 'bg-amber-500/20' : 'bg-slate-700/50'
+                            }`}>
+                            <SmilePlus className="w-4 h-4" />
+                        </div>
+                        <div className="text-left">
+                            <div className="font-bold">LINE 表情貼</div>
+                            <div className="text-[10px] opacity-60">180×180 px</div>
+                        </div>
+                    </button>
+                </div>
+
+                <div className="flex justify-center md:justify-end md:flex-1 z-20">
+                    <ThemeSelector />
+                </div>
             </div>
         </header>
     );
