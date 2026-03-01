@@ -125,3 +125,7 @@ Desktop.ini
 
 # Brain Artifacts
 .gemini/
+
+# Temporary
+temp_gemini_remover/
+
