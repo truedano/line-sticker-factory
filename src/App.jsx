@@ -10,30 +10,61 @@ import useStickerPack from './hooks/useStickerPack';
 import { removeGeminiWatermark } from './utils/removeGeminiWatermark';
 
 const App = () => {
-    const [productType, setProductType] = useState('sticker');
+    // Load settings from localStorage using a function to avoid re-reading on every render
+    const [settings] = useState(() => JSON.parse(localStorage.getItem('lsf_settings') || '{}'));
+
+    const [productType, setProductType] = useState(settings.productType || 'sticker');
     const [originalSheet, setOriginalSheet] = useState(null);
     const [mainId, setMainId] = useState(null);
     const [tabId, setTabId] = useState(null);
     const [startNumber, setStartNumber] = useState(1);
     const [step, setStep] = useState(1);
-    const [gridMode, setGridMode] = useState('4x3');
-    const [showPromptGuide, setShowPromptGuide] = useState(true);
+    const [gridMode, setGridMode] = useState(settings.gridMode || '4x3');
+    const [showPromptGuide, setShowPromptGuide] = useState(settings.showPromptGuide ?? true);
     const [copySuccess, setCopySuccess] = useState(false);
 
     // Settings State
-    const [activeTheme, setActiveTheme] = useState('daily');
-    const [activeStyle, setActiveStyle] = useState('qversion');
-    const [isEmojiTextEnabled, setIsEmojiTextEnabled] = useState(false);
-    const [autoRemoveGeminiWatermark, setAutoRemoveGeminiWatermark] = useState(true);
-    const [autoRemoveBg, setAutoRemoveBg] = useState(true);
-    const [targetColorHex, setTargetColorHex] = useState("#00FF00");
-    const [colorTolerance, setColorTolerance] = useState(30);
-    const [smoothness, setSmoothness] = useState(2);
-    const [despill, setDespill] = useState(true);
-    const [zoomLevel, setZoomLevel] = useState(1.00);
-    const [customTexts, setCustomTexts] = useState('您的自訂文字（例如：加油、想睡覺、嘿嘿、你好棒）');
-    const [customEmotions, setCustomEmotions] = useState('描述表情風格（例如：浮誇的大笑、無奈的苦笑、充滿星星的眼神）');
-    const [customActions, setCustomActions] = useState('描述角色動作（例如：雙手比讚、開心地揮手、拿著大聲公、比出手指愛心）');
+    const [activeTheme, setActiveTheme] = useState(settings.activeTheme || 'daily');
+    const [activeStyle, setActiveStyle] = useState(settings.activeStyle || 'qversion');
+    const [isEmojiTextEnabled, setIsEmojiTextEnabled] = useState(settings.isEmojiTextEnabled ?? false);
+    const [autoRemoveGeminiWatermark, setAutoRemoveGeminiWatermark] = useState(settings.autoRemoveGeminiWatermark ?? true);
+    const [autoRemoveBg, setAutoRemoveBg] = useState(settings.autoRemoveBg ?? true);
+    const [targetColorHex, setTargetColorHex] = useState(settings.targetColorHex || "#00FF00");
+    const [colorTolerance, setColorTolerance] = useState(settings.colorTolerance ?? 30);
+    const [smoothness, setSmoothness] = useState(settings.smoothness ?? 2);
+    const [despill, setDespill] = useState(settings.despill ?? true);
+    const [zoomLevel, setZoomLevel] = useState(settings.zoomLevel ?? 1.00);
+    const [customTexts, setCustomTexts] = useState(settings.customTexts || '您的自訂文字（例如：加油、想睡覺、嘿嘿、你好棒）');
+    const [customEmotions, setCustomEmotions] = useState(settings.customEmotions || '描述表情風格（例如：浮誇的大笑、無奈的苦笑、充滿星星的眼神）');
+    const [customActions, setCustomActions] = useState(settings.customActions || '描述角色動作（例如：雙手比讚、開心地揮手、拿著大聲公、比出手指愛心）');
+
+    // Save settings to localStorage whenever they change
+    useEffect(() => {
+        const newSettings = {
+            productType,
+            gridMode,
+            showPromptGuide,
+            activeTheme,
+            activeStyle,
+            isEmojiTextEnabled,
+            autoRemoveGeminiWatermark,
+            autoRemoveBg,
+            targetColorHex,
+            colorTolerance,
+            smoothness,
+            despill,
+            zoomLevel,
+            customTexts,
+            customEmotions,
+            customActions
+        };
+        localStorage.setItem('lsf_settings', JSON.stringify(newSettings));
+    }, [
+        productType, gridMode, showPromptGuide, activeTheme, activeStyle,
+        isEmojiTextEnabled, autoRemoveGeminiWatermark, autoRemoveBg,
+        targetColorHex, colorTolerance, smoothness, despill, zoomLevel,
+        customTexts, customEmotions, customActions
+    ]);
 
     // Derived config based on product type
     const isEmoji = productType === 'emoji';
@@ -56,24 +87,38 @@ const App = () => {
     const { downloadZip, getFileName } = useStickerPack(finalImages, mainId, tabId, startNumber, productType);
 
     useEffect(() => {
-        applyPreset('green');
-    }, []);
+        // Only apply default preset if no settings were saved
+        if (Object.keys(settings).length === 0) {
+            applyPreset('green');
+        }
+    }, [settings]);
+
+    const prevProductTypeRef = React.useRef(productType);
 
     // 切換產品類型時重設相關 state
     useEffect(() => {
+        // 如果產品類型沒變（例如初始掛載時），不要執行重設
+        if (prevProductTypeRef.current === productType) {
+            return;
+        }
+
         const availableModes = Object.keys(gridModes);
         if (!availableModes.includes(gridMode)) {
             setGridMode(availableModes[0]);
         }
-        // 重設主題（因為表情貼/靜態貼圖的主題不同）
+
+        // 重設為該類型的預設主題
         setActiveTheme('daily');
-        // 重設流程
+
+        // 重設流程狀態
         setOriginalSheet(null);
         setSlicedPieces([]);
         setFinalImages([]);
         setStep(1);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [productType]);
+
+        // 更新前一次的產品類型記錄
+        prevProductTypeRef.current = productType;
+    }, [productType, gridModes, gridMode, setGridMode, setOriginalSheet, setSlicedPieces, setFinalImages, setStep]);
 
     useEffect(() => {
         if (processedCount === gridConfig.total && isProcessing) {
