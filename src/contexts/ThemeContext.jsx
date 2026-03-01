@@ -9,7 +9,8 @@ export const useTheme = () => {
 export const ThemeProvider = ({ children }) => {
     const [theme, setTheme] = useState(() => {
         const storedTheme = localStorage.getItem('theme');
-        return storedTheme ? storedTheme : 'light';
+        // 預設為 default 相容於我們建立的 4 種主題 (default, dark, ocean, matcha)
+        return storedTheme ? storedTheme : 'default';
     });
 
     useEffect(() => {
@@ -19,7 +20,7 @@ export const ThemeProvider = ({ children }) => {
     }, [theme]);
 
     const toggleTheme = () => {
-        setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+        setTheme((prevTheme) => (prevTheme === 'dark' ? 'default' : 'dark'));
     };
 
     const value = {
