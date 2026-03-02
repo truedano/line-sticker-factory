@@ -44,7 +44,6 @@ export const EMOJI_GRID_MODES = {
     '4x4': { label: '4×4（16張）', cols: 4, rows: 4, total: 16, width: 720, height: 720 },
     '6x4': { label: '6×4（24張）', cols: 6, rows: 4, total: 24, width: 1080, height: 720 },
     '4x4_2': { label: '4×4 兩組（32張）', cols: 4, rows: 4, total: 32, isDoubleSheet: true, width: 720, height: 720 },
-    '4x5_2': { label: '4×5 兩組（40張）', cols: 4, rows: 5, total: 40, isDoubleSheet: true, width: 720, height: 900 },
     '6x4_4x4': {
         label: '6×4+4×4（40張）',
         total: 40,
