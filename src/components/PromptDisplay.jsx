@@ -37,9 +37,16 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
         if (!str) return '';
         const parts = str.split(/[,、]+/).map(s => s.trim()).filter(Boolean);
         if (!gridConfig.isDoubleSheet) return parts.join('、');
-        const half = sheetTotalCount;
-        if (index === 0) return parts.slice(0, half).join('、');
-        return parts.slice(half, half * 2).join('、');
+
+        // 修正：始終以第一張的數量作為分界點，而非當前分頁的顯示數量
+        const firstSheetCount = getSheetCount(0);
+
+        if (index === 0) {
+            return parts.slice(0, firstSheetCount).join('、');
+        } else {
+            // 第二張從第一張結束後開始取
+            return parts.slice(firstSheetCount, gridConfig.total).join('、');
+        }
     };
 
     const emotionsToShow = splitAndGet(activeTheme === 'custom' ? customEmotions : getField('emotions'), activeTab);
@@ -55,8 +62,8 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
 
                 {gridConfig.isDoubleSheet && (
                     <div className="flex gap-2 mb-6 border-b border-white/10 pb-4">
-                        <button onClick={() => setActiveTab(0)} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === 0 ? 'bg-amber-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>第一組 (1~{sheetTotalCount})</button>
-                        <button onClick={() => setActiveTab(1)} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === 1 ? 'bg-amber-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>第二組 ({sheetTotalCount + 1}~{gridConfig.total})</button>
+                        <button onClick={() => setActiveTab(0)} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === 0 ? 'bg-amber-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>第一組 (1~{getSheetCount(0)})</button>
+                        <button onClick={() => setActiveTab(1)} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === 1 ? 'bg-amber-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>第二組 ({getSheetCount(0) + 1}~{gridConfig.total})</button>
                     </div>
                 )}
 

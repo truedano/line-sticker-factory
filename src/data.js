@@ -33,8 +33,8 @@ export const GRID_MODES = {
         rows: 4,
         isDoubleSheet: true,
         grids: [
-            { cols: 6, rows: 4, width: 2220, height: 1480 },
-            { cols: 4, rows: 4, width: 1480, height: 1480 } // Note: Standard sticker is usually proportional, adjusted here based on 370x320 ratio. 370*4=1480, 320*4=1280
+            { cols: 6, rows: 4, width: 2220, height: 1280 },
+            { cols: 4, rows: 4, width: 1480, height: 1280 }
         ]
     }
 };
