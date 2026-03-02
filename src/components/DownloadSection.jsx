@@ -64,7 +64,7 @@ const DownloadSection = ({
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <div className="w-6 h-6 bg-amber-500/20 rounded-lg flex items-center justify-center shrink-0 mt-0.5"><span className="text-[10px] font-bold text-amber-500">2</span></div>
-                                    <p className="text-slate-300 text-sm md:text-base">起始編號：如果是第二波貼圖，編號請設為 <span className="text-white font-mono bg-slate-800 px-2 py-0.5 rounded">13</span> 以免檔名衝突。</p>
+                                    <p className="text-slate-300 text-sm md:text-base">起始編號：如果是第二波貼圖，編號請設為 <span className="text-white font-mono bg-slate-800 px-2 py-0.5 rounded">第一波貼圖數量+1</span> 以免檔名衝突。</p>
                                 </li>
                             </>
                         )}
