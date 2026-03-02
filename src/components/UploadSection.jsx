@@ -40,8 +40,23 @@ const UploadSection = ({
     const canvas1Ref = useRef(null);
     const canvas2Ref = useRef(null);
 
+    const getSheetCount = (index) => {
+        if (!gridConfig) return 0;
+        if (gridConfig.grids && gridConfig.grids[index]) {
+            return (gridConfig.grids[index].cols || 0) * (gridConfig.grids[index].rows || 0);
+        }
+        if (gridConfig.cols && gridConfig.rows) {
+            return gridConfig.cols * gridConfig.rows;
+        }
+        // Fallback for double sheets if cols/rows missing at top level
+        if (gridConfig.isDoubleSheet) {
+            return Math.floor(gridConfig.total / 2);
+        }
+        return gridConfig.total || 0;
+    };
+
     // 繪製帶網格線的預覽
-    const drawGridPreview = useCallback((sheet, targetCanvas) => {
+    const drawGridPreview = useCallback((sheet, targetCanvas, index = 0) => {
         if (!sheet || !targetCanvas) return;
         const container = targetCanvas.parentElement;
         if (!container) return;
@@ -58,7 +73,14 @@ const UploadSection = ({
         ctx.drawImage(sheet, 0, 0, drawW, drawH);
 
         if (showGrid && gridConfig) {
-            const { cols, rows } = gridConfig;
+            let cols = gridConfig.cols;
+            let rows = gridConfig.rows;
+
+            if (gridConfig.grids && gridConfig.grids[index]) {
+                cols = gridConfig.grids[index].cols;
+                rows = gridConfig.grids[index].rows;
+            }
+
             ctx.strokeStyle = 'rgba(255, 50, 50, 0.8)';
             ctx.lineWidth = 1.5;
             ctx.setLineDash([6, 3]);
@@ -83,9 +105,9 @@ const UploadSection = ({
     }, [showGrid, gridConfig]);
 
     useEffect(() => {
-        drawGridPreview(originalSheet1, canvas1Ref.current);
+        drawGridPreview(originalSheet1, canvas1Ref.current, 0);
         if (gridConfig.isDoubleSheet) {
-            drawGridPreview(originalSheet2, canvas2Ref.current);
+            drawGridPreview(originalSheet2, canvas2Ref.current, 1);
         }
     }, [drawGridPreview, originalSheet1, originalSheet2, gridConfig.isDoubleSheet]);
 
@@ -308,7 +330,7 @@ const UploadSection = ({
                     <div className={`grid gap-6 ${gridConfig.isDoubleSheet ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'} mb-8 w-full max-w-4xl mx-auto`}>
                         {/* 第一組上傳區塊 */}
                         <div className="w-full">
-                            {gridConfig.isDoubleSheet && <h4 className="text-slate-300 font-bold mb-3 text-center">第一組 (1~{gridConfig.cols * gridConfig.rows})</h4>}
+                            {gridConfig.isDoubleSheet && <h4 className="text-slate-300 font-bold mb-3 text-center">第一組 (1~{getSheetCount(0)})</h4>}
                             <div className={`group relative w-full border-2 border-dashed rounded-[2rem] min-h-[18rem] flex flex-col items-center justify-center transition-all duration-500 cursor-pointer overflow-hidden ${originalSheet1 ? (isEmoji ? 'border-amber-500 bg-slate-800/50' : 'border-line bg-slate-800/50') : `border-slate-700 bg-slate-900/50 ${isEmoji ? 'hover:border-amber-500' : 'hover:border-line'} hover:bg-slate-800/80`}`}>
                                 <input type="file" accept="image/*" onChange={(e) => handleUpload(e, 1)} className="absolute inset-0 opacity-0 cursor-pointer z-20" />
                                 {originalSheet1 ? (
@@ -342,7 +364,7 @@ const UploadSection = ({
                         {/* 第二組上傳區塊 */}
                         {gridConfig.isDoubleSheet && (
                             <div className="w-full">
-                                <h4 className="text-slate-300 font-bold mb-3 text-center">第二組 ({gridConfig.cols * gridConfig.rows + 1}~{gridConfig.total})</h4>
+                                <h4 className="text-slate-300 font-bold mb-3 text-center">第二組 ({getSheetCount(0) + 1}~{gridConfig.total})</h4>
                                 <div className={`group relative w-full border-2 border-dashed rounded-[2rem] min-h-[18rem] flex flex-col items-center justify-center transition-all duration-500 cursor-pointer overflow-hidden ${originalSheet2 ? (isEmoji ? 'border-amber-500 bg-slate-800/50' : 'border-line bg-slate-800/50') : `border-slate-700 bg-slate-900/50 ${isEmoji ? 'hover:border-amber-500' : 'hover:border-line'} hover:bg-slate-800/80`}`}>
                                     <input type="file" accept="image/*" onChange={(e) => handleUpload(e, 2)} className="absolute inset-0 opacity-0 cursor-pointer z-20" />
                                     {originalSheet2 ? (
