@@ -30,44 +30,62 @@ const useImageProcessing = (autoRemoveBg, targetColorHex, colorTolerance, smooth
         return () => { workerRef.current.terminate(); }
     }, []);
 
-    const performSlice = (originalSheet, setStep, cols = 4, rows = 3, cropPercent = 3) => {
-        if (!originalSheet) return;
+    const performSlice = (originalSheet1, originalSheet2, setStep, gridConfig, cropPercent = 3) => {
+        if (!gridConfig.isDoubleSheet && !originalSheet1) return;
+        if (gridConfig.isDoubleSheet && (!originalSheet1 || !originalSheet2)) return;
+
         setIsProcessing(true);
         setTimeout(() => {
             const pieces = [];
-            const imgW = originalSheet.width;
-            const imgH = originalSheet.height;
-            const canvas = document.createElement('canvas');
-            canvas.width = imgW;
-            canvas.height = imgH;
-            const ctx = canvas.getContext('2d', { willReadFrequently: true });
-            ctx.drawImage(originalSheet, 0, 0);
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < cols; c++) {
-                    // 用 Math.round 精確計算每格的起始與結束像素位置，避免浮點數累積誤差
-                    const x1 = Math.round(c * imgW / cols);
-                    const y1 = Math.round(r * imgH / rows);
-                    const x2 = Math.round((c + 1) * imgW / cols);
-                    const y2 = Math.round((r + 1) * imgH / rows);
-                    const rawW = x2 - x1;
-                    const rawH = y2 - y1;
-                    // 內縮 cropPercent% 避免切到相鄰貼圖（表情貼為 0）
-                    const insetX = Math.round(rawW * cropPercent / 100);
-                    const insetY = Math.round(rawH * cropPercent / 100);
-                    const pieceW = rawW - insetX * 2;
-                    const pieceH = rawH - insetY * 2;
-                    const pCanvas = document.createElement('canvas');
-                    pCanvas.width = pieceW;
-                    pCanvas.height = pieceH;
-                    const pCtx = pCanvas.getContext('2d');
-                    pCtx.drawImage(canvas, x1 + insetX, y1 + insetY, pieceW, pieceH, 0, 0, pieceW, pieceH);
-                    pieces.push({
-                        id: r * cols + c + 1,
-                        rawCanvas: pCanvas,
-                        previewUrl: pCanvas.toDataURL('image/png')
-                    });
+            let currentId = 1;
+            const sheets = gridConfig.isDoubleSheet ? [originalSheet1, originalSheet2] : [originalSheet1];
+
+            sheets.forEach((sheet, sheetIndex) => {
+                if (!sheet) return;
+                const imgW = sheet.width;
+                const imgH = sheet.height;
+                const canvas = document.createElement('canvas');
+                canvas.width = imgW;
+                canvas.height = imgH;
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                ctx.drawImage(sheet, 0, 0);
+
+                let cols = gridConfig.cols;
+                let rows = gridConfig.rows;
+
+                // Support specialized different grid sizes like 6x4 + 4x4
+                if (gridConfig.grids && gridConfig.grids[sheetIndex]) {
+                    cols = gridConfig.grids[sheetIndex].cols;
+                    rows = gridConfig.grids[sheetIndex].rows;
                 }
-            }
+
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        // 用 Math.round 精確計算每格的起始與結束像素位置，避免浮點數累積誤差
+                        const x1 = Math.round(c * imgW / cols);
+                        const y1 = Math.round(r * imgH / rows);
+                        const x2 = Math.round((c + 1) * imgW / cols);
+                        const y2 = Math.round((r + 1) * imgH / rows);
+                        const rawW = x2 - x1;
+                        const rawH = y2 - y1;
+                        // 內縮 cropPercent% 避免切到相鄰貼圖（表情貼為 0）
+                        const insetX = Math.round(rawW * cropPercent / 100);
+                        const insetY = Math.round(rawH * cropPercent / 100);
+                        const pieceW = rawW - insetX * 2;
+                        const pieceH = rawH - insetY * 2;
+                        const pCanvas = document.createElement('canvas');
+                        pCanvas.width = pieceW;
+                        pCanvas.height = pieceH;
+                        const pCtx = pCanvas.getContext('2d');
+                        pCtx.drawImage(canvas, x1 + insetX, y1 + insetY, pieceW, pieceH, 0, 0, pieceW, pieceH);
+                        pieces.push({
+                            id: currentId++,
+                            rawCanvas: pCanvas,
+                            previewUrl: pCanvas.toDataURL('image/png')
+                        });
+                    }
+                }
+            });
             setSlicedPieces(pieces);
             setStep(2);
             setIsProcessing(false);

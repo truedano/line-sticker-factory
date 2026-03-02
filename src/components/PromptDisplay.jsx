@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Copy, CheckCircle } from 'lucide-react';
 import { PROMPT_THEMES, PROMPT_STYLES, GRID_MODES, EMOJI_GRID_MODES, EMOJI_PROMPT_THEMES } from '../data';
 
@@ -10,9 +10,21 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
     const style = PROMPT_STYLES[activeStyle];
     const effectiveGridMode = gridModes[gridMode] ? gridMode : Object.keys(gridModes)[0];
     const gridConfig = gridModes[effectiveGridMode];
-    const totalCount = gridConfig.total;
-    const layoutLabel = `${gridConfig.cols} × ${gridConfig.rows}`;
-    const sizeLabel = `${gridConfig.width} × ${gridConfig.height} px`;
+
+    const [activeTab, setActiveTab] = useState(0);
+
+    const getSheetCount = (index) => {
+        if (gridConfig.grids && gridConfig.grids[index]) {
+            return gridConfig.grids[index].cols * gridConfig.grids[index].rows;
+        }
+        if (!gridConfig.isDoubleSheet) return gridConfig.total;
+        return gridConfig.cols * gridConfig.rows;
+    };
+
+    const sheetTotalCount = getSheetCount(activeTab);
+    const currentGrid = gridConfig.grids ? gridConfig.grids[activeTab] : gridConfig;
+    const layoutLabel = `${currentGrid.cols} × ${currentGrid.rows}`;
+    const sizeLabel = `${currentGrid.width} × ${currentGrid.height} px`;
 
     const getField = (field) => {
         const total = gridConfig.total;
@@ -21,24 +33,40 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
         return theme[field];
     };
 
-    const emotionsToShow = activeTheme === 'custom' ? customEmotions : getField('emotions');
-    const actionsToShow = activeTheme === 'custom' ? customActions : getField('actions');
+    const splitAndGet = (str, index) => {
+        if (!str) return '';
+        const parts = str.split(/[,、]+/).map(s => s.trim()).filter(Boolean);
+        if (!gridConfig.isDoubleSheet) return parts.join('、');
+        const half = sheetTotalCount;
+        if (index === 0) return parts.slice(0, half).join('、');
+        return parts.slice(half, half * 2).join('、');
+    };
+
+    const emotionsToShow = splitAndGet(activeTheme === 'custom' ? customEmotions : getField('emotions'), activeTab);
+    const actionsToShow = splitAndGet(activeTheme === 'custom' ? customActions : getField('actions'), activeTab);
 
     // 靜態貼圖才需要文字
-    const textsToShow = !isEmoji && (activeTheme === 'custom' ? customTexts : getField('texts'));
+    const textsToShow = !isEmoji && splitAndGet(activeTheme === 'custom' ? customTexts : getField('texts'), activeTab);
 
     if (isEmoji) {
         return (
             <div className="prompt-content text-sm font-inter bg-slate-950/80 p-8 rounded-[2rem] border border-white/5 h-[450px] overflow-y-auto shadow-inner custom-scrollbar relative">
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 opacity-50"></div>
 
+                {gridConfig.isDoubleSheet && (
+                    <div className="flex gap-2 mb-6 border-b border-white/10 pb-4">
+                        <button onClick={() => setActiveTab(0)} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === 0 ? 'bg-amber-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>第一組 (1~{sheetTotalCount})</button>
+                        <button onClick={() => setActiveTab(1)} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === 1 ? 'bg-amber-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>第二組 ({sheetTotalCount + 1}~{gridConfig.total})</button>
+                    </div>
+                )}
+
                 <div className="flex items-center justify-between mb-6">
                     <div className="font-bold text-2xl text-white flex items-center gap-2">
-                        <span className="text-amber-500">✅</span> {totalCount} 格角色表情貼集｜AI Prompt 建議
+                        <span className="text-amber-500">✅ {gridConfig.isDoubleSheet && `(第 ${activeTab + 1} 組)`}</span> {sheetTotalCount} 格角色表情貼集｜AI Prompt 建議
                     </div>
                     {handleCopyPrompt && (
                         <button
-                            onClick={handleCopyPrompt}
+                            onClick={() => handleCopyPrompt(activeTab)}
                             className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all transform active:scale-95 shrink-0 ${copySuccess ? 'bg-green-500 text-white shadow-green-500/20' : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'}`}
                         >
                             {copySuccess ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -54,14 +82,14 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
                         ⚠️ 圖片解析度（最重要，務必遵守）
                     </h2>
                     <ul className="space-y-1.5 text-sm">
-                        <li>輸出圖片的精確像素尺寸必須為：<span className="text-red-400 font-bold text-base">{gridConfig.width} × {gridConfig.height} px</span></li>
-                        <li>每格固定 <span className="fixed-val">{Math.round(gridConfig.width / gridConfig.cols)}×{Math.round(gridConfig.height / gridConfig.rows)} px</span>，共 {gridConfig.cols} 欄 × {gridConfig.rows} 列 = {totalCount} 格。</li>
-                        <li>請在 AI 生圖工具中將解析度設定為 <span className="text-white font-bold">{gridConfig.width}×{gridConfig.height}</span>，不可使用其他尺寸。</li>
+                        <li>輸出圖片的精確像素尺寸必須為：<span className="text-red-400 font-bold text-base">{currentGrid.width} × {currentGrid.height} px</span></li>
+                        <li>每格固定 <span className="fixed-val">{Math.round(currentGrid.width / currentGrid.cols)}×{Math.round(currentGrid.height / currentGrid.rows)} px</span>，共 {currentGrid.cols} 欄 × {currentGrid.rows} 列 = {sheetTotalCount} 格。</li>
+                        <li>請在 AI 生圖工具中將解析度設定為 <span className="text-white font-bold">{currentGrid.width}×{currentGrid.height}</span>，不可使用其他尺寸。</li>
                     </ul>
                 </div>
 
                 <p className="text-slate-300 leading-relaxed mb-8 text-base">
-                    請參考上傳圖片中的角色特徵，生成一張 <span className="text-white font-bold">{gridConfig.width}×{gridConfig.height} px</span> 的表情貼大圖，包含 {totalCount} 個不同表情（切勿包含任何表情符號 Emoji）。
+                    請參考上傳圖片中的角色特徵，生成一張 <span className="text-white font-bold">{currentGrid.width}×{currentGrid.height} px</span> 的表情貼大圖，包含 {sheetTotalCount} 個不同表情（切勿包含任何表情符號 Emoji）。
                 </p>
 
                 <div className="space-y-8">
@@ -84,12 +112,12 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
                     <section>
                         <h2 className="text-orange-400 border-orange-500/30 flex items-center gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
-                            畫面佈局（{gridConfig.width} × {gridConfig.height} px）
+                            畫面佈局（{currentGrid.width} × {currentGrid.height} px）
                         </h2>
                         <ul className="space-y-2 mt-3">
-                            <li>整體畫布：<span className="text-red-400 font-bold">{gridConfig.width} × {gridConfig.height} px</span>（不可偏差）。</li>
-                            <li>佈局：{gridConfig.cols} 欄 × {gridConfig.rows} 列，每格 <span className="fixed-val">{Math.round(gridConfig.width / gridConfig.cols)}×{Math.round(gridConfig.height / gridConfig.rows)} px</span>，共 {totalCount} 格。</li>
-                            <li>所有 {totalCount} 個格子必須排列整齊，呈現嚴格的均等網格。 <span className="text-red-400 font-bold">絕對禁止畫出任何實體的網格線、分隔線、邊框或底框，背景必須是一整片純粹連續的綠色</span>。</li>
+                            <li>整體畫布：<span className="text-red-400 font-bold">{currentGrid.width} × {currentGrid.height} px</span>（不可偏差）。</li>
+                            <li>佈局：{currentGrid.cols} 欄 × {currentGrid.rows} 列，每格 <span className="fixed-val">{Math.round(currentGrid.width / currentGrid.cols)}×{Math.round(currentGrid.height / currentGrid.rows)} px</span>，共 {sheetTotalCount} 格。</li>
+                            <li>所有 {sheetTotalCount} 個格子必須排列整齊，呈現嚴格的均等網格。 <span className="text-red-400 font-bold">絕對禁止畫出任何實體的網格線、分隔線、邊框或底框，背景必須是一整片純粹連續的綠色</span>。</li>
                             <li>每格內的角色必須<span className="text-amber-400 font-bold">「畫滿整格」</span>：角色（含白色外框）應佔據單格面積的 <span className="text-amber-400 font-bold">85% 以上</span>。</li>
                             <li><span className="text-red-400 font-bold">嚴禁</span>在格子內留下大面積空白綠色背景。</li>
                             <li><span className="text-slate-400">視角：</span>以臉部大特寫和上半身為主，確保縮小到極小時仍能清楚辨識表情。</li>
@@ -116,7 +144,7 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
                         <ul className="space-y-2 mt-3">
                             <li><span className="text-slate-400">情緒清單：</span><span className="var-highlight">{emotionsToShow}</span></li>
                             <li><span className="text-slate-400">建議動作：</span><span className="var-highlight">{actionsToShow}</span></li>
-                            <li><span className="text-white font-bold italic">{totalCount} 格皆須為不同表情與動作，展現角色張力。</span></li>
+                            <li><span className="text-white font-bold italic">{sheetTotalCount} 格皆須為不同表情與動作，展現角色張力。</span></li>
                         </ul>
                     </section>
                 </div>
@@ -129,13 +157,20 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
         <div className="prompt-content text-sm font-inter bg-slate-950/80 p-8 rounded-[2rem] border border-white/5 h-[450px] overflow-y-auto shadow-inner custom-scrollbar relative">
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-line opacity-50"></div>
 
+            {gridConfig.isDoubleSheet && (
+                <div className="flex gap-2 mb-6 border-b border-white/10 pb-4">
+                    <button onClick={() => setActiveTab(0)} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === 0 ? 'bg-line text-white shadow-lg shadow-green-500/20' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>第一組 (1~{getSheetCount(0)})</button>
+                    <button onClick={() => setActiveTab(1)} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === 1 ? 'bg-line text-white shadow-lg shadow-green-500/20' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>第二組 ({getSheetCount(0) + 1}~{gridConfig.total})</button>
+                </div>
+            )}
+
             <div className="flex items-center justify-between mb-6">
                 <div className="font-bold text-2xl text-white flex items-center gap-2">
-                    <span className="text-line">✅</span> {totalCount} 格角色貼圖集｜AI Prompt 建議
+                    <span className="text-line">✅ {gridConfig.isDoubleSheet && `(第 ${activeTab + 1} 組)`}</span> {sheetTotalCount} 格角色貼圖集｜AI Prompt 建議
                 </div>
                 {handleCopyPrompt && (
                     <button
-                        onClick={handleCopyPrompt}
+                        onClick={() => handleCopyPrompt(activeTab)}
                         className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all transform active:scale-95 shrink-0 ${copySuccess ? 'bg-green-500 text-white shadow-green-500/20' : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'}`}
                     >
                         {copySuccess ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -145,7 +180,7 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
             </div>
 
             <p className="text-slate-300 leading-relaxed mb-8 text-base">
-                請參考上傳圖片中的角色特徵，在您常用的 AI 生圖工具中輸入以下指令，生成一張包含 {totalCount} 個不同動作的貼圖大圖（切勿包含任何表情符號 Emoji）。
+                請參考上傳圖片中的角色特徵，在您常用的 AI 生圖工具中輸入以下指令，生成一張包含 {sheetTotalCount} 個不同動作的貼圖大圖（切勿包含任何表情符號 Emoji）。
             </p>
 
             <div className="space-y-8">
@@ -168,8 +203,8 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
                         畫面佈局與尺寸規格
                     </h2>
                     <ul className="space-y-2 mt-3">
-                        <li>整體為 <span className="text-white font-medium">{layoutLabel} 佈局</span>，共 {totalCount} 張貼圖。總尺寸：<span className="fixed-val">{sizeLabel}</span>。</li>
-                        <li>所有 {totalCount} 個貼圖必須排列整齊，呈現嚴格的均等網格。 <span className="text-red-400 font-bold">絕對禁止畫出任何實體的網格線、分隔線、邊框或底框，背景必須是一整片純粹連續的綠色</span>。</li>
+                        <li>整體為 <span className="text-white font-medium">{layoutLabel} 佈局</span>，共 {sheetTotalCount} 張貼圖。總尺寸：<span className="fixed-val">{sizeLabel}</span>。</li>
+                        <li>所有 {sheetTotalCount} 個貼圖必須排列整齊，呈現嚴格的均等網格。 <span className="text-red-400 font-bold">絕對禁止畫出任何實體的網格線、分隔線、邊框或底框，背景必須是一整片純粹連續的綠色</span>。</li>
                         <li>每張貼圖四周預留適度 <span className="text-slate-400 italic">Padding</span>，避免畫面互相黏住。</li>
                         <li><span className="text-slate-400">視角：</span>全身 + 半身混合，包含正面、側面、俯角等。</li>
                     </ul>
@@ -195,7 +230,7 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
                     <ul className="space-y-2 mt-3">
                         <li><span className="text-slate-400">情緒清單：</span><span className="var-highlight">{emotionsToShow}</span></li>
                         <li><span className="text-slate-400">建議動作：</span><span className="var-highlight">{actionsToShow}</span></li>
-                        <li><span className="text-white font-bold italic">{totalCount} 格皆須為不同動作與表情，展現角色張力。</span></li>
+                        <li><span className="text-white font-bold italic">{sheetTotalCount} 格皆須為不同動作與表情，展現角色張力。</span></li>
                     </ul>
                 </section>
             </div>

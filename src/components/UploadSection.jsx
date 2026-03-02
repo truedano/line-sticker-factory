@@ -4,7 +4,8 @@ import PromptDisplay from './PromptDisplay';
 
 const UploadSection = ({
     step,
-    originalSheet,
+    originalSheet1,
+    originalSheet2,
     handleUpload,
     isProcessing,
     performSlice,
@@ -36,25 +37,25 @@ const UploadSection = ({
 }) => {
     const isEmoji = productType === 'emoji';
     const [showGrid, setShowGrid] = useState(true);
-    const canvasRef = useRef(null);
+    const canvas1Ref = useRef(null);
+    const canvas2Ref = useRef(null);
 
     // 繪製帶網格線的預覽
-    const drawGridPreview = useCallback(() => {
-        if (!originalSheet || !canvasRef.current) return;
-        const canvas = canvasRef.current;
-        const container = canvas.parentElement;
+    const drawGridPreview = useCallback((sheet, targetCanvas) => {
+        if (!sheet || !targetCanvas) return;
+        const container = targetCanvas.parentElement;
         if (!container) return;
 
         const maxW = container.clientWidth - 32; // padding
         const maxH = 260;
-        const scale = Math.min(maxW / originalSheet.width, maxH / originalSheet.height);
-        const drawW = Math.round(originalSheet.width * scale);
-        const drawH = Math.round(originalSheet.height * scale);
+        const scale = Math.min(maxW / sheet.width, maxH / sheet.height);
+        const drawW = Math.round(sheet.width * scale);
+        const drawH = Math.round(sheet.height * scale);
 
-        canvas.width = drawW;
-        canvas.height = drawH;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(originalSheet, 0, 0, drawW, drawH);
+        targetCanvas.width = drawW;
+        targetCanvas.height = drawH;
+        const ctx = targetCanvas.getContext('2d');
+        ctx.drawImage(sheet, 0, 0, drawW, drawH);
 
         if (showGrid && gridConfig) {
             const { cols, rows } = gridConfig;
@@ -79,11 +80,16 @@ const UploadSection = ({
             }
             ctx.setLineDash([]);
         }
-    }, [originalSheet, showGrid, gridConfig]);
+    }, [showGrid, gridConfig]);
 
     useEffect(() => {
-        drawGridPreview();
-    }, [drawGridPreview]);
+        drawGridPreview(originalSheet1, canvas1Ref.current);
+        if (gridConfig.isDoubleSheet) {
+            drawGridPreview(originalSheet2, canvas2Ref.current);
+        }
+    }, [drawGridPreview, originalSheet1, originalSheet2, gridConfig.isDoubleSheet]);
+
+    const canSlice = gridConfig.isDoubleSheet ? (originalSheet1 && originalSheet2) : !!originalSheet1;
 
     return (
         <div className={`transition-all duration-500 transform ${step !== 1 ? 'opacity-0 translate-y-4 pointer-events-none absolute' : 'opacity-100 translate-y-0 relative'}`}>
@@ -263,7 +269,7 @@ const UploadSection = ({
                         <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-700/50 p-6 rounded-2xl text-left">
                             <p className="mb-4 font-semibold text-slate-200 flex items-center gap-2">
                                 <Info className="w-5 h-5 text-sky-400" />
-                                請上傳 AI 生成的 {gridConfig.cols}x{gridConfig.rows} 網格圖 (JPG/PNG)
+                                請上傳 AI 生成的 {gridConfig.cols}x{gridConfig.rows} 網格圖 (JPG/PNG) {gridConfig.isDoubleSheet ? '需上傳兩張' : ''}
                             </p>
                             <ul className="space-y-3 text-sm text-slate-400 list-none">
                                 <li className="flex items-start gap-2">
@@ -299,38 +305,83 @@ const UploadSection = ({
 
                     </div>
 
-                    <div className="relative w-full max-w-xl mx-auto">
-                        <div className={`border-2 border-dashed rounded-[2rem] min-h-[18rem] flex flex-col items-center justify-center transition-all duration-500 cursor-pointer overflow-hidden relative ${originalSheet ? (isEmoji ? 'border-amber-500 bg-slate-800/50' : 'border-line bg-slate-800/50') : `border-slate-700 bg-slate-900/50 ${isEmoji ? 'hover:border-amber-500' : 'hover:border-line'} hover:bg-slate-800/80`}`}>
-                            <input type="file" accept="image/*" onChange={handleUpload} className="absolute inset-0 opacity-0 cursor-pointer z-20" />
-                            {originalSheet ? (
-                                <div className="w-full p-4 flex flex-col items-center justify-center animate-fade-in">
-                                    <canvas ref={canvasRef} className="max-w-full rounded-xl shadow-2xl" style={{ imageRendering: 'auto' }} />
-                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded-[2rem] z-10">
-                                        <span className="text-white font-bold bg-slate-900/80 px-4 py-2 rounded-full">點擊更換圖片</span>
+                    <div className={`grid gap-6 ${gridConfig.isDoubleSheet ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'} mb-8 w-full max-w-4xl mx-auto`}>
+                        {/* 第一組上傳區塊 */}
+                        <div className="w-full">
+                            {gridConfig.isDoubleSheet && <h4 className="text-slate-300 font-bold mb-3 text-center">第一組 (1~{gridConfig.cols * gridConfig.rows})</h4>}
+                            <div className={`group relative w-full border-2 border-dashed rounded-[2rem] min-h-[18rem] flex flex-col items-center justify-center transition-all duration-500 cursor-pointer overflow-hidden ${originalSheet1 ? (isEmoji ? 'border-amber-500 bg-slate-800/50' : 'border-line bg-slate-800/50') : `border-slate-700 bg-slate-900/50 ${isEmoji ? 'hover:border-amber-500' : 'hover:border-line'} hover:bg-slate-800/80`}`}>
+                                <input type="file" accept="image/*" onChange={(e) => handleUpload(e, 1)} className="absolute inset-0 opacity-0 cursor-pointer z-20" />
+                                {originalSheet1 ? (
+                                    <div className="w-full p-4 flex flex-col items-center justify-center animate-fade-in">
+                                        <canvas ref={canvas1Ref} className="max-w-full rounded-xl shadow-2xl" style={{ imageRendering: 'auto' }} />
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded-[2rem] z-10">
+                                            <span className="text-white font-bold bg-slate-900/80 px-4 py-2 rounded-full">點擊更換圖片</span>
+                                        </div>
                                     </div>
-                                </div>
-                            ) : (
-                                <div className="flex flex-col items-center justify-center z-10 pointer-events-none group-hover:scale-105 transition-transform duration-500 py-8">
-                                    <div className={`w-20 h-20 bg-slate-800 rounded-3xl flex items-center justify-center mb-6 shadow-xl border border-slate-700 transition-all duration-500 ${isEmoji ? 'text-amber-500 group-hover:bg-amber-500 group-hover:text-white' : 'text-line group-hover:bg-line group-hover:text-white'}`}>
-                                        <Upload className="w-10 h-10" />
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center z-10 pointer-events-none group-hover:scale-105 transition-transform duration-500 py-8">
+                                        <div className={`w-20 h-20 bg-slate-800 rounded-3xl flex items-center justify-center mb-6 shadow-xl border border-slate-700 transition-all duration-500 ${isEmoji ? 'text-amber-500 group-hover:bg-amber-500 group-hover:text-white' : 'text-line group-hover:bg-line group-hover:text-white'}`}>
+                                            <Upload className="w-10 h-10" />
+                                        </div>
+                                        <span className="text-slate-300 font-bold text-lg mb-2">點擊或拖放圖片</span>
+                                        <span className="text-sm text-slate-500 uppercase tracking-widest">支持 JPG, PNG 格式</span>
                                     </div>
-                                    <span className="text-slate-300 font-bold text-lg mb-2">點擊或拖放圖片</span>
-                                    <span className="text-sm text-slate-500 uppercase tracking-widest">支持 JPG, PNG 格式</span>
+                                )}
+                            </div>
+
+                            {originalSheet1 && (
+                                <div className="mt-4 flex flex-col items-center gap-2 animate-fade-in">
+                                    <div className="bg-slate-900/80 border border-white/10 rounded-xl px-4 py-2 text-xs flex items-center gap-2">
+                                        <span className="text-slate-500">尺寸：</span>
+                                        <span className="text-white font-mono font-bold">{originalSheet1.width} × {originalSheet1.height} px</span>
+                                    </div>
                                 </div>
                             )}
                         </div>
 
-                        {/* 圖片尺寸資訊 & 切割線開關 */}
-                        {originalSheet && (
-                            <div className="mt-4 flex flex-wrap items-center justify-center gap-3 animate-fade-in">
-                                <div className="bg-slate-900/80 border border-white/10 rounded-xl px-4 py-2 text-xs flex items-center gap-2">
-                                    <span className="text-slate-500">圖片尺寸：</span>
-                                    <span className="text-white font-mono font-bold">{originalSheet.width} × {originalSheet.height} px</span>
+                        {/* 第二組上傳區塊 */}
+                        {gridConfig.isDoubleSheet && (
+                            <div className="w-full">
+                                <h4 className="text-slate-300 font-bold mb-3 text-center">第二組 ({gridConfig.cols * gridConfig.rows + 1}~{gridConfig.total})</h4>
+                                <div className={`group relative w-full border-2 border-dashed rounded-[2rem] min-h-[18rem] flex flex-col items-center justify-center transition-all duration-500 cursor-pointer overflow-hidden ${originalSheet2 ? (isEmoji ? 'border-amber-500 bg-slate-800/50' : 'border-line bg-slate-800/50') : `border-slate-700 bg-slate-900/50 ${isEmoji ? 'hover:border-amber-500' : 'hover:border-line'} hover:bg-slate-800/80`}`}>
+                                    <input type="file" accept="image/*" onChange={(e) => handleUpload(e, 2)} className="absolute inset-0 opacity-0 cursor-pointer z-20" />
+                                    {originalSheet2 ? (
+                                        <div className="w-full p-4 flex flex-col items-center justify-center animate-fade-in">
+                                            <canvas ref={canvas2Ref} className="max-w-full rounded-xl shadow-2xl" style={{ imageRendering: 'auto' }} />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded-[2rem] z-10">
+                                                <span className="text-white font-bold bg-slate-900/80 px-4 py-2 rounded-full">點擊更換圖片</span>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col items-center justify-center z-10 pointer-events-none group-hover:scale-105 transition-transform duration-500 py-8">
+                                            <div className={`w-20 h-20 bg-slate-800 rounded-3xl flex items-center justify-center mb-6 shadow-xl border border-slate-700 transition-all duration-500 ${isEmoji ? 'text-amber-500 group-hover:bg-amber-500 group-hover:text-white' : 'text-line group-hover:bg-line group-hover:text-white'}`}>
+                                                <Upload className="w-10 h-10" />
+                                            </div>
+                                            <span className="text-slate-300 font-bold text-lg mb-2">點擊或拖放圖片</span>
+                                            <span className="text-sm text-slate-500 uppercase tracking-widest">支持 JPG, PNG 格式</span>
+                                        </div>
+                                    )}
                                 </div>
+                                {originalSheet2 && (
+                                    <div className="mt-4 flex flex-col items-center gap-2 animate-fade-in">
+                                        <div className="bg-slate-900/80 border border-white/10 rounded-xl px-4 py-2 text-xs flex items-center gap-2">
+                                            <span className="text-slate-500">尺寸：</span>
+                                            <span className="text-white font-mono font-bold">{originalSheet2.width} × {originalSheet2.height} px</span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* 共用選項區 */}
+                    {canSlice && (
+                        <div className="animate-fade-in mt-8 space-y-6">
+                            <div className="flex flex-wrap items-center justify-center gap-3">
                                 <div className="bg-slate-900/80 border border-white/10 rounded-xl px-4 py-2 text-xs flex items-center gap-2">
                                     <span className="text-slate-500">每格約：</span>
                                     <span className="text-sky-400 font-mono font-bold">
-                                        {Math.round(originalSheet.width / gridConfig.cols)} × {Math.round(originalSheet.height / gridConfig.rows)} px
+                                        {Math.round((originalSheet1?.width || gridConfig.width) / gridConfig.cols)} × {Math.round((originalSheet1?.height || gridConfig.height) / gridConfig.rows)} px
                                     </span>
                                 </div>
                                 <button
@@ -341,11 +392,7 @@ const UploadSection = ({
                                     {showGrid ? '隱藏切割線' : '顯示切割線'}
                                 </button>
                             </div>
-                        )}
-                    </div>
 
-                    {originalSheet && (
-                        <div className="animate-fade-in mt-8">
                             <button onClick={performSlice} className={`btn-premium text-white px-16 py-5 rounded-[1.25rem] font-bold shadow-xl transition-all btn-press flex items-center justify-center gap-3 mx-auto text-xl active:scale-95 group ${isEmoji ? 'bg-amber-500 hover:bg-amber-500/90 shadow-amber-500/20' : 'bg-line hover:bg-line/90 shadow-green-500/20'}`}>
                                 {isProcessing ? <Loader className="animate-spin" /> : <Scissors className="group-hover:rotate-12 transition-transform" />}
                                 <span>開始切割資源包</span>

@@ -26,15 +26,34 @@ export const GRID_MODES = {
     '4x3': { label: '4×3（12張）', cols: 4, rows: 3, total: 12, width: 1480, height: 960 },
     '4x4': { label: '4×4（16張）', cols: 4, rows: 4, total: 16, width: 1480, height: 1280 },
     '6x4': { label: '6×4（24張）', cols: 6, rows: 4, total: 24, width: 2220, height: 1280 },
-    '8x4': { label: '8×4（32張）', cols: 8, rows: 4, total: 32, width: 2960, height: 1280 }
+    '4x4_2': { label: '4×4 兩組（32張）', cols: 4, rows: 4, total: 32, isDoubleSheet: true, width: 1480, height: 1280 },
+    '6x4_4x4': {
+        label: '6×4+4×4（40張）',
+        total: 40,
+        isDoubleSheet: true,
+        grids: [
+            { cols: 6, rows: 4, width: 2220, height: 1480 },
+            { cols: 4, rows: 4, width: 1480, height: 1480 } // Note: Standard sticker is usually proportional, adjusted here based on 370x320 ratio. 370*4=1480, 320*4=1280
+        ]
+    }
 };
+
 
 export const EMOJI_GRID_MODES = {
     '4x2': { label: '4×2（8張）', cols: 4, rows: 2, total: 8, width: 720, height: 360 },
     '4x4': { label: '4×4（16張）', cols: 4, rows: 4, total: 16, width: 720, height: 720 },
     '6x4': { label: '6×4（24張）', cols: 6, rows: 4, total: 24, width: 1080, height: 720 },
-    '8x4': { label: '8×4（32張）', cols: 8, rows: 4, total: 32, width: 1440, height: 720 },
-    '8x5': { label: '8×5（40張）', cols: 8, rows: 5, total: 40, width: 1440, height: 900 }
+    '4x4_2': { label: '4×4 兩組（32張）', cols: 4, rows: 4, total: 32, isDoubleSheet: true, width: 720, height: 720 },
+    '4x5_2': { label: '4×5 兩組（40張）', cols: 4, rows: 5, total: 40, isDoubleSheet: true, width: 720, height: 900 },
+    '6x4_4x4': {
+        label: '6×4+4×4（40張）',
+        total: 40,
+        isDoubleSheet: true,
+        grids: [
+            { cols: 6, rows: 4, width: 1080, height: 720 },
+            { cols: 4, rows: 4, width: 720, height: 720 }
+        ]
+    }
 };
 
 export const PROMPT_THEMES = {
