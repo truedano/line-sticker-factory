@@ -107,7 +107,7 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
                         </h2>
                         <ul className="space-y-2 mt-3">
                             <li><span className="text-slate-400">核心要求：</span>必須完全維持原圖主角的髮型、服裝、五官與整體外觀特徵。</li>
-                            <li><span className="text-slate-400">構圖邏輯：</span>{isEmojiTextEnabled ? <><span className="text-white font-medium">以角色的表情和動作傳達情緒</span>，可搭配<span className="text-amber-400 font-bold">「簡單少量的文字」</span>（如：OK、讚、哈等短語）。</> : <>表情貼<span className="text-amber-400 font-bold">「不含文字」</span>，純粹以角色的表情和動作傳達情緒。</>}</li>
+                            <li><span className="text-slate-400">構圖邏輯：</span>{isEmojiTextEnabled ? <><span className="text-white font-medium">以角色的表情和動作傳達情緒</span>，可搭配<span className="text-amber-400 font-bold">「簡單少量的文字」</span>（如：OK、讚、哈等短語）。<span className="text-red-400 font-bold">文字必須跟人物一起緊湊且集中在格子正中間，絕不可超出邊界被切斷。</span></> : <>表情貼<span className="text-amber-400 font-bold">「不含文字」</span>，純粹以角色的表情和動作傳達情緒。</>}</li>
                             {isEmojiTextEnabled && (
                                 <li><span className="text-slate-400">文字配色：</span>每格的文字顏色必須各不相同，從以下色系中輪流選用：<span className="var-highlight">紅色、橘色、黃色、藍色、紫色、粉紅色、白色、深藍色、棕色、酒紅色</span>。絕對禁止使用綠色系與黑色。確保整套表情貼的文字色彩豐富多元、不重複。</li>
                             )}
@@ -125,8 +125,8 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
                             <li>整體畫布：<span className="text-red-400 font-bold">{currentGrid.width} × {currentGrid.height} px</span>（不可偏差）。</li>
                             <li>佈局：{currentGrid.cols} 欄 × {currentGrid.rows} 列，每格 <span className="fixed-val">{Math.round(currentGrid.width / currentGrid.cols)}×{Math.round(currentGrid.height / currentGrid.rows)} px</span>，共 {sheetTotalCount} 格。</li>
                             <li>所有 {sheetTotalCount} 個格子必須排列整齊，呈現嚴格的均等網格。 <span className="text-red-400 font-bold">絕對禁止畫出任何實體的網格線、分隔線、邊框或底框，背景必須是一整片純粹連續的綠色</span>。</li>
-                            <li>每格內的角色必須<span className="text-amber-400 font-bold">「畫滿整格」</span>：角色（含白色外框）應佔據單格面積的 <span className="text-amber-400 font-bold">85% 以上</span>。</li>
-                            <li><span className="text-red-400 font-bold">嚴禁</span>在格子內留下大面積空白綠色背景。</li>
+                            <li><span className="text-amber-400 font-bold">集中居中：</span>每格內的角色與文字必須<span className="text-white font-bold">「完全且緊湊地集中在單一格子的正中間」</span>。</li>
+                            <li><span className="text-red-400 font-bold">安全邊界（極重要）：</span>單一貼圖四周必須保留明確且足夠寬敞的 <span className="text-white font-medium">綠色安全邊距（Padding）</span>，<span className="text-red-400 font-bold">絕對不可碰到、更不可超出該格子的假想邊界</span>，確保切割圖片時完全不會切到人物或文字。</li>
                             <li><span className="text-slate-400">視角：</span>以臉部大特寫和上半身為主，確保縮小到極小時仍能清楚辨識表情。</li>
                         </ul>
                     </section>
@@ -212,7 +212,8 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
                     <ul className="space-y-2 mt-3">
                         <li>整體為 <span className="text-white font-medium">{layoutLabel} 佈局</span>，共 {sheetTotalCount} 張貼圖。總尺寸：<span className="fixed-val">{sizeLabel}</span>。</li>
                         <li>所有 {sheetTotalCount} 個貼圖必須排列整齊，呈現嚴格的均等網格。 <span className="text-red-400 font-bold">絕對禁止畫出任何實體的網格線、分隔線、邊框或底框，背景必須是一整片純粹連續的綠色</span>。</li>
-                        <li>每張貼圖四周預留適度 <span className="text-slate-400 italic">Padding</span>，避免畫面互相黏住。</li>
+                        <li><span className="text-purple-400 font-bold">集中居中：</span>每張貼圖的人物與文字必須<span className="text-white font-bold">「完全且緊湊地集中在單一格子的正中間」</span>。</li>
+                        <li><span className="text-red-400 font-bold">安全邊界（極重要）：</span>單一貼圖四周必須保留明確且足夠寬敞的 <span className="text-white font-medium">綠色安全邊距（Padding）</span>，<span className="text-red-400 font-bold">絕對不可碰到、更不可超出相鄰格子的假想邊界</span>，確保切割圖片時完全不會切到人物或文字。</li>
                         <li><span className="text-slate-400">視角：</span>全身 + 半身混合，包含正面、側面、俯角等。</li>
                     </ul>
                 </section>
@@ -226,7 +227,7 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
                         <li><span className="text-slate-400">語言：</span><span className="var-highlight">台灣繁體中文</span></li>
                         <li><span className="text-slate-400">內容：</span><span className="var-highlight">{textsToShow}</span></li>
                         <li><span className="text-slate-400">配色：</span>每張貼圖的文字顏色必須各不相同，從以下色系中輪流選用：<span className="var-highlight">紅色、橘色、黃色、藍色、紫色、粉紅色、白色、深藍色、棕色、酒紅色</span>。絕對禁止使用綠色系與黑色。確保整套貼圖的文字色彩豐富多元、不重複。</li>
-                        <li><span className="text-slate-400">排版：</span>大小約佔 1/3，可壓在衣服邊角，<span className="text-red-400 font-bold">不可遮臉</span>。</li>
+                        <li><span className="text-slate-400">排版：</span>大小約佔 1/3，可緊貼或壓在人物邊角，<span className="text-red-400 font-bold">不可遮臉，且必須確保文字和人物一同收攏在單格的正中間，嚴禁文字超出格子的假想邊界</span>。</li>
                     </ul>
                 </section>
                 <section>

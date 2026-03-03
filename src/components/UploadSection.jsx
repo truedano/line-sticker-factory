@@ -274,7 +274,7 @@ const UploadSection = ({
                                     </li>
                                     <li className="flex items-start gap-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0"></div>
-                                        <span><span className="text-red-400 font-bold">不要留白</span>：請把畫布畫滿，圖案越大越好</span>
+                                        <span><span className="text-red-400 font-bold">適度留白</span>：圖案與文字請盡量居中，外圍必須預留安全邊距避免被裁切</span>
                                     </li>
                                     <li className="flex items-start gap-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0"></div>
@@ -436,7 +436,7 @@ const UploadSection = ({
                                         <div className="absolute left-0 top-0 w-6 h-6 rounded-full bg-slate-800 border border-slate-700 text-[10px] font-bold flex items-center justify-center text-amber-500">01</div>
                                         <div className="font-bold text-white mb-1">生成表情貼</div>
                                         <p className="text-xs text-slate-400 leading-relaxed">
-                                            使用下方 AI 提示詞產生表情貼大圖。注意：表情貼可包含<span className="text-amber-400 font-bold">少量簡單文字</span>，「畫滿畫布」是關鍵。
+                                            使用下方 AI 提示詞產生表情貼大圖。注意：表情貼可包含<span className="text-amber-400 font-bold">少量簡單文字</span>，「圖文集中與四周留白」是避免裁切的關鍵。
                                         </p>
                                     </div>
                                     <div className="relative pl-8">
