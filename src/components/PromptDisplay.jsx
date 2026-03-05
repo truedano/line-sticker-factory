@@ -62,8 +62,14 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
 
                 {gridConfig.isDoubleSheet && (
                     <div className="flex gap-2 mb-6 border-b border-white/10 pb-4">
-                        <button onClick={() => setActiveTab(0)} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === 0 ? 'bg-amber-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>第一組 (1~{getSheetCount(0)})</button>
-                        <button onClick={() => setActiveTab(1)} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === 1 ? 'bg-amber-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>第二組 ({getSheetCount(0) + 1}~{gridConfig.total})</button>
+                        <button onClick={() => { setActiveTab(0); if (handleCopyPrompt) handleCopyPrompt(0); }} className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all transform active:scale-95 ${activeTab === 0 ? 'bg-amber-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'}`}>
+                            {activeTab === 0 && copySuccess ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                            第一組 (1~{getSheetCount(0)})
+                        </button>
+                        <button onClick={() => { setActiveTab(1); if (handleCopyPrompt) handleCopyPrompt(1); }} className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all transform active:scale-95 ${activeTab === 1 ? 'bg-amber-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'}`}>
+                            {activeTab === 1 && copySuccess ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                            第二組 ({getSheetCount(0) + 1}~{gridConfig.total})
+                        </button>
                     </div>
                 )}
 
@@ -71,7 +77,7 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
                     <div className="font-bold text-2xl text-white flex items-center gap-2">
                         <span className="text-amber-500">✅ {gridConfig.isDoubleSheet && `(第 ${activeTab + 1} 組)`}</span> {sheetTotalCount} 格角色表情貼集｜AI Prompt 建議
                     </div>
-                    {handleCopyPrompt && (
+                    {!gridConfig.isDoubleSheet && handleCopyPrompt && (
                         <button
                             onClick={() => handleCopyPrompt(activeTab)}
                             className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all transform active:scale-95 shrink-0 ${copySuccess ? 'bg-green-500 text-white shadow-green-500/20' : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'}`}
@@ -166,8 +172,14 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
 
             {gridConfig.isDoubleSheet && (
                 <div className="flex gap-2 mb-6 border-b border-white/10 pb-4">
-                    <button onClick={() => setActiveTab(0)} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === 0 ? 'bg-line text-white shadow-lg shadow-green-500/20' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>第一組 (1~{getSheetCount(0)})</button>
-                    <button onClick={() => setActiveTab(1)} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === 1 ? 'bg-line text-white shadow-lg shadow-green-500/20' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>第二組 ({getSheetCount(0) + 1}~{gridConfig.total})</button>
+                    <button onClick={() => { setActiveTab(0); if (handleCopyPrompt) handleCopyPrompt(0); }} className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all transform active:scale-95 ${activeTab === 0 ? 'bg-line text-white shadow-lg shadow-green-500/20' : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'}`}>
+                        {activeTab === 0 && copySuccess ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                        第一組 (1~{getSheetCount(0)})
+                    </button>
+                    <button onClick={() => { setActiveTab(1); if (handleCopyPrompt) handleCopyPrompt(1); }} className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all transform active:scale-95 ${activeTab === 1 ? 'bg-line text-white shadow-lg shadow-green-500/20' : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'}`}>
+                        {activeTab === 1 && copySuccess ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                        第二組 ({getSheetCount(0) + 1}~{gridConfig.total})
+                    </button>
                 </div>
             )}
 
@@ -175,7 +187,7 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
                 <div className="font-bold text-2xl text-white flex items-center gap-2">
                     <span className="text-line">✅ {gridConfig.isDoubleSheet && `(第 ${activeTab + 1} 組)`}</span> {sheetTotalCount} 格角色貼圖集｜AI Prompt 建議
                 </div>
-                {handleCopyPrompt && (
+                {!gridConfig.isDoubleSheet && handleCopyPrompt && (
                     <button
                         onClick={() => handleCopyPrompt(activeTab)}
                         className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all transform active:scale-95 shrink-0 ${copySuccess ? 'bg-green-500 text-white shadow-green-500/20' : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'}`}
