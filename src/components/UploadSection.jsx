@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Upload, Scissors, Loader, Star, ChevronDown, Info, Wand2, CheckCircle, Copy, Grid3X3, AlertTriangle, Eye, EyeOff } from 'lucide-react';
+import { Upload, Scissors, Loader, Star, ChevronDown, Info, Wand2, CheckCircle, Copy, Grid3X3, AlertTriangle, Eye, EyeOff, Zap } from 'lucide-react';
 import PromptDisplay from './PromptDisplay';
 
 const UploadSection = ({
@@ -33,7 +33,9 @@ const UploadSection = ({
     isEmojiTextEnabled,
     setIsEmojiTextEnabled,
     autoRemoveGeminiWatermark,
-    setAutoRemoveGeminiWatermark
+    setAutoRemoveGeminiWatermark,
+    handleAutoWorkflow,
+    autoWorkflowMode
 }) => {
     const isEmoji = productType === 'emoji';
     const [showGrid, setShowGrid] = useState(true);
@@ -415,10 +417,20 @@ const UploadSection = ({
                                 </button>
                             </div>
 
-                            <button onClick={performSlice} className={`btn-premium text-white px-16 py-5 rounded-[1.25rem] font-bold shadow-xl transition-all btn-press flex items-center justify-center gap-3 mx-auto text-xl active:scale-95 group ${isEmoji ? 'bg-amber-500 hover:bg-amber-500/90 shadow-amber-500/20' : 'bg-line hover:bg-line/90 shadow-green-500/20'}`}>
-                                {isProcessing ? <Loader className="animate-spin" /> : <Scissors className="group-hover:rotate-12 transition-transform" />}
-                                <span>開始切割資源包</span>
-                            </button>
+                            <div className="flex flex-col md:flex-row items-stretch md:items-center justify-center gap-4 mx-auto mt-4 px-4 w-full md:w-auto">
+                                <button onClick={performSlice} disabled={isProcessing} className={`btn-premium text-white px-6 py-4 md:py-5 rounded-[1.25rem] font-bold shadow-xl transition-all btn-press flex items-center justify-center gap-3 text-lg active:scale-95 group bg-slate-700 hover:bg-slate-600 border border-slate-600 min-w-[160px]`}>
+                                    {(isProcessing && !autoWorkflowMode) ? <Loader className="animate-spin w-5 h-5" /> : <Scissors className="w-5 h-5 group-hover:rotate-12 transition-transform" />}
+                                    <span>僅開始切割</span>
+                                </button>
+
+                                <button onClick={handleAutoWorkflow} disabled={isProcessing} className={`btn-premium text-white px-8 md:px-12 py-4 md:py-5 rounded-[1.25rem] font-bold shadow-xl transition-all btn-press flex items-center justify-center gap-3 text-xl active:scale-95 group min-w-[240px] ${isEmoji ? 'bg-amber-500 hover:bg-amber-500/90 shadow-amber-500/20' : 'bg-line hover:bg-line/90 shadow-green-500/20'}`}>
+                                    {autoWorkflowMode ? <Loader className="animate-spin w-6 h-6" /> : <Zap className="w-6 h-6 group-hover:scale-110 group-hover:text-yellow-200 transition-transform" />}
+                                    <div className="flex flex-col items-center">
+                                        <span>一鍵產生壓縮檔</span>
+                                        <span className="text-[10px] font-normal opacity-80 -mt-1">切割 ➔ 去背 ➔ 打包</span>
+                                    </div>
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>

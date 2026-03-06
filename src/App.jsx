@@ -23,6 +23,7 @@ const App = () => {
     const [gridMode, setGridMode] = useState(settings.gridMode || '4x3');
     const [showPromptGuide, setShowPromptGuide] = useState(settings.showPromptGuide ?? true);
     const [copySuccess, setCopySuccess] = useState(false);
+    const [autoWorkflowMode, setAutoWorkflowMode] = useState(false);
 
     // Settings State
     const [activeTheme, setActiveTheme] = useState(settings.activeTheme || 'daily');
@@ -134,6 +135,29 @@ const App = () => {
             setStep(3);
         }
     }, [processedCount, isProcessing, setIsProcessing, gridConfig.total, productConfig.hasMain]);
+
+    // 自動處理流程 Step 2: 圖片分割完成後，自動觸發去背
+    useEffect(() => {
+        if (autoWorkflowMode && step === 2 && slicedPieces.length > 0 && !isProcessing) {
+            performProcessing(setStep, setMainId, setTabId, productType);
+        }
+    }, [autoWorkflowMode, step, slicedPieces.length, isProcessing, performProcessing, setStep, setMainId, setTabId, productType]);
+
+    // 自動處理流程 Step 3: 去背完成並進入預覽後，自動觸發打包下載
+    useEffect(() => {
+        if (autoWorkflowMode && step === 3 && !isProcessing && finalImages.length === gridConfig.total) {
+            const timer = setTimeout(() => {
+                downloadZip();
+                setAutoWorkflowMode(false);
+            }, 800);
+            return () => clearTimeout(timer);
+        }
+    }, [autoWorkflowMode, step, isProcessing, finalImages.length, gridConfig.total, downloadZip]);
+
+    const handleAutoWorkflow = () => {
+        setAutoWorkflowMode(true);
+        performSlice(originalSheet1, originalSheet2, setStep, gridConfig, isEmoji ? 0 : 3);
+    };
 
     const handleUpload = (e, sheetIndex = 1) => {
         const file = e.target.files[0];
@@ -353,6 +377,8 @@ ${isEmojiTextEnabled ? '• 文字配色：每格的文字顏色必須各不相�
                 productType={productType}
                 autoRemoveGeminiWatermark={autoRemoveGeminiWatermark}
                 setAutoRemoveGeminiWatermark={setAutoRemoveGeminiWatermark}
+                handleAutoWorkflow={handleAutoWorkflow}
+                autoWorkflowMode={autoWorkflowMode}
             />
 
             <RemoveBgSection
