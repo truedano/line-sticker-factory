@@ -5,6 +5,7 @@ import Header from './components/Header';
 import UploadSection from './components/UploadSection';
 import RemoveBgSection from './components/RemoveBgSection';
 import DownloadSection from './components/DownloadSection';
+import ThemeBuilder from './components/ThemeBuilder';
 import useImageProcessing from './hooks/useImageProcessing';
 import useStickerPack from './hooks/useStickerPack';
 import { removeGeminiWatermark } from './utils/removeGeminiWatermark';
@@ -345,77 +346,83 @@ ${isEmojiTextEnabled ? '• 文字配色：每格的文字顏色必須各不相�
         <div className="min-h-screen p-4 md:p-8 max-w-7xl mx-auto pb-32">
             <Header step={step} version={version} productType={productType} setProductType={setProductType} />
 
-            <UploadSection
-                step={step}
-                originalSheet1={originalSheet1}
-                originalSheet2={originalSheet2}
-                handleUpload={handleUpload}
-                isProcessing={isProcessing}
-                performSlice={() => performSlice(originalSheet1, originalSheet2, setStep, gridConfig, isEmoji ? 0 : 3)}
-                showPromptGuide={showPromptGuide}
-                setShowPromptGuide={setShowPromptGuide}
-                activeTheme={activeTheme}
-                setActiveTheme={setActiveTheme}
-                activeStyle={activeStyle}
-                setActiveStyle={setActiveStyle}
-                isEmojiTextEnabled={isEmojiTextEnabled}
-                setIsEmojiTextEnabled={setIsEmojiTextEnabled}
-                customTexts={customTexts}
-                setCustomTexts={setCustomTexts}
-                customEmotions={customEmotions}
-                setCustomEmotions={setCustomEmotions}
-                customActions={customActions}
-                setCustomActions={setCustomActions}
-                handleCopyPrompt={handleCopyPrompt}
-                copySuccess={copySuccess}
-                promptThemes={promptThemes}
-                PROMPT_STYLES={PROMPT_STYLES}
-                gridMode={gridMode}
-                setGridMode={setGridMode}
-                gridConfig={gridConfig}
-                gridModes={gridModes}
-                productType={productType}
-                autoRemoveGeminiWatermark={autoRemoveGeminiWatermark}
-                setAutoRemoveGeminiWatermark={setAutoRemoveGeminiWatermark}
-                handleAutoWorkflow={handleAutoWorkflow}
-                autoWorkflowMode={autoWorkflowMode}
-            />
+            {productType === 'theme' ? (
+                <ThemeBuilder productType={productType} />
+            ) : (
+                <>
+                    <UploadSection
+                        step={step}
+                        originalSheet1={originalSheet1}
+                        originalSheet2={originalSheet2}
+                        handleUpload={handleUpload}
+                        isProcessing={isProcessing}
+                        performSlice={() => performSlice(originalSheet1, originalSheet2, setStep, gridConfig, isEmoji ? 0 : 3)}
+                        showPromptGuide={showPromptGuide}
+                        setShowPromptGuide={setShowPromptGuide}
+                        activeTheme={activeTheme}
+                        setActiveTheme={setActiveTheme}
+                        activeStyle={activeStyle}
+                        setActiveStyle={setActiveStyle}
+                        isEmojiTextEnabled={isEmojiTextEnabled}
+                        setIsEmojiTextEnabled={setIsEmojiTextEnabled}
+                        customTexts={customTexts}
+                        setCustomTexts={setCustomTexts}
+                        customEmotions={customEmotions}
+                        setCustomEmotions={setCustomEmotions}
+                        customActions={customActions}
+                        setCustomActions={setCustomActions}
+                        handleCopyPrompt={handleCopyPrompt}
+                        copySuccess={copySuccess}
+                        promptThemes={promptThemes}
+                        PROMPT_STYLES={PROMPT_STYLES}
+                        gridMode={gridMode}
+                        setGridMode={setGridMode}
+                        gridConfig={gridConfig}
+                        gridModes={gridModes}
+                        productType={productType}
+                        autoRemoveGeminiWatermark={autoRemoveGeminiWatermark}
+                        setAutoRemoveGeminiWatermark={setAutoRemoveGeminiWatermark}
+                        handleAutoWorkflow={handleAutoWorkflow}
+                        autoWorkflowMode={autoWorkflowMode}
+                    />
 
-            <RemoveBgSection
-                step={step}
-                slicedPieces={slicedPieces}
-                autoRemoveBg={autoRemoveBg}
-                setAutoRemoveBg={setAutoRemoveBg}
-                targetColorHex={targetColorHex}
-                applyPreset={applyPreset}
-                zoomLevel={zoomLevel}
-                setZoomLevel={setZoomLevel}
-                colorTolerance={colorTolerance}
-                setColorTolerance={setColorTolerance}
-                despill={despill}
-                setDespill={setDespill}
-                performProcessing={() => performProcessing(setStep, setMainId, setTabId, productType)}
-                isProcessing={isProcessing}
-                processedCount={processedCount}
-                setStep={setStep}
-                gridConfig={gridConfig}
-            />
+                    <RemoveBgSection
+                        step={step}
+                        slicedPieces={slicedPieces}
+                        autoRemoveBg={autoRemoveBg}
+                        setAutoRemoveBg={setAutoRemoveBg}
+                        targetColorHex={targetColorHex}
+                        applyPreset={applyPreset}
+                        zoomLevel={zoomLevel}
+                        setZoomLevel={setZoomLevel}
+                        colorTolerance={colorTolerance}
+                        setColorTolerance={setColorTolerance}
+                        despill={despill}
+                        setDespill={setDespill}
+                        performProcessing={() => performProcessing(setStep, setMainId, setTabId, productType)}
+                        isProcessing={isProcessing}
+                        processedCount={processedCount}
+                        setStep={setStep}
+                        gridConfig={gridConfig}
+                    />
 
-            <DownloadSection
-                step={step}
-                finalImages={finalImages}
-                mainId={mainId}
-                setMainId={setMainId}
-                tabId={tabId}
-                setTabId={setTabId}
-                startNumber={startNumber}
-                setStartNumber={setStartNumber}
-                downloadZip={downloadZip}
-                getFileName={getFileName}
-                setStep={setStep}
-                productType={productType}
-                productConfig={productConfig}
-            />
+                    <DownloadSection
+                        step={step}
+                        finalImages={finalImages}
+                        mainId={mainId}
+                        setMainId={setMainId}
+                        tabId={tabId}
+                        setTabId={setTabId}
+                        startNumber={startNumber}
+                        setStartNumber={setStartNumber}
+                        downloadZip={downloadZip}
+                        getFileName={getFileName}
+                        setStep={setStep}
+                        productType={productType}
+                        productConfig={productConfig}
+                    />
+                </>
+            )}
         </div>
     );
 };

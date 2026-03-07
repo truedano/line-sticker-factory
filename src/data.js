@@ -18,6 +18,13 @@ export const PRODUCT_TYPES = {
         tabSize: { width: 96, height: 74 },
         hasMain: false,
         filePrefix: 'line_emoji_pack',
+    },
+    theme: {
+        label: 'LINE 主題',
+        icon: '🎨',
+        desc: 'LINE 應用程式主題外觀',
+        hasMain: false,
+        filePrefix: 'line_theme_pack',
     }
 };
 

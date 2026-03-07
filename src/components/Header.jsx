@@ -1,5 +1,5 @@
 import React from 'react';
-import { MessageCircle, CheckCircle, Image, SmilePlus } from 'lucide-react';
+import { MessageCircle, CheckCircle, Image, SmilePlus, Palette } from 'lucide-react';
 import ThemeSelector from './ThemeSelector';
 
 const Header = ({ step, version, productType, setProductType }) => {
@@ -21,24 +21,28 @@ const Header = ({ step, version, productType, setProductType }) => {
                     <p className="text-slate-400 font-medium ml-1">快速分割、去背、打包您的 AI 貼圖</p>
                 </div>
 
-                <div className="flex items-center bg-slate-900/60 backdrop-blur-md rounded-3xl px-6 py-4 border border-white/5 shadow-inner">
-                    {[{ num: 1, label: '上傳分割' }, { num: 2, label: '智能去背' }, { num: 3, label: '成品打包' }].map((s, idx) => (
-                        <div key={s.num} className="flex items-center">
-                            <div className={`flex flex-col md:flex-row items-center gap-3 px-2 transition-all duration-500 ${step === s.num ? 'scale-105' : 'opacity-60'}`}>
-                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold transition-all duration-500 ${step >= s.num ? 'bg-line text-white shadow-[0_0_15px_rgba(6,199,85,0.4)]' : 'bg-slate-800 text-slate-500'}`}>
-                                    {step > s.num ? <CheckCircle className="w-5 h-5" /> : s.num}
+                <div className="flex flex-col md:flex-row items-center justify-center gap-6">
+                    {productType !== 'theme' && (
+                        <div className="flex items-center bg-slate-900/60 backdrop-blur-md rounded-3xl px-6 py-4 border border-white/5 shadow-inner">
+                            {[{ num: 1, label: '上傳分割' }, { num: 2, label: '智能去背' }, { num: 3, label: '成品打包' }].map((s, idx) => (
+                                <div key={s.num} className="flex items-center">
+                                    <div className={`flex flex-col md:flex-row items-center gap-3 px-2 transition-all duration-500 ${step === s.num ? 'scale-105' : 'opacity-60'}`}>
+                                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold transition-all duration-500 ${step >= s.num ? 'bg-line text-white shadow-[0_0_15px_rgba(6,199,85,0.4)]' : 'bg-slate-800 text-slate-500'}`}>
+                                            {step > s.num ? <CheckCircle className="w-5 h-5" /> : s.num}
+                                        </div>
+                                        <span className={`text-xs md:text-sm font-bold whitespace-nowrap ${step >= s.num ? 'text-white' : 'text-slate-500'}`}>
+                                            {s.label}
+                                        </span>
+                                    </div>
+                                    {idx < 2 && (
+                                        <div className="mx-2 md:mx-4 w-6 md:w-12 h-[2px] rounded-full overflow-hidden bg-slate-800">
+                                            <div className={`h-full bg-line transition-all duration-700 ease-in-out ${step > s.num ? 'w-full' : 'w-0'}`}></div>
+                                        </div>
+                                    )}
                                 </div>
-                                <span className={`text-xs md:text-sm font-bold whitespace-nowrap ${step >= s.num ? 'text-white' : 'text-slate-500'}`}>
-                                    {s.label}
-                                </span>
-                            </div>
-                            {idx < 2 && (
-                                <div className="mx-2 md:mx-4 w-6 md:w-12 h-[2px] rounded-full overflow-hidden bg-slate-800">
-                                    <div className={`h-full bg-line transition-all duration-700 ease-in-out ${step > s.num ? 'w-full' : 'w-0'}`}></div>
-                                </div>
-                            )}
+                            ))}
                         </div>
-                    ))}
+                    )}
                 </div>
             </div>
 
@@ -77,6 +81,22 @@ const Header = ({ step, version, productType, setProductType }) => {
                         <div className="text-left">
                             <div className="font-bold">LINE 表情貼</div>
                             <div className="text-[10px] opacity-60">180×180 px</div>
+                        </div>
+                    </button>
+                    <button
+                        onClick={() => setProductType('theme')}
+                        className={`flex items-center gap-3 px-6 py-3.5 rounded-2xl font-bold text-sm transition-all duration-300 border-2 ${productType === 'theme'
+                            ? 'bg-purple-500/15 border-purple-500 text-white shadow-lg shadow-purple-500/10'
+                            : 'bg-slate-800/50 border-slate-700/50 text-slate-400 hover:border-slate-500 hover:text-slate-200 hover:bg-slate-800'
+                            }`}
+                    >
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${productType === 'theme' ? 'bg-purple-500/20' : 'bg-slate-700/50'
+                            }`}>
+                            <Palette className="w-4 h-4" />
+                        </div>
+                        <div className="text-left">
+                            <div className="font-bold">LINE 主題</div>
+                            <div className="text-[10px] opacity-60">自動裁切打包</div>
                         </div>
                     </button>
                 </div>
