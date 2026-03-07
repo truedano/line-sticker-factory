@@ -42,12 +42,38 @@ const useThemePack = () => {
         });
     };
 
+    const sliceImageGrid = (dataUrl, colCount, rowCount, tileW, tileH) => {
+        return new Promise((resolve, reject) => {
+            if (!dataUrl) return resolve([]);
+            const img = new Image();
+            img.onload = () => {
+                const tiles = [];
+                const srcTileW = img.width / colCount;
+                const srcTileH = img.height / rowCount;
+
+                for (let r = 0; r < rowCount; r++) {
+                    for (let c = 0; c < colCount; c++) {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = tileW;
+                        canvas.height = tileH;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, c * srcTileW, r * srcTileH, srcTileW, srcTileH, 0, 0, tileW, tileH);
+                        tiles.push(canvas.toDataURL('image/png').split(',')[1]);
+                    }
+                }
+                resolve(tiles);
+            };
+            img.onerror = () => reject(new Error('Image load failed'));
+            img.src = dataUrl;
+        });
+    };
+
     const generateThemeZip = async (assets) => {
         const zip = new JSZip();
 
-        const { mainImageIos, mainImageAndroid, mainImageStore, menuOffImage, menuOnImage, bgImage, passcodeImage, profileImage } = assets;
+        const { mainImageIos, mainImageAndroid, mainImageStore, menuOffImage, menuOnImage, menuBgImage, passcodeImage, profileImage, chatBgImage } = assets;
 
-        const mainFallback = mainImageIos || mainImageAndroid || mainImageStore || bgImage || profileImage;
+        const mainFallback = mainImageIos || mainImageAndroid || mainImageStore || chatBgImage || profileImage;
 
         // 1. MainImages
         if (mainFallback) {
@@ -60,22 +86,32 @@ const useThemePack = () => {
         // 2. MenuButtons
         if (menuOffImage && menuOnImage) {
             const menuFolder = zip.folder("2_MenuButtons");
-            const offBase = await resizeImage(menuOffImage, 128, 150, 'contain');
-            const onBase = await resizeImage(menuOnImage, 128, 150, 'contain');
+            const MENU_MAPPING = [
+                { off: "i_29.png", on: "i_30.png" }, // 1. 主頁
+                { off: "i_03.png", on: "i_04.png" }, // 2. 聊天
+                { off: "i_33.png", on: "i_34.png" }, // 3. VOOM
+                { off: "i_35.png", on: "i_36.png" }, // 4. 購物
+                { off: "i_07.png", on: "i_08.png" }, // 5. 通話
+                { off: "i_25.png", on: "i_26.png" }, // 6. 新聞
+                { off: "i_31.png", on: "i_32.png" }, // 7. TODAY
+                { off: "i_27.png", on: "i_28.png" }, // 8. 錢包
+                { off: "i_37.png", on: "i_38.png" }, // 9. MINI
+            ];
 
-            // Generate 10 sets of menu icons as fallbacks
-            for (let i = 1; i <= 10; i++) {
-                const num = i.toString().padStart(2, '0');
-                menuFolder.file(`${num}_off.png`, offBase, { base64: true });
-                menuFolder.file(`${num}_on.png`, onBase, { base64: true });
+            const offTiles = await sliceImageGrid(menuOffImage, 3, 3, 128, 150);
+            const onTiles = await sliceImageGrid(menuOnImage, 3, 3, 128, 150);
+
+            for (let i = 0; i < 9; i++) {
+                if (offTiles[i]) menuFolder.file(MENU_MAPPING[i].off, offTiles[i], { base64: true });
+                if (onTiles[i]) menuFolder.file(MENU_MAPPING[i].on, onTiles[i], { base64: true });
             }
         }
 
         // 3. MenuBackground
-        if (bgImage) {
+        if (menuBgImage) {
             const menuBgFolder = zip.folder("3_MenuBackground");
             // 1472x150 for general repeating iOS background
-            menuBgFolder.file("menu_bg.png", await resizeImage(bgImage, 1472, 150, 'cover'), { base64: true });
+            menuBgFolder.file("menu_bg.png", await resizeImage(menuBgImage, 1472, 150, 'cover'), { base64: true });
         }
 
         // 4. Passcode
@@ -98,10 +134,10 @@ const useThemePack = () => {
         }
 
         // 6. ChatBackground
-        if (bgImage) {
+        if (chatBgImage) {
             const chatBgFolder = zip.folder("6_ChatBackground");
-            chatBgFolder.file("chat_bg_ios.png", await resizeImage(bgImage, 1482, 1334, 'cover'), { base64: true });
-            chatBgFolder.file("chat_bg_android.png", await resizeImage(bgImage, 1300, 1300, 'cover'), { base64: true });
+            chatBgFolder.file("chat_bg_ios.png", await resizeImage(chatBgImage, 1482, 1334, 'cover'), { base64: true });
+            chatBgFolder.file("chat_bg_android.png", await resizeImage(chatBgImage, 1300, 1300, 'cover'), { base64: true });
         }
 
         const blob = await zip.generateAsync({ type: "blob" });
