@@ -246,7 +246,7 @@ const ThemeBuilder = ({ productType }) => {
                                     const PROMPT_CATEGORIES = [
                                         { id: 'A', title: 'A. 主要圖片', items: PROMPT_TYPES.filter(t => t.category.startsWith('A')) },
                                         { id: 'B', title: 'B. 選單按鍵', items: PROMPT_TYPES.filter(t => t.category.startsWith('B')) },
-                                        { id: 'C', title: 'C. 選單背景', items: PROMPT_TYPES.filter(t => t.category.startsWith('C')) },
+                                        { id: 'C', title: <span>C. 選單背景 <span className="text-[10px] font-normal opacity-70">(非必要)</span></span>, items: PROMPT_TYPES.filter(t => t.category.startsWith('C')) },
                                         { id: 'D', title: 'D. 密碼畫面', items: PROMPT_TYPES.filter(t => t.category.startsWith('D')) },
                                         { id: 'E', title: 'E. 個人圖片', items: PROMPT_TYPES.filter(t => t.category.startsWith('E')) },
                                         { id: 'F', title: 'F. 聊天底圖', items: PROMPT_TYPES.filter(t => t.category.startsWith('F')) }
@@ -349,7 +349,10 @@ const ThemeBuilder = ({ productType }) => {
                             </div>
 
                             <div>
-                                <h4 className="flex items-center gap-3 text-lg font-bold text-white mb-5 pb-3 border-b border-white/5"><span className="w-8 h-8 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center font-black">C</span> 選單背景圖片</h4>
+                                <h4 className="flex items-center gap-3 text-lg font-bold text-white mb-5 pb-3 border-b border-white/5">
+                                    <span className="w-8 h-8 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center font-black">C</span>
+                                    選單背景圖片 <span className="text-sm text-slate-500 font-normal tracking-wider ml-1">(非必要)</span>
+                                </h4>
                                 <div className="grid grid-cols-1 gap-6">
                                     <UploadCard label="選單背景" desc="1472×150 px" stateKey="menuBgImage" icon={ImageIcon} />
                                 </div>
