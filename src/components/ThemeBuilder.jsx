@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Upload, Download, Loader, Info, Palette, Image as ImageIcon, Wand2, ChevronDown, Copy, CheckCircle } from 'lucide-react';
+import { Upload, Download, Loader, Info, Palette, Image as ImageIcon, Wand2, ChevronDown, Copy, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import useThemePack from '../hooks/useThemePack';
 import { PROMPT_STYLES } from '../data';
 
@@ -43,12 +43,39 @@ const ThemeBuilder = ({ productType }) => {
         const style = PROMPT_STYLES[activeStyle] || PROMPT_STYLES.qversion;
         const typeInfo = PROMPT_TYPES.find(t => t.id === typeId) || PROMPT_TYPES[0];
 
+        let isGrid = typeId === 'menu_btn_off' || typeId === 'menu_btn_on';
+
+        if (isGrid) {
+            let stateDesc = typeId === 'menu_btn_off'
+                ? '請使用低調、平淡或是單色草圖線條設計，代表未選取狀態。'
+                : '請使用色彩鮮明、生動可愛的特效設計，代表正被點擊活躍中。';
+
+            return `✅ ${typeInfo.category} - ${typeInfo.label}｜AI Prompt 建議
+
+⚠️ 尺寸與裁切要求 (極度重要)
+• 畫布精確尺寸：請設定為「寬度 ${typeInfo.size.split('×')[0]} px，高度 ${typeInfo.size.split('×')[1]} px」。
+• 不可變更：請在 AI 生圖工具中將解析度明確設定為 ${typeInfo.size.split('×')[0]}×${typeInfo.size.split('×')[1]}，不可使用其他尺寸。
+
+請參考我上傳的圖片生圖：生成一張 ${typeInfo.size.split('×')[0]}×${typeInfo.size.split('×')[1]} px 的滿版大圖，包含 9 個不同的小選單圖示。
+
+畫面佈局設計（極重要參數）
+• 版面規則：3 欄 × 3 列，每格 128×150 px，共 9 格。
+• 隱形網格：所有 9 個圖示必須排列整齊，呈現嚴格的九宮格陣列。👉 絕對禁止畫出任何白色的網格線、實體分隔線、九宮格框線或整體大外框！背景必須是一整版純粹連續的綠色。
+• 嚴禁畫紅點：絕對不要在小圖右上角畫任何「紅色圓點通知」，那是 LINE 系統會自己加的！
+• 集中偏左下避讓（極重要）：每格內的圖示必須完全獨立且緊湊地集中在單一格子的「中央偏左下」。
+• 避開右上通知區域：在實際的 LINE 畫面上，每個選單的「右上角（距上空 49px、距右空 21px，尺寸 33×33 px）」會被系統強制覆蓋紅色的提醒數字。因此強烈要求：你的小圖示主要結構絕對要「避開右上角」，不能把格子畫滿！
+• 安全邊界：單一個小圖示四周必須保留明確且足夠寬敞的綠色安全邊距（Padding），確保切割出來的 9 張圖完全不會互相切斷或黏合。
+
+角色與風格設定
+• 選單圖示設計（極重要）：這「9 個截然不同的小圖示」是應用程式底部選單的按鈕。請畫出與主角「主題相關」的簡單小物件、符號（例如房子、對話框、放大鏡、袋子...等），或是只有主角的「大頭/重要配件」。👉 絕對禁止在每一格都畫一個完整的「全身角色」！圖示必須是簡單易懂的小符號或小道具。
+• 參考圖轉換：請擷取我上傳原圖的配色與風格氛圍，將這些特徵完美融入到 9 個不重複的選單小圖示中。
+• 按鍵狀態要求：${stateDesc}
+• 去背優化：請在每個物件邊緣加入「粗白色外框 (Sticker Style)」。背景統一為不可有任何漸層與雜訊的 #00FF00 (純綠色)。
+• 視覺風格：${style.label}（${style.desc}）。`;
+        }
+
         let extraGuide = '';
-        if (typeId === 'menu_btn_off') {
-            extraGuide = '\n• 九宮格按鍵設計 (未選取 OFF)：請設計一個 3x3 的九宮格版面（共 9 個不同的小圖示）。這是「未選取」的狀態，顏色建議較為黯淡、低調或以單色系、線條為主。請確保每個小圖案置中於自己的格子內（系統稍後會將此圖精準等分成 9 張 128x150 的小圖）。特別注意：每個小圖示的「右上角」未來將會被 LINE 覆蓋「紅色提醒數字 N」，因此務必確保每個圖案四周與右上角保持充足的留白，圖案絕對不能畫太滿！';
-        } else if (typeId === 'menu_btn_on') {
-            extraGuide = '\n• 九宮格按鍵設計 (已選取 ON)：請設計一個 3x3 的九宮格版面（共 9 個不同的小圖示）。這是「已選取」的活躍狀態，顏色建議極度鮮明、生動可愛或帶有高亮特效。請確保每個小圖案置中於自己的格子內（系統稍後會將此圖精準等分成 9 張 128x150 的小圖）。特別注意：每個小圖示的「右上角」未來將會被 LINE 覆蓋「紅色提醒數字 N」，因此務必確保每個圖案四周與右上角保持充足的留白，圖案絕對不能畫太滿！';
-        } else if (typeInfo.category.startsWith('C')) {
+        if (typeInfo.category.startsWith('C')) {
             extraGuide = '\n• 橫條背景：這是一張極度扁長的橫條圖片，請設計適合橫向平鋪的連續圖案或漸層背景，絕對不要把角色放太大。';
         } else if (typeInfo.category.startsWith('D')) {
             extraGuide = '\n• 密碼圖示：這是一個密碼解鎖圖示，應該是圓潤且小巧的單純圖案。';
@@ -95,8 +122,11 @@ const ThemeBuilder = ({ productType }) => {
     const allUploaded = Object.values(assets).filter(Boolean).length;
     const progress = Math.round((allUploaded / 9) * 100);
 
+    const [showMenuGrid, setShowMenuGrid] = useState(true);
+
     const UploadCard = ({ label, desc, stateKey, icon: Icon }) => {
         const hasImage = !!assets[stateKey];
+        const isMenuGrid = stateKey === 'menuOffImage' || stateKey === 'menuOnImage';
 
         return (
             <div className={`relative group border-2 border-dashed rounded-[2rem] flex flex-col items-center justify-center transition-all duration-500 overflow-hidden min-h-[160px] p-6
@@ -110,10 +140,20 @@ const ThemeBuilder = ({ productType }) => {
                 />
 
                 {hasImage ? (
-                    <div className="w-full flex flex-col items-center justify-center animate-fade-in relative">
-                        <img src={assets[stateKey]} className="max-h-[120px] max-w-full rounded-xl shadow-lg object-contain" alt={label} />
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity rounded-xl z-10 pointer-events-none">
-                            <span className="text-white font-bold bg-slate-900/80 px-3 py-1 rounded-full text-xs">點擊更換</span>
+                    <div className="w-full flex flex-col items-center justify-center animate-fade-in relative h-[120px]">
+                        <img src={assets[stateKey]} className="max-h-[120px] w-full h-full rounded-xl shadow-lg object-contain relative z-0" alt={label} />
+
+                        {isMenuGrid && showMenuGrid && (
+                            <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 384 450" preserveAspectRatio="xMidYMid meet">
+                                <line x1="128" y1="0" x2="128" y2="450" stroke="rgba(255,50,50,0.8)" strokeWidth="4" strokeDasharray="8 4" />
+                                <line x1="256" y1="0" x2="256" y2="450" stroke="rgba(255,50,50,0.8)" strokeWidth="4" strokeDasharray="8 4" />
+                                <line x1="0" y1="150" x2="384" y2="150" stroke="rgba(255,50,50,0.8)" strokeWidth="4" strokeDasharray="8 4" />
+                                <line x1="0" y1="300" x2="384" y2="300" stroke="rgba(255,50,50,0.8)" strokeWidth="4" strokeDasharray="8 4" />
+                            </svg>
+                        )}
+
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity rounded-xl z-20 pointer-events-none">
+                            <span className="text-white font-bold bg-slate-900/80 px-3 py-1 rounded-full text-xs">點擊更換圖片</span>
                         </div>
                     </div>
                 ) : (
@@ -256,7 +296,7 @@ const ThemeBuilder = ({ productType }) => {
                                     </span>
                                 </div>
 
-                                <pre className="whitespace-pre-wrap text-[13px] text-teal-300 font-mono leading-relaxed bg-slate-950 border border-slate-800 p-5 md:p-6 rounded-2xl overflow-x-auto shadow-inner break-words">
+                                <pre className="whitespace-pre-wrap text-[13px] text-teal-300 font-mono leading-relaxed bg-slate-950 border border-slate-800 p-5 md:p-6 rounded-2xl overflow-y-auto max-h-[400px] shadow-inner break-words custom-scrollbar">
                                     {getPromptText(activePromptType)}
                                 </pre>
                             </div>
@@ -284,10 +324,27 @@ const ThemeBuilder = ({ productType }) => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                             <div>
-                                <h4 className="flex items-center gap-3 text-lg font-bold text-white mb-5 pb-3 border-b border-white/5"><span className="w-8 h-8 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-black">B</span> 選單按鍵圖片</h4>
-                                <div className="grid grid-cols-2 gap-6">
+                                <h4 className="flex justify-between items-center text-lg font-bold text-white mb-5 pb-3 border-b border-white/5">
+                                    <span className="flex items-center gap-3">
+                                        <span className="w-8 h-8 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-black">B</span> 選單按鍵圖片
+                                    </span>
+                                </h4>
+                                <div className="grid grid-cols-2 gap-6 mb-4">
                                     <UploadCard label="九宮格 (OFF)" desc="384×450 px" stateKey="menuOffImage" icon={ImageIcon} />
                                     <UploadCard label="九宮格 (ON)" desc="384×450 px" stateKey="menuOnImage" icon={ImageIcon} />
+                                </div>
+                                <div className="flex flex-col items-center justify-center gap-3">
+                                    <div className="bg-slate-900/80 border border-white/10 rounded-xl px-4 py-2 text-xs flex items-center gap-2">
+                                        <span className="text-slate-500">每格約：</span>
+                                        <span className="text-sky-400 font-mono font-bold">128 × 150 px</span>
+                                    </div>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); setShowMenuGrid(!showMenuGrid); }}
+                                        className={`flex items-center justify-center gap-2 px-6 py-2 rounded-xl text-xs font-bold transition-all border ${showMenuGrid ? 'bg-slate-800 border-slate-600 text-slate-300' : 'bg-slate-900/80 border-slate-700 text-slate-500 hover:text-slate-300'}`}
+                                    >
+                                        {showMenuGrid ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                                        {showMenuGrid ? '隱藏切割線' : '顯示切割線'}
+                                    </button>
                                 </div>
                             </div>
 
