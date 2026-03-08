@@ -71,7 +71,7 @@ const useThemePack = () => {
     const generateThemeZip = async (assets) => {
         const zip = new JSZip();
 
-        const { mainImageIos, mainImageAndroid, mainImageStore, menuOffImage, menuOnImage, menuBgImage, passcodeImage, profileImage, chatBgImage } = assets;
+        const { mainImageIos, mainImageAndroid, mainImageStore, menuOffImage, menuOnImage, menuBgImage, passcodeIosOffImage, passcodeIosOnImage, passcodeAndroidOffImage, passcodeAndroidOnImage, profileImage, chatBgImage } = assets;
 
         const mainFallback = mainImageIos || mainImageAndroid || mainImageStore || chatBgImage || profileImage;
 
@@ -98,12 +98,30 @@ const useThemePack = () => {
                 { off: "i_37.png", on: "i_38.png" }, // 9. MINI
             ];
 
+            const Android_MENU_MAPPING = [
+                { off: "a_29.png", on: "a_30.png" }, // 1. 主頁
+                { off: "a_03.png", on: "a_04.png" }, // 2. 聊天
+                { off: "a_33.png", on: "a_34.png" }, // 3. VOOM
+                { off: "a_35.png", on: "a_36.png" }, // 4. 購物
+                { off: "a_07.png", on: "a_08.png" }, // 5. 通話
+                { off: "a_25.png", on: "a_26.png" }, // 6. 新聞
+                { off: "a_31.png", on: "a_32.png" }, // 7. TODAY
+                { off: "a_27.png", on: "a_28.png" }, // 8. 錢包
+                { off: "a_37.png", on: "a_38.png" }, // 9. MINI
+            ];
+
             const offTiles = await sliceImageGrid(menuOffImage, 3, 3, 128, 150);
             const onTiles = await sliceImageGrid(menuOnImage, 3, 3, 128, 150);
 
             for (let i = 0; i < 9; i++) {
-                if (offTiles[i]) menuFolder.file(MENU_MAPPING[i].off, offTiles[i], { base64: true });
-                if (onTiles[i]) menuFolder.file(MENU_MAPPING[i].on, onTiles[i], { base64: true });
+                if (offTiles[i]) {
+                    menuFolder.file(MENU_MAPPING[i].off, offTiles[i], { base64: true });
+                    menuFolder.file(Android_MENU_MAPPING[i].off, offTiles[i], { base64: true });
+                }
+                if (onTiles[i]) {
+                    menuFolder.file(MENU_MAPPING[i].on, onTiles[i], { base64: true });
+                    menuFolder.file(Android_MENU_MAPPING[i].on, onTiles[i], { base64: true });
+                }
             }
         }
 
@@ -115,14 +133,41 @@ const useThemePack = () => {
         }
 
         // 4. Passcode
-        if (passcodeImage) {
+        const hasPasscode = passcodeIosOffImage || passcodeIosOnImage || passcodeAndroidOffImage || passcodeAndroidOnImage;
+        if (hasPasscode) {
             const passcodeFolder = zip.folder("4_Passcode");
-            const passOff = await resizeImage(passcodeImage, 120, 120, 'contain');
-            const passOn = await resizeImage(passcodeImage, 120, 120, 'cover'); // Just as variation
 
-            for (let i = 1; i <= 4; i++) {
-                passcodeFolder.file(`passcode_off_${i}.png`, passOff, { base64: true });
-                passcodeFolder.file(`passcode_on_${i}.png`, passOn, { base64: true });
+            // iOS fallback logic
+            const iosOff = passcodeIosOffImage || passcodeAndroidOffImage || passcodeIosOnImage || passcodeAndroidOnImage;
+            const iosOn = passcodeIosOnImage || passcodeAndroidOnImage || passcodeIosOffImage || passcodeAndroidOffImage;
+            const androidOff = passcodeAndroidOffImage || passcodeIosOffImage || passcodeAndroidOnImage || passcodeIosOnImage;
+            const androidOn = passcodeAndroidOnImage || passcodeIosOnImage || passcodeAndroidOffImage || passcodeIosOffImage;
+
+            const iosOffTiles = await sliceImageGrid(iosOff, 2, 2, 120, 120);
+            const iosOnTiles = await sliceImageGrid(iosOn, 2, 2, 120, 120);
+
+            const androidOffTiles = await sliceImageGrid(androidOff, 2, 2, 116, 116);
+            const androidOnTiles = await sliceImageGrid(androidOn, 2, 2, 116, 116);
+
+            const iosMapping = [
+                { off: 'i_12.png', on: 'i_13.png' },
+                { off: 'i_14.png', on: 'i_15.png' },
+                { off: 'i_16.png', on: 'i_17.png' },
+                { off: 'i_18.png', on: 'i_19.png' }
+            ];
+
+            const androidMapping = [
+                { off: 'a_12.png', on: 'a_13.png' },
+                { off: 'a_14.png', on: 'a_15.png' },
+                { off: 'a_16.png', on: 'a_17.png' },
+                { off: 'a_18.png', on: 'a_19.png' }
+            ];
+
+            for (let i = 0; i < 4; i++) {
+                if (iosOffTiles[i]) passcodeFolder.file(iosMapping[i].off, iosOffTiles[i], { base64: true });
+                if (iosOnTiles[i]) passcodeFolder.file(iosMapping[i].on, iosOnTiles[i], { base64: true });
+                if (androidOffTiles[i]) passcodeFolder.file(androidMapping[i].off, androidOffTiles[i], { base64: true });
+                if (androidOnTiles[i]) passcodeFolder.file(androidMapping[i].on, androidOnTiles[i], { base64: true });
             }
         }
 

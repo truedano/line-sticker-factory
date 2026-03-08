@@ -14,7 +14,10 @@ const ThemeBuilder = ({ productType }) => {
         menuOffImage: null,
         menuOnImage: null,
         menuBgImage: null,
-        passcodeImage: null,
+        passcodeIosOffImage: null,
+        passcodeIosOnImage: null,
+        passcodeAndroidOffImage: null,
+        passcodeAndroidOnImage: null,
         profileImage: null,
         chatBgImage: null
     });
@@ -30,10 +33,13 @@ const ThemeBuilder = ({ productType }) => {
         { id: 'main_ios', category: 'A. 主要圖片', label: '主要圖片 (iOS)', size: '200×284' },
         { id: 'main_android', category: 'A. 主要圖片', label: '主要圖片 (Android)', size: '136×202' },
         { id: 'main_store', category: 'A. 主要圖片', label: '主要圖片 (STORE)', size: '198×278' },
-        { id: 'menu_btn_off', category: 'B. 選單按鍵圖片', label: '選單按鍵 (未選取 OFF)', size: '384×450' },
-        { id: 'menu_btn_on', category: 'B. 選單按鍵圖片', label: '選單按鍵 (已選取 ON)', size: '384×450' },
+        { id: 'menu_btn_off', category: 'B. 選單按鍵圖片', label: '選單按鍵 (未選取狀態)', size: '384×450' },
+        { id: 'menu_btn_on', category: 'B. 選單按鍵圖片', label: '選單按鍵 (已選取狀態)', size: '384×450' },
         { id: 'menu_bg', category: 'C. 選單背景圖片', label: '選單背景 (極扁長)', size: '1472×150' },
-        { id: 'passcode', category: 'D. 密碼畫面圖片', label: '密碼圖示 (正方形)', size: '120×120' },
+        { id: 'passcode_ios_off', category: 'D. 密碼畫面圖片', label: '密碼圖案 iOS (未輸入狀態)', size: '240×240' },
+        { id: 'passcode_ios_on', category: 'D. 密碼畫面圖片', label: '密碼圖案 iOS (已輸入狀態)', size: '240×240' },
+        { id: 'passcode_android_off', category: 'D. 密碼畫面圖片', label: '密碼圖案 Android (未輸入狀態)', size: '232×232' },
+        { id: 'passcode_android_on', category: 'D. 密碼畫面圖片', label: '密碼圖案 Android (已輸入狀態)', size: '232×232' },
         { id: 'profile', category: 'E. 個人圖片', label: '大頭貼 (正方形)', size: '240×240' },
         { id: 'chat_bg_ios', category: 'F. 聊天室背景圖片', label: '聊天底圖 (iOS)', size: '1482×1334' },
         { id: 'chat_bg_android', category: 'F. 聊天室背景圖片', label: '聊天底圖 (Android)', size: '1300×1300' },
@@ -43,12 +49,32 @@ const ThemeBuilder = ({ productType }) => {
         const style = PROMPT_STYLES[activeStyle] || PROMPT_STYLES.qversion;
         const typeInfo = PROMPT_TYPES.find(t => t.id === typeId) || PROMPT_TYPES[0];
 
-        let isGrid = typeId === 'menu_btn_off' || typeId === 'menu_btn_on';
+        let isMenuGrid = typeId === 'menu_btn_off' || typeId === 'menu_btn_on';
+        let isPasscodeGrid = typeId.startsWith('passcode');
+        let isGrid = isMenuGrid || isPasscodeGrid;
 
         if (isGrid) {
-            let stateDesc = typeId === 'menu_btn_off'
-                ? '請使用低調、平淡或是單色草圖線條設計，代表未選取狀態。'
-                : '請使用色彩鮮明、生動可愛的特效設計，代表正被點擊活躍中。';
+            let stateDesc = '';
+            let gridCols = isMenuGrid ? 3 : 2;
+            let gridRows = isMenuGrid ? 3 : 2;
+            let cellW = isMenuGrid ? 128 : (typeId.includes('android') ? 116 : 120);
+            let cellH = isMenuGrid ? 150 : (typeId.includes('android') ? 116 : 120);
+            let cellCount = isMenuGrid ? 9 : 4;
+            let targetGroup = isMenuGrid ? '小選單圖示' : '密碼狀態圖示';
+
+            if (isMenuGrid) {
+                stateDesc = typeId === 'menu_btn_off'
+                    ? '請使用低調、平淡或是單色草圖線條設計，代表未選取狀態。'
+                    : '請使用色彩鮮明、生動可愛的特效設計，代表正被點擊活躍中。';
+            } else {
+                stateDesc = typeId.includes('_off')
+                    ? '這代表「未輸入」的空狀態，顏色請設計較暗沉平淡，或是顯示角色最基本的樣子（例如：蛋殼、還沒被點亮的燈）。'
+                    : '這代表「已輸入」的點亮狀態，顏色請鮮豔發光，也可以有情緒、破殼、或是開燈後的漸進變化。';
+            }
+
+            let extraGridRules = isMenuGrid
+                ? '• 集中偏左下避讓（極重要）：每格內的圖示必須完全獨立且緊湊地集中在單一格子的「中央偏左下」。\n• 避開右上通知區域：在實際的 LINE 畫面上，每個選單的「右上角（距上空 49px、距右空 21px，尺寸 33×33 px）」會被系統強制覆蓋紅色的提醒數字。因此強烈要求：你的小圖示主要結構絕對要「避開右上角」，不能把格子畫滿！'
+                : '• 集中置中：每個密碼圖案必須保持圓潤小巧，並且完全置中，四周保留安全的去背空間。可以透過動作或表情的變化增添密碼輸入時的樂趣。';
 
             return `✅ ${typeInfo.category} - ${typeInfo.label}｜AI Prompt 建議
 
@@ -56,19 +82,19 @@ const ThemeBuilder = ({ productType }) => {
 • 畫布精確尺寸：請設定為「寬度 ${typeInfo.size.split('×')[0]} px，高度 ${typeInfo.size.split('×')[1]} px」。
 • 不可變更：請在 AI 生圖工具中將解析度明確設定為 ${typeInfo.size.split('×')[0]}×${typeInfo.size.split('×')[1]}，不可使用其他尺寸。
 
-請參考我上傳的圖片生圖：生成一張 ${typeInfo.size.split('×')[0]}×${typeInfo.size.split('×')[1]} px 的滿版大圖，包含 9 個不同的小選單圖示。
+請參考我上傳的圖片生圖：生成一張 ${typeInfo.size.split('×')[0]}×${typeInfo.size.split('×')[1]} px 的滿版大圖，包含 ${cellCount} 個不同的${targetGroup}。
 
 畫面佈局設計（極重要參數）
-• 版面規則：3 欄 × 3 列，每格 128×150 px，共 9 格。
-• 隱形網格：所有 9 個圖示必須排列整齊，呈現嚴格的九宮格陣列。👉 絕對禁止畫出任何白色的網格線、實體分隔線、九宮格框線或整體大外框！背景必須是一整版純粹連續的綠色。
-• 嚴禁畫紅點：絕對不要在小圖右上角畫任何「紅色圓點通知」，那是 LINE 系統會自己加的！
-• 集中偏左下避讓（極重要）：每格內的圖示必須完全獨立且緊湊地集中在單一格子的「中央偏左下」。
-• 避開右上通知區域：在實際的 LINE 畫面上，每個選單的「右上角（距上空 49px、距右空 21px，尺寸 33×33 px）」會被系統強制覆蓋紅色的提醒數字。因此強烈要求：你的小圖示主要結構絕對要「避開右上角」，不能把格子畫滿！
-• 安全邊界：單一個小圖示四周必須保留明確且足夠寬敞的綠色安全邊距（Padding），確保切割出來的 9 張圖完全不會互相切斷或黏合。
+• 版面規則：${gridCols} 欄 × ${gridRows} 列，每格 ${cellW}×${cellH} px，共 ${cellCount} 格。
+• 隱形網格（超重點防呆）：所有 ${cellCount} 個圖示必須排列整齊，呈現嚴格的網格陣列。👉 絕對禁止畫出任何白色的網格線、實體十字分隔線、宮格框線或整體大外框！
+• 嚴禁畫分隔線：請注意，去背系統會因為白線發生錯誤！你只要讓 ${cellCount} 個圖示各自散開排好就好，背景必須是「一整片完全乾淨、無任何干擾線條」的純連續綠色，絕對不要自作主張畫出各格子的邊界框線！
+• 絕對禁止文字：👉 畫面中「絕對不准」出現任何數字、英文字母 (如 ON, OFF, 1, 2, 3)、國字或符號。不管是按鈕名字還是編號都禁止！只需要畫出圖案本身。
+${extraGridRules}
+• 安全邊界：單一個小圖示四周必須保留明確且足夠寬敞的綠色安全邊距（Padding），確保切割出來的各張圖完全不會互相切斷或黏合。
 
 角色與風格設定
-• 選單圖示設計（極重要）：這「9 個截然不同的小圖示」是應用程式底部選單的按鈕。請畫出與主角「主題相關」的簡單小物件、符號（例如房子、對話框、放大鏡、袋子...等），或是只有主角的「大頭/重要配件」。👉 絕對禁止在每一格都畫一個完整的「全身角色」！圖示必須是簡單易懂的小符號或小道具。
-• 參考圖轉換：請擷取我上傳原圖的配色與風格氛圍，將這些特徵完美融入到 9 個不重複的選單小圖示中。
+• ${targetGroup}設計（極重要）：這「${cellCount} 個不同的圖示」會在 APP 內被連續使用。👉 絕對禁止在每一格都畫一個複雜的「全身佈景」！圖示必須是簡單易懂的小符號、大頭或小道具。
+• 參考圖轉換：請擷取我上傳原圖的配色與風格氛圍，將這些特徵完美融入到 ${cellCount} 個圖示中。
 • 按鍵狀態要求：${stateDesc}
 • 去背優化：請在每個物件邊緣加入「粗白色外框 (Sticker Style)」。背景統一為不可有任何漸層與雜訊的 #00FF00 (純綠色)。
 • 視覺風格：${style.label}（${style.desc}）。`;
@@ -76,9 +102,7 @@ const ThemeBuilder = ({ productType }) => {
 
         let extraGuide = '';
         if (typeInfo.category.startsWith('C')) {
-            extraGuide = '\n• 橫條背景：這是一張極度扁長的橫條圖片，請設計適合橫向平鋪的連續圖案或漸層背景，絕對不要把角色放太大。';
-        } else if (typeInfo.category.startsWith('D')) {
-            extraGuide = '\n• 密碼圖示：這是一個密碼解鎖圖示，應該是圓潤且小巧的單純圖案。';
+            extraGuide = '\n• 橫向無縫拼接（極度重要）：這是一張 1472×150 px、極度扁長的「底部選單背景圖片」。因為這張圖會在 APP 內水平無縫重複，請務必將**左右兩端的圖案設計為自然無縫銜接（Seamless pattern）**。\n• 頂部留去背安全區：官方規定這張圖的下方為「主體繪製區（高度100~130px）」，而上方必須保留「20~50px 的去背區間」。因此強烈要求：**圖片上方至少 30px 請塗滿純綠色（#00FF00）作為預留的去背區**，所有的圖樣與裝飾必須貼緊下方邊緣設計。\n• 極簡設計：請設計能融入主題的低調地平線、雲朵或簡單線條，絕對不要在背景放過度複雜或巨大的角色，避免干擾浮在上面的按鈕。';
         } else if (typeInfo.category.startsWith('F')) {
             extraGuide = '\n• 聊天室底圖：請保持畫面中央清爽，主體物件或角色請往角落邊緣靠攏，避免影響對話文字的閱讀性，推薦以留白或大面積簡單色塊為主。';
         }
@@ -120,13 +144,15 @@ const ThemeBuilder = ({ productType }) => {
     if (productType !== 'theme') return null;
 
     const allUploaded = Object.values(assets).filter(Boolean).length;
-    const progress = Math.round((allUploaded / 9) * 100);
+    const progress = Math.round((allUploaded / 12) * 100);
 
     const [showMenuGrid, setShowMenuGrid] = useState(true);
+    const [showPasscodeGrid, setShowPasscodeGrid] = useState(true);
 
     const UploadCard = ({ label, desc, stateKey, icon: Icon }) => {
         const hasImage = !!assets[stateKey];
         const isMenuGrid = stateKey === 'menuOffImage' || stateKey === 'menuOnImage';
+        const isPasscodeGrid = stateKey === 'passcodeOffImage' || stateKey === 'passcodeOnImage';
 
         return (
             <div className={`relative group border-2 border-dashed rounded-[2rem] flex flex-col items-center justify-center transition-all duration-500 overflow-hidden min-h-[160px] p-6
@@ -149,6 +175,13 @@ const ThemeBuilder = ({ productType }) => {
                                 <line x1="256" y1="0" x2="256" y2="450" stroke="rgba(255,50,50,0.8)" strokeWidth="4" strokeDasharray="8 4" />
                                 <line x1="0" y1="150" x2="384" y2="150" stroke="rgba(255,50,50,0.8)" strokeWidth="4" strokeDasharray="8 4" />
                                 <line x1="0" y1="300" x2="384" y2="300" stroke="rgba(255,50,50,0.8)" strokeWidth="4" strokeDasharray="8 4" />
+                            </svg>
+                        )}
+
+                        {isPasscodeGrid && showPasscodeGrid && (
+                            <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet">
+                                <line x1="120" y1="0" x2="120" y2="240" stroke="rgba(255,50,50,0.8)" strokeWidth="3" strokeDasharray="6 3" />
+                                <line x1="0" y1="120" x2="240" y2="120" stroke="rgba(255,50,50,0.8)" strokeWidth="3" strokeDasharray="6 3" />
                             </svg>
                         )}
 
@@ -309,7 +342,7 @@ const ThemeBuilder = ({ productType }) => {
                         </div>
                     </div>
                     <p className="text-xs text-slate-500 font-bold tracking-widest uppercase mb-10">
-                        已準備素材 {allUploaded} / 9
+                        已準備素材 {allUploaded} / 12
                     </p>
 
                     <div className="flex flex-col gap-10">
@@ -360,10 +393,30 @@ const ThemeBuilder = ({ productType }) => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                            <div>
-                                <h4 className="flex items-center gap-3 text-lg font-bold text-white mb-5 pb-3 border-b border-white/5"><span className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-black">D</span> 密碼畫面</h4>
-                                <div className="grid grid-cols-1 gap-6">
-                                    <UploadCard label="密碼圖案" desc="120×120 px" stateKey="passcodeImage" icon={ImageIcon} />
+                            <div className="md:col-span-2">
+                                <h4 className="flex justify-between items-center text-lg font-bold text-white mb-5 pb-3 border-b border-white/5">
+                                    <span className="flex items-center gap-3">
+                                        <span className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-black">D</span> 密碼畫面
+                                    </span>
+                                </h4>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                                    <UploadCard label="iOS (OFF)" desc="240×240 px" stateKey="passcodeIosOffImage" icon={ImageIcon} />
+                                    <UploadCard label="iOS (ON)" desc="240×240 px" stateKey="passcodeIosOnImage" icon={ImageIcon} />
+                                    <UploadCard label="Android (OFF)" desc="232×232 px" stateKey="passcodeAndroidOffImage" icon={ImageIcon} />
+                                    <UploadCard label="Android (ON)" desc="232×232 px" stateKey="passcodeAndroidOnImage" icon={ImageIcon} />
+                                </div>
+                                <div className="flex flex-col items-center justify-center gap-3">
+                                    <div className="bg-slate-900/80 border border-white/10 rounded-xl px-4 py-2 text-xs flex items-center gap-4">
+                                        <span className="text-slate-500">iOS 切線約： <span className="text-sky-400 font-mono font-bold">120×120 px</span></span>
+                                        <span className="text-slate-500">Android 切線約： <span className="text-sky-400 font-mono font-bold">116×116 px</span></span>
+                                    </div>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); setShowPasscodeGrid(!showPasscodeGrid); }}
+                                        className={`flex items-center justify-center gap-2 px-6 py-2 rounded-xl text-xs font-bold transition-all border ${showPasscodeGrid ? 'bg-slate-800 border-slate-600 text-slate-300' : 'bg-slate-900/80 border-slate-700 text-slate-500 hover:text-slate-300'}`}
+                                    >
+                                        {showPasscodeGrid ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                                        {showPasscodeGrid ? '隱藏切割線' : '顯示切割線'}
+                                    </button>
                                 </div>
                             </div>
 
