@@ -152,7 +152,7 @@ ${extraGridRules}
     const UploadCard = ({ label, desc, stateKey, icon: Icon }) => {
         const hasImage = !!assets[stateKey];
         const isMenuGrid = stateKey === 'menuOffImage' || stateKey === 'menuOnImage';
-        const isPasscodeGrid = stateKey === 'passcodeOffImage' || stateKey === 'passcodeOnImage';
+        const isPasscodeGrid = stateKey.startsWith('passcode');
 
         return (
             <div className={`relative group border-2 border-dashed rounded-[2rem] flex flex-col items-center justify-center transition-all duration-500 overflow-hidden min-h-[160px] p-6
@@ -179,9 +179,11 @@ ${extraGridRules}
                         )}
 
                         {isPasscodeGrid && showPasscodeGrid && (
-                            <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet">
-                                <line x1="120" y1="0" x2="120" y2="240" stroke="rgba(255,50,50,0.8)" strokeWidth="3" strokeDasharray="6 3" />
-                                <line x1="0" y1="120" x2="240" y2="120" stroke="rgba(255,50,50,0.8)" strokeWidth="3" strokeDasharray="6 3" />
+                            <svg className="absolute inset-0 w-full h-full pointer-events-none z-10"
+                                viewBox={stateKey.toLowerCase().includes('android') ? "0 0 232 232" : "0 0 240 240"}
+                                preserveAspectRatio="xMidYMid meet">
+                                <line x1={stateKey.toLowerCase().includes('android') ? "116" : "120"} y1="0" x2={stateKey.toLowerCase().includes('android') ? "116" : "120"} y2={stateKey.toLowerCase().includes('android') ? "232" : "240"} stroke="rgba(255,50,50,0.8)" strokeWidth="3" strokeDasharray="6 3" />
+                                <line x1="0" y1={stateKey.toLowerCase().includes('android') ? "116" : "120"} x2={stateKey.toLowerCase().includes('android') ? "232" : "240"} y2={stateKey.toLowerCase().includes('android') ? "116" : "120"} stroke="rgba(255,50,50,0.8)" strokeWidth="3" strokeDasharray="6 3" />
                             </svg>
                         )}
 
