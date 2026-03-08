@@ -42,10 +42,50 @@ const useThemePack = () => {
         });
     };
 
-    const sliceImageGrid = (dataUrl, colCount, rowCount, tileW, tileH) => {
+    const removeGreenBackground = (canvas) => {
+        const ctx = canvas.getContext('2d');
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imgData.data;
+        const w = canvas.width;
+        const h = canvas.height;
+
+        const isGreen = (r, g, b) => {
+            // Hard threshold for #00FF00 based green screen
+            return g > 150 && g > r * 1.4 && g > b * 1.4;
+        };
+
+        const visited = new Uint8Array(w * h);
+        const stack = [[0, 0], [w - 1, 0], [0, h - 1], [w - 1, h - 1]];
+
+        while (stack.length) {
+            const [x, y] = stack.pop();
+            const offset = y * w + x;
+            if (x < 0 || x >= w || y < 0 || y >= h || visited[offset]) continue;
+            visited[offset] = 1;
+
+            const idx = offset * 4;
+            if (isGreen(data[idx], data[idx + 1], data[idx + 2])) {
+                data[idx + 3] = 0;
+                stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+            }
+        }
+
+        // Final cleanup for isolated green pixels
+        for (let i = 0; i < data.length; i += 4) {
+            if (data[i + 3] > 0 && isGreen(data[i], data[i + 1], data[i + 2])) {
+                data[i + 3] = 0;
+            }
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+        return canvas;
+    };
+
+    const sliceImageGrid = (dataUrl, colCount, rowCount, tileW, tileH, removeBg = false) => {
         return new Promise((resolve, reject) => {
             if (!dataUrl) return resolve([]);
             const img = new Image();
+            img.crossOrigin = "anonymous";
             img.onload = () => {
                 const tiles = [];
                 const srcTileW = img.width / colCount;
@@ -53,11 +93,16 @@ const useThemePack = () => {
 
                 for (let r = 0; r < rowCount; r++) {
                     for (let c = 0; c < colCount; c++) {
-                        const canvas = document.createElement('canvas');
+                        let canvas = document.createElement('canvas');
                         canvas.width = tileW;
                         canvas.height = tileH;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, c * srcTileW, r * srcTileH, srcTileW, srcTileH, 0, 0, tileW, tileH);
+
+                        if (removeBg) {
+                            canvas = removeGreenBackground(canvas);
+                        }
+
                         tiles.push(canvas.toDataURL('image/png').split(',')[1]);
                     }
                 }
@@ -97,8 +142,8 @@ const useThemePack = () => {
                 { off: "i_37.png", on: "i_38.png" }, // 9. MINI
             ];
 
-            const offTiles = await sliceImageGrid(menuOffImage, 3, 3, 128, 150);
-            const onTiles = await sliceImageGrid(menuOnImage, 3, 3, 128, 150);
+            const offTiles = await sliceImageGrid(menuOffImage, 3, 3, 128, 150, true);
+            const onTiles = await sliceImageGrid(menuOnImage, 3, 3, 128, 150, true);
 
             for (let i = 0; i < 9; i++) {
                 if (offTiles[i]) menuFolder.file(MENU_MAPPING[i].off, offTiles[i], { base64: true });
@@ -126,11 +171,11 @@ const useThemePack = () => {
             const androidOff = passcodeAndroidOffImage || passcodeIosOffImage;
             const androidOn = passcodeAndroidOnImage || passcodeIosOnImage || androidOff;
 
-            const iosOffTiles = await sliceImageGrid(iosOff, 2, 2, 120, 120);
-            const iosOnTiles = await sliceImageGrid(iosOn, 2, 2, 120, 120);
+            const iosOffTiles = await sliceImageGrid(iosOff, 2, 2, 120, 120, true);
+            const iosOnTiles = await sliceImageGrid(iosOn, 2, 2, 120, 120, true);
 
-            const androidOffTiles = await sliceImageGrid(androidOff, 2, 2, 116, 116);
-            const androidOnTiles = await sliceImageGrid(androidOn, 2, 2, 116, 116);
+            const androidOffTiles = await sliceImageGrid(androidOff, 2, 2, 116, 116, true);
+            const androidOnTiles = await sliceImageGrid(androidOn, 2, 2, 116, 116, true);
 
             const iosMapping = [
                 { off: 'i_12.png', on: 'i_13.png' },

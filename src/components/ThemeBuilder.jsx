@@ -96,7 +96,7 @@ const ThemeBuilder = ({ productType }) => {
 畫面佈局設計（極重要參數）
 • 版面規則：${gridCols} 欄 × ${gridRows} 列，每格 ${cellW}×${cellH} px，共 ${cellCount} 格。
 • 隱形網格（超重點防呆）：所有 ${cellCount} 個圖示必須排列整齊，呈現嚴格的網格陣列。👉 絕對禁止畫出任何白色的網格線、實體十字分隔線、宮格框線或整體大外框！
-• 嚴禁畫分隔線：請注意，去背系統會因為白線發生錯誤！你只要讓 ${cellCount} 個圖示各自散開排好就好，背景必須是${isProfileGrid ? '「一整片完全乾淨、無任何干擾線條」的連續背景色' : '「一整片完全乾淨、無任何干擾線條」的純連續綠色'}，絕對不要自作主張畫出各格子的邊界框線！
+• 嚴禁畫分隔線：請注意，去背系統會因為白線發生錯誤！你只要讓 ${cellCount} 個圖示各自散開排好就好，背景必須是${isProfileGrid ? '「一整片完全乾淨、無任何干擾線條」的連續背景色' : '「一整片完全乾淨、無任何干擾線條」的純連續綠色'}，絕對不要自作主張畫出各格子的邊界框線！${isProfileGrid ? '' : '\n• 自動去背功能：系統在切割完成後將「自動移除純綠色背景」，請放心產生。'}
 • 絕對禁止文字：👉 畫面中「絕對不准」出現任何數字、英文字母 (如 ON, OFF, 1, 2, 3)、國字或符號。不管是按鈕名字還是編號都禁止！只需要畫出圖案本身。
 ${extraGridRules}
 • 安全邊界：單一個小圖示四周必須保留明確且足夠寬敞的${isProfileGrid ? '背景' : '綠色'}安全邊距（Padding），確保切割出來的各張圖完全不會互相切斷或黏合。
@@ -228,10 +228,10 @@ ${extraGridRules}
     };
 
     return (
-        <div className="relative animate-fade-in pb-10">
-            <div className="glass-card rounded-[2.5rem] p-8 md:p-12 text-center relative overflow-hidden group mb-10 border-t-4 border-t-purple-500">
+        <div className="relative animate-fade-in pb-10 space-y-8">
+            {/* 標題與簡介區 */}
+            <div className="glass-card rounded-[2.5rem] p-8 md:p-12 text-center relative overflow-hidden group border-t-4 border-t-purple-500">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-30"></div>
-
                 <div className="max-w-3xl mx-auto">
                     <div className="flex items-center justify-center gap-4 mb-4">
                         <div className="w-12 h-12 bg-purple-500/20 rounded-2xl flex items-center justify-center text-purple-400">
@@ -239,270 +239,284 @@ ${extraGridRules}
                         </div>
                         <h2 className="text-3xl font-bold text-white tracking-tight">LINE 主題懶人包產生器</h2>
                     </div>
-
-                    <p className="text-slate-400 font-medium mb-8">
+                    <p className="text-slate-400 font-medium">
                         上傳以下 A 到 F 共 9 張關鍵圖片，讓系統自動為您打包成完整的 LINE 主題 ZIP 檔。
                     </p>
+                </div>
+            </div>
 
-                    <div className="glass-card rounded-[2rem] p-6 md:p-8 mb-10 text-left border border-white/5">
-                        <div className="flex items-center justify-between mb-6 border-b border-slate-700/50 pb-4">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
-                                    <Wand2 className="w-6 h-6 text-purple-400" />
-                                </div>
-                                <h3 className="font-bold text-xl text-white">主題 AI 提示詞大師</h3>
+            {/* AI 提示詞大師 */}
+            <div className="glass-card rounded-[2.5rem] p-8 md:p-10 border border-white/5">
+                <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-700/50">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                            <Wand2 className="w-6 h-6 text-purple-400" />
+                        </div>
+                        <h3 className="font-bold text-2xl text-white">主題 AI 提示詞大師</h3>
+                    </div>
+                    <button onClick={() => setShowPromptGuide(!showPromptGuide)} className="bg-slate-800/80 hover:bg-slate-700 px-4 py-2 rounded-full text-xs font-bold text-slate-300 transition-all flex items-center gap-2 border border-slate-700">
+                        {showPromptGuide ? "隱藏面板" : "展開面板"}
+                        <ChevronDown className={`w-4 h-4 transition-transform duration-500 ${showPromptGuide ? 'rotate-180' : ''}`} />
+                    </button>
+                </div>
+
+                <div className={`transition-all duration-700 ${showPromptGuide ? 'opacity-100 max-h-[1400px]' : 'opacity-0 max-h-0 overflow-hidden'}`}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div className="p-6 bg-slate-900/60 rounded-[1.5rem] border border-slate-700/50 hover:border-slate-600 transition-colors">
+                            <span className="block text-xs font-bold text-purple-400 uppercase tracking-widest mb-4">
+                                1. 選擇視覺風格
+                            </span>
+                            <div className="flex gap-2 flex-wrap">
+                                {Object.entries(PROMPT_STYLES).map(([key, style]) => (
+                                    <button
+                                        key={key}
+                                        onClick={() => setActiveStyle(key)}
+                                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${activeStyle === key ? 'bg-purple-600 text-white border-purple-500 shadow-lg shadow-purple-500/20' : 'bg-slate-800/80 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-200'}`}
+                                    >
+                                        {style.label}
+                                    </button>
+                                ))}
                             </div>
-                            <button onClick={() => setShowPromptGuide(!showPromptGuide)} className="bg-slate-800/80 hover:bg-slate-700 px-4 py-2 rounded-full text-xs font-bold text-slate-300 transition-all flex items-center gap-2 border border-slate-700">
-                                {showPromptGuide ? "隱藏面板" : "展開面板"}
-                                <ChevronDown className={`w-4 h-4 transition-transform duration-500 ${showPromptGuide ? 'rotate-180' : ''}`} />
-                            </button>
                         </div>
 
-                        <div className={`transition-all duration-700 overflow-hidden ${showPromptGuide ? 'opacity-100 max-h-[1200px]' : 'opacity-0 max-h-0'}`}>
-                            <div className="mb-6">
-                                <div className="p-6 bg-slate-900/60 rounded-[1.5rem] border border-slate-700/50">
-                                    <span className="block text-base font-bold text-purple-400 tracking-wider mb-5">
-                                        1. 選擇視覺風格
-                                    </span>
-                                    <div className="flex gap-4 flex-wrap mb-8">
-                                        {Object.entries(PROMPT_STYLES).map(([key, style]) => (
+                        <div className="p-6 bg-slate-900/60 rounded-[1.5rem] border border-slate-700/50 hover:border-slate-600 transition-colors">
+                            <span className="block text-xs font-bold text-cyan-400 uppercase tracking-widest mb-4">
+                                2. 設定主題色系
+                            </span>
+                            <input
+                                type="text"
+                                value={themeColor}
+                                onChange={(e) => setThemeColor(e.target.value)}
+                                className="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl p-3 text-sm focus:ring-1 focus:ring-purple-500 outline-none transition-colors"
+                                placeholder="例如：溫柔的奶茶色系、粉嫩馬卡龍色系"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="bg-slate-950/80 p-6 md:p-8 rounded-[1.5rem] border border-white/5 shadow-inner">
+                        <div className="font-bold text-lg text-white mb-6 flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center">
+                                <Palette className="w-4 h-4" />
+                            </div>
+                            <span>3. 選擇要輸出的素材分類</span>
+                        </div>
+
+                        {/* 1st Level: Category Tabs (A~F) */}
+                        {(() => {
+                            const PROMPT_CATEGORIES = [
+                                { id: 'A', title: 'A. 主要圖片', items: PROMPT_TYPES.filter(t => t.category.startsWith('A')) },
+                                { id: 'B', title: 'B. 選單按鍵', items: PROMPT_TYPES.filter(t => t.category.startsWith('B')) },
+                                { id: 'C', title: <span>C. 選單背景 <span className="text-[10px] font-normal opacity-70">(非必要)</span></span>, items: PROMPT_TYPES.filter(t => t.category.startsWith('C')) },
+                                { id: 'D', title: 'D. 密碼畫面', items: PROMPT_TYPES.filter(t => t.category.startsWith('D')) },
+                                { id: 'E', title: 'E. 個人圖片', items: PROMPT_TYPES.filter(t => t.category.startsWith('E')) },
+                                { id: 'F', title: 'F. 聊天底圖', items: PROMPT_TYPES.filter(t => t.category.startsWith('F')) }
+                            ];
+                            const activeCategoryGroup = PROMPT_CATEGORIES.find(c => c.items.some(i => i.id === activePromptType)) || PROMPT_CATEGORIES[0];
+
+                            return (
+                                <>
+                                    <div className="grid grid-cols-2 md:grid-cols-6 gap-2 mb-6">
+                                        {PROMPT_CATEGORIES.map(cat => (
                                             <button
-                                                key={key}
-                                                onClick={() => setActiveStyle(key)}
-                                                className={`px-6 py-3 rounded-2xl text-base font-bold transition-all border ${activeStyle === key ? 'bg-purple-500 text-white border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.4)]' : 'bg-cyan-950/40 text-cyan-400 border-cyan-800/60 hover:bg-cyan-900/60 hover:text-cyan-200'}`}
+                                                key={cat.id}
+                                                onClick={() => setActivePromptType(cat.items[0].id)}
+                                                className={`py-3 px-2 rounded-xl text-xs sm:text-sm font-bold transition-all border ${activeCategoryGroup.id === cat.id ? 'bg-purple-600 text-white border-purple-500 shadow-lg shadow-purple-500/20' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-slate-200'}`}
                                             >
-                                                {style.label}
+                                                {cat.title}
                                             </button>
                                         ))}
                                     </div>
 
-                                    <span className="block text-base font-bold text-purple-400 tracking-wider mb-4">
-                                        2. 背景主題色系
-                                    </span>
-                                    <div className="space-y-2">
-                                        <input
-                                            type="text"
-                                            value={themeColor}
-                                            onChange={(e) => setThemeColor(e.target.value)}
-                                            className="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl p-4 text-base focus:ring-1 focus:ring-purple-500 outline-none transition-colors"
-                                            placeholder="例如：粉嫩馬卡龍色系"
-                                        />
+                                    <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-6 p-6 bg-slate-900/50 rounded-2xl border border-slate-700/50">
+                                        <div className="w-full mb-2">
+                                            <span className="text-xs font-bold text-slate-500 tracking-widest uppercase">點擊複方按鈕直接複製 PROMPT：</span>
+                                        </div>
+                                        {activeCategoryGroup.items.map(t => (
+                                            <button
+                                                key={t.id}
+                                                onClick={() => {
+                                                    setActivePromptType(t.id);
+                                                    handleCopyPrompt(t.id);
+                                                }}
+                                                className={`flex-1 py-4 px-4 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all border-2 ${activePromptType === t.id ? 'bg-white text-purple-900 border-purple-300 scale-[1.02] shadow-xl' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200'}`}
+                                            >
+                                                {copySuccess && activePromptType === t.id ? <CheckCircle className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5 opacity-50" />}
+                                                {copySuccess && activePromptType === t.id ? '複製成功！' : t.label}
+                                            </button>
+                                        ))}
                                     </div>
-                                </div>
-                            </div>
+                                </>
+                            );
+                        })()}
 
-                            <div className="bg-slate-950/80 p-6 md:p-8 rounded-[1.5rem] border border-white/5 shadow-inner">
-                                <div className="font-bold text-lg text-white mb-6 flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center">
-                                        <Wand2 className="w-4 h-4" />
-                                    </div>
-                                    <span>主題 Prompt 切換器 (分類好選擇)</span>
-                                </div>
-
-                                {/* 1st Level: Category Tabs (A~F) */}
-                                {(() => {
-                                    const PROMPT_CATEGORIES = [
-                                        { id: 'A', title: 'A. 主要圖片', items: PROMPT_TYPES.filter(t => t.category.startsWith('A')) },
-                                        { id: 'B', title: 'B. 選單按鍵', items: PROMPT_TYPES.filter(t => t.category.startsWith('B')) },
-                                        { id: 'C', title: <span>C. 選單背景 <span className="text-[10px] font-normal opacity-70">(非必要)</span></span>, items: PROMPT_TYPES.filter(t => t.category.startsWith('C')) },
-                                        { id: 'D', title: 'D. 密碼畫面', items: PROMPT_TYPES.filter(t => t.category.startsWith('D')) },
-                                        { id: 'E', title: 'E. 個人圖片', items: PROMPT_TYPES.filter(t => t.category.startsWith('E')) },
-                                        { id: 'F', title: 'F. 聊天底圖', items: PROMPT_TYPES.filter(t => t.category.startsWith('F')) }
-                                    ];
-                                    const activeCategoryGroup = PROMPT_CATEGORIES.find(c => c.items.some(i => i.id === activePromptType)) || PROMPT_CATEGORIES[0];
-
-                                    return (
-                                        <>
-                                            <div className="grid grid-cols-2 md:grid-cols-6 gap-2 mb-6">
-                                                {PROMPT_CATEGORIES.map(cat => (
-                                                    <button
-                                                        key={cat.id}
-                                                        onClick={() => setActivePromptType(cat.items[0].id)}
-                                                        className={`py-3 px-2 rounded-xl text-xs sm:text-sm font-bold transition-all border ${activeCategoryGroup.id === cat.id ? 'bg-purple-500 text-white border-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.3)]' : 'bg-slate-900 border-slate-800 text-slate-500 hover:bg-slate-800 hover:text-slate-300'}`}
-                                                    >
-                                                        {cat.title}
-                                                    </button>
-                                                ))}
-                                            </div>
-
-                                            {/* 2nd Level: Action Buttons for specific prompt variant */}
-                                            <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-6 p-4 md:p-6 bg-slate-900/50 rounded-2xl border border-slate-800">
-                                                <div className="w-full mb-2">
-                                                    <span className="text-xs font-bold text-slate-500 tracking-wider">點擊下方按鈕立刻複製 PROMPT：</span>
-                                                </div>
-                                                {activeCategoryGroup.items.map(t => (
-                                                    <button
-                                                        key={t.id}
-                                                        onClick={() => {
-                                                            setActivePromptType(t.id);
-                                                            handleCopyPrompt(t.id);
-                                                        }}
-                                                        className={`flex-1 py-4 px-4 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all ${activePromptType === t.id ? 'bg-white text-purple-900 shadow-xl border-2 border-purple-300 scale-[1.02]' : 'bg-slate-800 border-2 border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white'}`}
-                                                    >
-                                                        {copySuccess && activePromptType === t.id ? <CheckCircle className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5 opacity-50" />}
-                                                        {copySuccess && activePromptType === t.id ? '複製成功！' : t.label}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </>
-                                    );
-                                })()}
-
-                                <div className="flex items-center justify-between mb-3 mt-4">
-                                    <span className="text-purple-300 text-sm font-bold flex items-center gap-2">
-                                        <ImageIcon className="w-4 h-4" />產生結果預覽：{PROMPT_TYPES.find(t => t.id === activePromptType)?.label}
-                                    </span>
-                                </div>
-
-                                <pre className="whitespace-pre-wrap text-[13px] text-teal-300 font-mono leading-relaxed bg-slate-950 border border-slate-800 p-5 md:p-6 rounded-2xl overflow-y-auto max-h-[400px] shadow-inner break-words custom-scrollbar">
-                                    {getPromptText(activePromptType)}
-                                </pre>
-                            </div>
+                        <div className="flex items-center justify-between mb-3 mt-4">
+                            <span className="text-purple-300 text-sm font-bold flex items-center gap-2">
+                                <ImageIcon className="w-4 h-4" />產生結果預覽：{PROMPT_TYPES.find(t => t.id === activePromptType)?.label}
+                            </span>
                         </div>
-                    </div>
 
+                        <pre className="whitespace-pre-wrap text-[13px] text-teal-300 font-mono leading-relaxed bg-slate-950 border border-slate-800 p-5 md:p-6 rounded-2xl overflow-y-auto max-h-[400px] shadow-inner break-words custom-scrollbar">
+                            {getPromptText(activePromptType)}
+                        </pre>
+                    </div>
+                </div>
+            </div>
+
+            {/* 素材上傳區 */}
+            <div className="glass-card rounded-[2.5rem] p-8 md:p-12 border border-white/5">
+                <div className="max-w-5xl mx-auto text-center">
                     <div className="bg-slate-900/60 rounded-full h-3 w-full max-w-md mx-auto overflow-hidden mb-2 border border-slate-700/50">
-                        <div className="h-full bg-purple-500 transition-all duration-700 ease-out flex items-center justify-end pr-2" style={{ width: `${Math.max(5, progress)}%` }}>
-                            {progress > 10 && <div className="w-1 h-1 bg-white/50 rounded-full animate-pulse"></div>}
+                        <div className="h-full bg-purple-500 transition-all duration-700 ease-out flex items-center justify-end pr-2 shadow-[0_0_15px_rgba(168,85,247,0.5)]" style={{ width: `${Math.max(5, progress)}%` }}>
+                            {progress > 10 && <div className="w-1.5 h-1.5 bg-white/50 rounded-full animate-pulse"></div>}
                         </div>
                     </div>
-                    <p className="text-xs text-slate-500 font-bold tracking-widest uppercase mb-10">
+                    <p className="text-xs text-slate-500 font-bold tracking-[0.2em] uppercase mb-12">
                         已準備素材 {allUploaded} / 14
                     </p>
+                </div>
 
-                    <div className="flex flex-col gap-10">
+                <div className="flex flex-col gap-10">
+                    <div>
+                        <h4 className="flex items-center gap-3 text-lg font-bold text-white mb-5 pb-3 border-b border-white/5"><span className="w-8 h-8 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center font-black">A</span> 主要圖片</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <UploadCard label="iOS 主要圖片" desc="200×284 px" stateKey="mainImageIos" icon={ImageIcon} />
+                            <UploadCard label="Android 主要圖片" desc="136×202 px" stateKey="mainImageAndroid" icon={ImageIcon} />
+                            <UploadCard label="STORE 主要圖片" desc="198×278 px" stateKey="mainImageStore" icon={ImageIcon} />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                         <div>
-                            <h4 className="flex items-center gap-3 text-lg font-bold text-white mb-5 pb-3 border-b border-white/5"><span className="w-8 h-8 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center font-black">A</span> 主要圖片</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <UploadCard label="iOS 主要圖片" desc="200×284 px" stateKey="mainImageIos" icon={ImageIcon} />
-                                <UploadCard label="Android 主要圖片" desc="136×202 px" stateKey="mainImageAndroid" icon={ImageIcon} />
-                                <UploadCard label="STORE 主要圖片" desc="198×278 px" stateKey="mainImageStore" icon={ImageIcon} />
+                            <h4 className="flex justify-between items-center text-lg font-bold text-white mb-5 pb-3 border-b border-white/5">
+                                <span className="flex items-center gap-3">
+                                    <span className="w-8 h-8 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-black">B</span> 選單按鍵圖片 <span className="text-[10px] bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-500/30">自動去背</span>
+                                </span>
+                            </h4>
+                            <div className="grid grid-cols-2 gap-6 mb-4">
+                                <UploadCard label="九宮格 (OFF)" desc="384×450 px" stateKey="menuOffImage" icon={ImageIcon} />
+                                <UploadCard label="九宮格 (ON)" desc="384×450 px" stateKey="menuOnImage" icon={ImageIcon} />
+                            </div>
+                            <div className="flex flex-col items-center justify-center gap-3">
+                                <div className="bg-slate-900/80 border border-white/10 rounded-xl px-4 py-2 text-xs flex items-center gap-2">
+                                    <span className="text-slate-500">每格約：</span>
+                                    <span className="text-sky-400 font-mono font-bold">128 × 150 px</span>
+                                </div>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); setShowMenuGrid(!showMenuGrid); }}
+                                    className={`flex items-center justify-center gap-2 px-6 py-2 rounded-xl text-xs font-bold transition-all border ${showMenuGrid ? 'bg-slate-800 border-slate-600 text-slate-300' : 'bg-slate-900/80 border-slate-700 text-slate-500 hover:text-slate-300'}`}
+                                >
+                                    {showMenuGrid ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                                    {showMenuGrid ? '隱藏切割線' : '顯示切割線'}
+                                </button>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                            <div>
-                                <h4 className="flex justify-between items-center text-lg font-bold text-white mb-5 pb-3 border-b border-white/5">
-                                    <span className="flex items-center gap-3">
-                                        <span className="w-8 h-8 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-black">B</span> 選單按鍵圖片
-                                    </span>
-                                </h4>
-                                <div className="grid grid-cols-2 gap-6 mb-4">
-                                    <UploadCard label="九宮格 (OFF)" desc="384×450 px" stateKey="menuOffImage" icon={ImageIcon} />
-                                    <UploadCard label="九宮格 (ON)" desc="384×450 px" stateKey="menuOnImage" icon={ImageIcon} />
-                                </div>
-                                <div className="flex flex-col items-center justify-center gap-3">
-                                    <div className="bg-slate-900/80 border border-white/10 rounded-xl px-4 py-2 text-xs flex items-center gap-2">
-                                        <span className="text-slate-500">每格約：</span>
-                                        <span className="text-sky-400 font-mono font-bold">128 × 150 px</span>
-                                    </div>
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); setShowMenuGrid(!showMenuGrid); }}
-                                        className={`flex items-center justify-center gap-2 px-6 py-2 rounded-xl text-xs font-bold transition-all border ${showMenuGrid ? 'bg-slate-800 border-slate-600 text-slate-300' : 'bg-slate-900/80 border-slate-700 text-slate-500 hover:text-slate-300'}`}
-                                    >
-                                        {showMenuGrid ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                                        {showMenuGrid ? '隱藏切割線' : '顯示切割線'}
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div>
-                                <h4 className="flex items-center gap-3 text-lg font-bold text-white mb-5 pb-3 border-b border-white/5">
-                                    <span className="w-8 h-8 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center font-black">C</span>
-                                    選單背景圖片 <span className="text-sm text-slate-500 font-normal tracking-wider ml-1">(非必要)</span>
-                                </h4>
-                                <div className="grid grid-cols-1 gap-6">
-                                    <UploadCard label="選單背景" desc="1472×150 px" stateKey="menuBgImage" icon={ImageIcon} />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                            <div className="md:col-span-2">
-                                <h4 className="flex justify-between items-center text-lg font-bold text-white mb-5 pb-3 border-b border-white/5">
-                                    <span className="flex items-center gap-3">
-                                        <span className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-black">D</span> 密碼畫面
-                                    </span>
-                                </h4>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                                    <UploadCard label="iOS (OFF)" desc="240×240 px" stateKey="passcodeIosOffImage" icon={ImageIcon} />
-                                    <UploadCard label="iOS (ON)" desc="240×240 px" stateKey="passcodeIosOnImage" icon={ImageIcon} />
-                                    <UploadCard label="Android (OFF)" desc="232×232 px" stateKey="passcodeAndroidOffImage" icon={ImageIcon} />
-                                    <UploadCard label="Android (ON)" desc="232×232 px" stateKey="passcodeAndroidOnImage" icon={ImageIcon} />
-                                </div>
-                                <div className="flex flex-col items-center justify-center gap-3">
-                                    <div className="bg-slate-900/80 border border-white/10 rounded-xl px-4 py-2 text-xs flex items-center gap-4">
-                                        <span className="text-slate-500">iOS 切線約： <span className="text-sky-400 font-mono font-bold">120×120 px</span></span>
-                                        <span className="text-slate-500">Android 切線約： <span className="text-sky-400 font-mono font-bold">116×116 px</span></span>
-                                    </div>
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); setShowPasscodeGrid(!showPasscodeGrid); }}
-                                        className={`flex items-center justify-center gap-2 px-6 py-2 rounded-xl text-xs font-bold transition-all border ${showPasscodeGrid ? 'bg-slate-800 border-slate-600 text-slate-300' : 'bg-slate-900/80 border-slate-700 text-slate-500 hover:text-slate-300'}`}
-                                    >
-                                        {showPasscodeGrid ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                                        {showPasscodeGrid ? '隱藏切割線' : '顯示切割線'}
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div>
-                                <h4 className="flex justify-between items-center text-lg font-bold text-white mb-5 pb-3 border-b border-white/5">
-                                    <span className="flex items-center gap-3">
-                                        <span className="w-8 h-8 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center font-black">E</span> 個人圖片
-                                    </span>
-                                </h4>
-                                <div className="grid grid-cols-2 gap-6 mb-4">
-                                    <UploadCard label="iOS 2x1" desc="240×480 px" stateKey="profileIosImage" icon={ImageIcon} />
-                                    <UploadCard label="Android 2x1" desc="247×494 px" stateKey="profileAndroidImage" icon={ImageIcon} />
-                                </div>
-                                <div className="flex flex-col items-center justify-center gap-3">
-                                    <div className="bg-slate-900/80 border border-white/10 rounded-xl px-4 py-2 text-xs flex items-center gap-4">
-                                        <span className="text-slate-500">版面：<span className="text-sky-400 font-mono font-bold">1欄 x 2列 (上下排列)</span></span>
-                                    </div>
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); setShowProfileGrid(!showProfileGrid); }}
-                                        className={`flex items-center justify-center gap-2 px-6 py-2 rounded-xl text-xs font-bold transition-all border ${showProfileGrid ? 'bg-slate-800 border-slate-600 text-slate-300' : 'bg-slate-900/80 border-slate-700 text-slate-500 hover:text-slate-300'}`}
-                                    >
-                                        {showProfileGrid ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                                        {showProfileGrid ? '隱藏切割線' : '顯示切割線'}
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div>
-                                <h4 className="flex justify-between items-center text-lg font-bold text-white mb-5 pb-3 border-b border-white/5">
-                                    <span className="flex items-center gap-3">
-                                        <span className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-black">F</span> 聊天底圖
-                                    </span>
-                                </h4>
-                                <div className="grid grid-cols-2 gap-6">
-                                    <UploadCard label="iOS 聊天底圖" desc="1482×1334 px" stateKey="chatBgIosImage" icon={ImageIcon} />
-                                    <UploadCard label="Android 聊天底圖" desc="1300×1300 px" stateKey="chatBgAndroidImage" icon={ImageIcon} />
-                                </div>
+                        <div>
+                            <h4 className="flex items-center gap-3 text-lg font-bold text-white mb-5 pb-3 border-b border-white/5">
+                                <span className="w-8 h-8 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center font-black">C</span>
+                                選單背景圖片 <span className="text-sm text-slate-500 font-normal tracking-wider ml-1">(非必要)</span>
+                            </h4>
+                            <div className="grid grid-cols-1 gap-6">
+                                <UploadCard label="選單背景" desc="1472×150 px" stateKey="menuBgImage" icon={ImageIcon} />
                             </div>
                         </div>
                     </div>
 
-                    <div className="mt-12">
-                        <button
-                            onClick={handleExport}
-                            disabled={isExporting || allUploaded === 0}
-                            className={`w-full max-w-sm mx-auto text-white py-5 rounded-[1.5rem] font-bold shadow-2xl transition-all btn-press flex items-center justify-center gap-3 text-xl 
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                        <div className="md:col-span-2">
+                            <h4 className="flex justify-between items-center text-lg font-bold text-white mb-5 pb-3 border-b border-white/5">
+                                <span className="flex items-center gap-3">
+                                    <span className="w-8 h-8 rounded-full bg-pink-500/20 text-pink-400 flex items-center justify-center font-black">D</span> 密碼畫面 <span className="text-[10px] bg-pink-500/20 text-pink-400 px-2 py-0.5 rounded-full border border-pink-500/30">自動去背</span>
+                                </span>
+                            </h4>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                                <UploadCard label="iOS (OFF)" desc="240×240 px" stateKey="passcodeIosOffImage" icon={ImageIcon} />
+                                <UploadCard label="iOS (ON)" desc="240×240 px" stateKey="passcodeIosOnImage" icon={ImageIcon} />
+                                <UploadCard label="Android (OFF)" desc="232×232 px" stateKey="passcodeAndroidOffImage" icon={ImageIcon} />
+                                <UploadCard label="Android (ON)" desc="232×232 px" stateKey="passcodeAndroidOnImage" icon={ImageIcon} />
+                            </div>
+                            <div className="flex flex-col items-center justify-center gap-3">
+                                <div className="bg-slate-900/80 border border-white/10 rounded-xl px-4 py-2 text-xs flex items-center gap-4">
+                                    <span className="text-slate-500">iOS 切線約： <span className="text-sky-400 font-mono font-bold">120×120 px</span></span>
+                                    <span className="text-slate-500">Android 切線約： <span className="text-sky-400 font-mono font-bold">116×116 px</span></span>
+                                </div>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); setShowPasscodeGrid(!showPasscodeGrid); }}
+                                    className={`flex items-center justify-center gap-2 px-6 py-2 rounded-xl text-xs font-bold transition-all border ${showPasscodeGrid ? 'bg-slate-800 border-slate-600 text-slate-300' : 'bg-slate-900/80 border-slate-700 text-slate-500 hover:text-slate-300'}`}
+                                >
+                                    {showPasscodeGrid ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                                    {showPasscodeGrid ? '隱藏切割線' : '顯示切割線'}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 className="flex justify-between items-center text-lg font-bold text-white mb-5 pb-3 border-b border-white/5">
+                                <span className="flex items-center gap-3">
+                                    <span className="w-8 h-8 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center font-black">E</span> 個人圖片
+                                </span>
+                            </h4>
+                            <div className="grid grid-cols-2 gap-6 mb-4">
+                                <UploadCard label="iOS 2x1" desc="240×480 px" stateKey="profileIosImage" icon={ImageIcon} />
+                                <UploadCard label="Android 2x1" desc="247×494 px" stateKey="profileAndroidImage" icon={ImageIcon} />
+                            </div>
+                            <div className="flex flex-col items-center justify-center gap-3">
+                                <div className="bg-slate-900/80 border border-white/10 rounded-xl px-4 py-2 text-xs flex items-center gap-4">
+                                    <span className="text-slate-500">版面：<span className="text-sky-400 font-mono font-bold">1欄 x 2列 (上下排列)</span></span>
+                                </div>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); setShowProfileGrid(!showProfileGrid); }}
+                                    className={`flex items-center justify-center gap-2 px-6 py-2 rounded-xl text-xs font-bold transition-all border ${showProfileGrid ? 'bg-slate-800 border-slate-600 text-slate-300' : 'bg-slate-900/80 border-slate-700 text-slate-500 hover:text-slate-300'}`}
+                                >
+                                    {showProfileGrid ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                                    {showProfileGrid ? '隱藏切割線' : '顯示切割線'}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 className="flex items-center gap-3 text-lg font-bold text-white mb-6 pb-3 border-b border-white/5 tracking-tight">
+                                <span className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-black">F</span> 聊天底圖
+                            </h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <UploadCard label="iOS 聊天底圖" desc="1482×1334 px" stateKey="chatBgIosImage" icon={ImageIcon} />
+                                <UploadCard label="Android 聊天底圖" desc="1300×1300 px" stateKey="chatBgAndroidImage" icon={ImageIcon} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="mt-16 flex flex-col items-center">
+                    <button
+                        onClick={handleExport}
+                        disabled={isExporting || allUploaded === 0}
+                        className={`btn-premium text-white px-10 py-5 rounded-[1.5rem] font-bold shadow-2xl transition-all btn-press flex items-center justify-center gap-4 text-xl active:scale-95 group min-w-[320px] 
                                 ${allUploaded > 0 ? 'bg-purple-600 hover:bg-purple-500 shadow-purple-500/30' : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'}`}
-                        >
-                            {isExporting ? <Loader className="animate-spin w-6 h-6" /> : <Download className="w-6 h-6" />}
-                            {isExporting ? '打包中...' : '一鍵產生主題 ZIP'}
-                        </button>
-                    </div>
+                    >
+                        {isExporting ? <Loader className="animate-spin w-6 h-6" /> : <Download className="w-6 h-6 group-hover:scale-110 transition-transform" />}
+                        <div className="flex flex-col items-center">
+                            <span>{isExporting ? '打包中...' : '一鍵產生主題 ZIP'}</span>
+                            <span className="text-[10px] font-normal opacity-80 -mt-0.5">自動切割 ➔ 重新命名 ➔ 打包下載</span>
+                        </div>
+                    </button>
 
-                    <div className="mt-8 text-left bg-slate-900/60 border border-slate-700 p-6 rounded-2xl">
-                        <h4 className="flex items-center gap-2 text-sm font-bold text-slate-300 mb-3">
-                            <Info className="w-4 h-4 text-purple-400" /> 上線小提示
+                    <div className="mt-12 text-left bg-slate-900/40 backdrop-blur-sm border border-slate-700/50 p-8 rounded-[2rem] w-full max-w-3xl">
+                        <h4 className="flex items-center gap-2 text-base font-bold text-slate-200 mb-4">
+                            <Info className="w-5 h-5 text-purple-400" /> 上線小提示
                         </h4>
-                        <ul className="text-xs leading-relaxed text-slate-400 space-y-2 list-disc pl-5">
-                            <li>您下載的 ZIP 中已包含分類好的資料夾與幾十張符合命名、尺寸規範的圖片。</li>
-                            <li>由於 LINE 審核系統的限制，顏色設定 (包含對話框顏色、文字顏色等) 需要您直接在 LINE Creators Market 網頁上的<b>「檢視・變更色彩模式」</b>進行設定。</li>
-                            <li>將 ZIP 解壓縮後，可以直接拖曳至 LINE 商店對應的類別上傳。</li>
+                        <ul className="text-sm leading-relaxed text-slate-400 space-y-3 list-none">
+                            <li className="flex items-start gap-3">
+                                <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-2 shrink-0"></div>
+                                <span>您下載的 ZIP 中已包含分類好的資料夾與符合規格的圖片。</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-2 shrink-0"></div>
+                                <span>顏色設定需在 LINE Creators Market 網頁上的<b>「檢視・變更色彩模式」</b>手動調整。</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-2 shrink-0"></div>
+                                <span>將 ZIP 解壓縮後，即可直接按類別拖曳上傳。</span>
+                            </li>
                         </ul>
                     </div>
                 </div>
