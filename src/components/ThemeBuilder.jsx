@@ -51,6 +51,7 @@ const ThemeBuilder = ({ productType }) => {
     const getPromptText = (typeId) => {
         const style = PROMPT_STYLES[activeStyle] || PROMPT_STYLES.qversion;
         const typeInfo = PROMPT_TYPES.find(t => t.id === typeId) || PROMPT_TYPES[0];
+        const currentThemeColor = themeColor || '溫和且具有整體感的色調';
 
         let isMenuGrid = typeId === 'menu_btn_off' || typeId === 'menu_btn_on';
         let isPasscodeGrid = typeId.startsWith('passcode');
@@ -104,7 +105,7 @@ ${extraGridRules}
 • ${targetGroup}設計（極重要）：這「${cellCount} 個不同的圖示」會在 APP 內被連續使用。👉 絕對禁止在每一格都畫一個複雜的「全身佈景」！圖示必須是簡單易懂的小符號、大頭或小道具。
 • 參考圖轉換：請擷取我上傳原圖的配色與風格氛圍，將這些特徵完美融入到 ${cellCount} 個圖示中。
 • 按鍵狀態要求：${stateDesc}
-• 背景設定：${isProfileGrid ? `這組大頭貼「不需要去背」，請直接填滿背景。背景顏色請優先使用「${themeColor}」，或者由你根據角色配色自動適配一組和諧、粉嫩且具有質感的背景色。` : '去背優化：請在每個物件邊緣加入「粗白色外框 (Sticker Style)」。背景統一為不可有任何漸層與雜訊的 #00FF00 (純綠色)。'}
+• 背景設定：${isProfileGrid ? `這組大頭貼「不需要去背」，請直接填滿背景。背景顏色請優先使用「${currentThemeColor}」，或者由你根據角色配色自動適配一組和諧、粉嫩且具有質感的背景色。` : '去背優化：請在每個物件邊緣加入「粗白色外框 (Sticker Style)」。背景統一為不可有任何漸層與雜訊的 #00FF00 (純綠色)。'}
 • 視覺風格：${style.label}（${style.desc}）。`;
         }
 
@@ -114,9 +115,9 @@ ${extraGridRules}
         } else if (typeInfo.category.startsWith('F')) {
             const isIos = typeId.includes('ios');
             extraGuide = `\n• 聊天室底圖設定（${isIos ? 'iOS' : 'Android'}）：這是一張非必要的背景裝飾圖。
-• 避免畫面斷層（防偽偽瑕疵）：在部分大尺寸裝置上，背景圖若沒填滿會露出底層色塊。請務必讓背景底色與「${themeColor}」完美融合，或是將背景設計為純淨的 ${themeColor} 滿版色彩。
+• 避免畫面斷層（防偽偽瑕疵）：在部分大尺寸裝置上，背景圖若沒填滿會露出底層色塊。請務必讓背景底色與「${currentThemeColor}」完美融合，或是將背景設計為純淨的 ${currentThemeColor} 滿版色彩。
 • 構圖與位置（官方風格推薦）：${isIos ? '這張圖會顯示在「訊息輸入欄上方」，建議將主要角色放在畫面的「最下方邊緣」，營造從輸入欄位「向上探頭」的可愛視覺效果。' : '這張圖會顯示在「訊息輸入欄下方」，由於底部會與欄位重疊，建議將角色置於畫面的「下半部中央」，並避開最底部的功能鍵區。'}
-• 閱讀性優先：請保持畫面中央區域（對話流動區）乾淨清爽，避免複雜圖樣干擾文字閱讀。推薦使用與 ${themeColor} 協調的淡雅色彩。`;
+• 閱讀性優先：請保持畫面中央區域（對話流動區）乾淨清爽，避免複雜圖樣干擾文字閱讀。推薦使用與 ${currentThemeColor} 協調的淡雅色彩。`;
         }
 
         return `✅ ${typeInfo.category} - ${typeInfo.label}｜AI Prompt 建議
@@ -129,7 +130,7 @@ ${extraGridRules}
 請參考我上傳的圖片生圖：
 • 角色設定：請必須完全維持原圖主角的髮型、服裝、五官與整體外觀特徵，請放置在畫面最適當的地方。${extraGuide}
 • 視覺風格：${style.label}（${style.desc}）。
-• 背景設定：以 ${themeColor} 為主的乾淨背景，四周維持留白與簡單圖樣，絕對不要在畫面出現任何干擾文字。`;
+• 背景設定：以 ${currentThemeColor} 為主的乾淨背景，四周維持留白與簡單圖樣，絕對不要在畫面出現任何干擾文字。`;
     };
 
     const handleCopyPrompt = (type) => {
@@ -366,7 +367,7 @@ ${extraGridRules}
                         </div>
                     </div>
                     <p className="text-xs text-slate-500 font-bold tracking-widest uppercase mb-10">
-                        已準備素材 {allUploaded} / 12
+                        已準備素材 {allUploaded} / 14
                     </p>
 
                     <div className="flex flex-col gap-10">

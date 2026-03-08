@@ -77,13 +77,14 @@ const useThemePack = () => {
 
         // 1. Main Images
         const mainFolder = zip.folder("1_Main");
-        if (mainImageIos) mainFolder.file("i_01.png", await resizeImage(mainImageIos, 200, 284, 'cover'), { base64: true });
-        if (mainImageAndroid) mainFolder.file("a_01.png", await resizeImage(mainImageAndroid, 136, 202, 'cover'), { base64: true });
-        if (mainImageStore) mainFolder.file("main_store.png", await resizeImage(mainImageStore, 198, 278, 'cover'), { base64: true });
+        if (mainImageIos) mainFolder.file("ios_thumbnail.png", await resizeImage(mainImageIos, 200, 284, 'cover'), { base64: true });
+        if (mainImageAndroid) mainFolder.file("android_thumbnail.png", await resizeImage(mainImageAndroid, 136, 202, 'cover'), { base64: true });
+        if (mainImageStore) mainFolder.file("store_thumbnail.png", await resizeImage(mainImageStore, 198, 278, 'cover'), { base64: true });
 
         // 2. Menu Buttons
         if (menuOffImage && menuOnImage) {
             const menuFolder = zip.folder("2_MenuButtons");
+
             const MENU_MAPPING = [
                 { off: "i_29.png", on: "i_30.png" }, // 1. 主頁
                 { off: "i_03.png", on: "i_04.png" }, // 2. 聊天
@@ -96,30 +97,12 @@ const useThemePack = () => {
                 { off: "i_37.png", on: "i_38.png" }, // 9. MINI
             ];
 
-            const Android_MENU_MAPPING = [
-                { off: "a_29.png", on: "a_30.png" }, // 1. 主頁
-                { off: "a_03.png", on: "a_04.png" }, // 2. 聊天
-                { off: "a_33.png", on: "a_34.png" }, // 3. VOOM
-                { off: "a_35.png", on: "a_36.png" }, // 4. 購物
-                { off: "a_07.png", on: "a_08.png" }, // 5. 通話
-                { off: "a_25.png", on: "a_26.png" }, // 6. 新聞
-                { off: "a_31.png", on: "a_32.png" }, // 7. TODAY
-                { off: "a_27.png", on: "a_28.png" }, // 8. 錢包
-                { off: "a_37.png", on: "a_38.png" }, // 9. MINI
-            ];
-
             const offTiles = await sliceImageGrid(menuOffImage, 3, 3, 128, 150);
             const onTiles = await sliceImageGrid(menuOnImage, 3, 3, 128, 150);
 
             for (let i = 0; i < 9; i++) {
-                if (offTiles[i]) {
-                    menuFolder.file(MENU_MAPPING[i].off, offTiles[i], { base64: true });
-                    menuFolder.file(Android_MENU_MAPPING[i].off, offTiles[i], { base64: true });
-                }
-                if (onTiles[i]) {
-                    menuFolder.file(MENU_MAPPING[i].on, onTiles[i], { base64: true });
-                    menuFolder.file(Android_MENU_MAPPING[i].on, onTiles[i], { base64: true });
-                }
+                if (offTiles[i]) menuFolder.file(MENU_MAPPING[i].off, offTiles[i], { base64: true });
+                if (onTiles[i]) menuFolder.file(MENU_MAPPING[i].on, onTiles[i], { base64: true });
             }
         }
 
@@ -179,11 +162,11 @@ const useThemePack = () => {
             const iosTiles = await sliceImageGrid(profileIosImage || profileAndroidImage, 2, 2, 240, 240);
             const androidTiles = await sliceImageGrid(profileAndroidImage || profileIosImage, 2, 2, 247, 247);
 
-            // iOS: i_20=personal, i_21=group
+            // iOS
             if (iosTiles[0]) profileFolder.file("i_20.png", iosTiles[0], { base64: true });
             if (iosTiles[1]) profileFolder.file("i_21.png", iosTiles[1], { base64: true });
 
-            // Android: a_20=personal, a_21=group
+            // Android
             if (androidTiles[0]) profileFolder.file("a_20.png", androidTiles[0], { base64: true });
             if (androidTiles[1]) profileFolder.file("a_21.png", androidTiles[1], { base64: true });
 
