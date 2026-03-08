@@ -71,7 +71,7 @@ const useThemePack = () => {
     const generateThemeZip = async (assets) => {
         const zip = new JSZip();
 
-        const { mainImageIos, mainImageAndroid, mainImageStore, menuOffImage, menuOnImage, menuBgImage, passcodeIosOffImage, passcodeIosOnImage, passcodeAndroidOffImage, passcodeAndroidOnImage, profileImage, chatBgImage } = assets;
+        const { mainImageIos, mainImageAndroid, mainImageStore, menuOffImage, menuOnImage, menuBgImage, passcodeIosOffImage, passcodeIosOnImage, passcodeAndroidOffImage, passcodeAndroidOnImage, profileIosImage, profileAndroidImage, chatBgImage } = assets;
 
         const mainFallback = mainImageIos || mainImageAndroid || mainImageStore || chatBgImage || profileImage;
 
@@ -172,10 +172,24 @@ const useThemePack = () => {
         }
 
         // 5. Profile
-        if (profileImage) {
+        const hasProfile = profileIosImage || profileAndroidImage;
+        if (hasProfile) {
             const profileFolder = zip.folder("5_Profile");
-            profileFolder.file("profile_personal.png", await resizeImage(profileImage, 240, 240, 'cover'), { base64: true });
-            profileFolder.file("profile_group.png", await resizeImage(profileImage, 240, 240, 'cover'), { base64: true });
+
+            const iosTiles = await sliceImageGrid(profileIosImage || profileAndroidImage, 2, 2, 240, 240);
+            const androidTiles = await sliceImageGrid(profileAndroidImage || profileIosImage, 2, 2, 247, 247);
+
+            // iOS: i_20=personal, i_21=group
+            if (iosTiles[0]) profileFolder.file("i_20.png", iosTiles[0], { base64: true });
+            if (iosTiles[1]) profileFolder.file("i_21.png", iosTiles[1], { base64: true });
+
+            // Android: a_20=personal, a_21=group
+            if (androidTiles[0]) profileFolder.file("a_20.png", androidTiles[0], { base64: true });
+            if (androidTiles[1]) profileFolder.file("a_21.png", androidTiles[1], { base64: true });
+
+            // Fallback filenames
+            if (iosTiles[0]) profileFolder.file("profile_personal.png", iosTiles[0], { base64: true });
+            if (iosTiles[1]) profileFolder.file("profile_group.png", iosTiles[1], { base64: true });
         }
 
         // 6. ChatBackground

@@ -18,7 +18,8 @@ const ThemeBuilder = ({ productType }) => {
         passcodeIosOnImage: null,
         passcodeAndroidOffImage: null,
         passcodeAndroidOnImage: null,
-        profileImage: null,
+        profileIosImage: null,
+        profileAndroidImage: null,
         chatBgImage: null
     });
 
@@ -40,7 +41,8 @@ const ThemeBuilder = ({ productType }) => {
         { id: 'passcode_ios_on', category: 'D. 密碼畫面圖片', label: '密碼圖案 iOS (已輸入狀態)', size: '240×240' },
         { id: 'passcode_android_off', category: 'D. 密碼畫面圖片', label: '密碼圖案 Android (未輸入狀態)', size: '232×232' },
         { id: 'passcode_android_on', category: 'D. 密碼畫面圖片', label: '密碼圖案 Android (已輸入狀態)', size: '232×232' },
-        { id: 'profile', category: 'E. 個人圖片', label: '大頭貼 (正方形)', size: '240×240' },
+        { id: 'profile_ios', category: 'E. 個人圖片', label: '大頭貼 iOS (2x1 網格)', size: '240×480' },
+        { id: 'profile_android', category: 'E. 個人圖片', label: '大頭貼 Android (2x1 網格)', size: '247×494' },
         { id: 'chat_bg_ios', category: 'F. 聊天室背景圖片', label: '聊天底圖 (iOS)', size: '1482×1334' },
         { id: 'chat_bg_android', category: 'F. 聊天室背景圖片', label: '聊天底圖 (Android)', size: '1300×1300' },
     ];
@@ -51,30 +53,35 @@ const ThemeBuilder = ({ productType }) => {
 
         let isMenuGrid = typeId === 'menu_btn_off' || typeId === 'menu_btn_on';
         let isPasscodeGrid = typeId.startsWith('passcode');
-        let isGrid = isMenuGrid || isPasscodeGrid;
+        let isProfileGrid = typeId.startsWith('profile');
+        let isGrid = isMenuGrid || isPasscodeGrid || isProfileGrid;
 
         if (isGrid) {
             let stateDesc = '';
-            let gridCols = isMenuGrid ? 3 : 2;
+            let gridCols = isMenuGrid ? 3 : (isProfileGrid ? 1 : 2);
             let gridRows = isMenuGrid ? 3 : 2;
-            let cellW = isMenuGrid ? 128 : (typeId.includes('android') ? 116 : 120);
-            let cellH = isMenuGrid ? 150 : (typeId.includes('android') ? 116 : 120);
-            let cellCount = isMenuGrid ? 9 : 4;
-            let targetGroup = isMenuGrid ? '小選單圖示' : '密碼狀態圖示';
+            let cellW = isMenuGrid ? 128 : (typeId.includes('android') ? (isProfileGrid ? 247 : 116) : (isProfileGrid ? 240 : 120));
+            let cellH = isMenuGrid ? 150 : (typeId.includes('android') ? (isProfileGrid ? 247 : 116) : (isProfileGrid ? 240 : 120));
+            let cellCount = isMenuGrid ? 9 : (isProfileGrid ? 2 : 4);
+            let targetGroup = isMenuGrid ? '小選單圖示' : (isProfileGrid ? '大頭貼圖示' : '密碼狀態圖示');
 
             if (isMenuGrid) {
                 stateDesc = typeId === 'menu_btn_off'
                     ? '請使用低調、平淡或是單色草圖線條設計，代表未選取狀態。'
                     : '請使用色彩鮮明、生動可愛的特效設計，代表正被點擊活躍中。';
-            } else {
+            } else if (isPasscodeGrid) {
                 stateDesc = typeId.includes('_off')
                     ? '這代表「未輸入」的空狀態，顏色請設計較暗沉平淡，或是顯示角色最基本的樣子（例如：蛋殼、還沒被點亮的燈）。'
                     : '這代表「已輸入」的點亮狀態，顏色請鮮豔發光，也可以有情緒、破殼、或是開燈後的漸進變化。';
+            } else {
+                stateDesc = '請在 1 欄 × 2 列的垂直網格中填入大頭貼：\n• 上方格 (Slot 1)：個人代表圖片（建議為角色正臉或招牌動作）。\n• 下方格 (Slot 2)：群組代表圖片（建議為角色與小夥伴、或是另一個活潑的動作）。';
             }
 
             let extraGridRules = isMenuGrid
-                ? '• 集中偏左下避讓（極重要）：每格內的圖示必須完全獨立且緊湊地集中在單一格子的「中央偏左下」。\n• 避開右上通知區域：在實際的 LINE 畫面上，每個選單的「右上角（距上空 49px、距右空 21px，尺寸 33×33 px）」會被系統強制覆蓋紅色的提醒數字。因此強烈要求：你的小圖示主要結構絕對要「避開右上角」，不能把格子畫滿！'
-                : '• 集中置中：每個密碼圖案必須保持圓潤小巧，並且完全置中，四周保留安全的去背空間。可以透過動作或表情的變化增添密碼輸入時的樂趣。';
+                ? '• 集中偏左下避讓（極重要）：每格內的圖示必須完全獨立且緊湊地集中在單一格子的「中央偏左下」。\n• 避開右上通知區域：在實際的 LINE 畫面上，每個選單的「右上角（距上空 49px、距環境空 21px，尺寸 33×33 px）」會被系統強制覆蓋紅色的提醒數字。因此強烈要求：你的小圖示主要結構絕對要「避開右上角」，不能把格子畫滿！'
+                : (isPasscodeGrid
+                    ? '• 集中置中：每個密碼圖案必須保持圓潤小巧，並且完全置中，四周保留安全的去背空間。可以透過動作或表情的變化增添密碼輸入時的樂趣。'
+                    : '• 滿格或圓形預留：大頭貼在 LINE 內會被剪裁為「圓形」，請確保角色的臉部集中在每格的中央。畫面可以填滿格子，但主題務必置中以便裁切。');
 
             return `✅ ${typeInfo.category} - ${typeInfo.label}｜AI Prompt 建議
 
@@ -144,15 +151,17 @@ ${extraGridRules}
     if (productType !== 'theme') return null;
 
     const allUploaded = Object.values(assets).filter(Boolean).length;
-    const progress = Math.round((allUploaded / 12) * 100);
+    const progress = Math.round((allUploaded / 13) * 100);
 
     const [showMenuGrid, setShowMenuGrid] = useState(true);
     const [showPasscodeGrid, setShowPasscodeGrid] = useState(true);
+    const [showProfileGrid, setShowProfileGrid] = useState(true);
 
     const UploadCard = ({ label, desc, stateKey, icon: Icon }) => {
         const hasImage = !!assets[stateKey];
         const isMenuGrid = stateKey === 'menuOffImage' || stateKey === 'menuOnImage';
         const isPasscodeGrid = stateKey.startsWith('passcode');
+        const isProfileGrid = stateKey.startsWith('profile');
 
         return (
             <div className={`relative group border-2 border-dashed rounded-[2rem] flex flex-col items-center justify-center transition-all duration-500 overflow-hidden min-h-[160px] p-6
@@ -184,6 +193,14 @@ ${extraGridRules}
                                 preserveAspectRatio="xMidYMid meet">
                                 <line x1={stateKey.toLowerCase().includes('android') ? "116" : "120"} y1="0" x2={stateKey.toLowerCase().includes('android') ? "116" : "120"} y2={stateKey.toLowerCase().includes('android') ? "232" : "240"} stroke="rgba(255,50,50,0.8)" strokeWidth="3" strokeDasharray="6 3" />
                                 <line x1="0" y1={stateKey.toLowerCase().includes('android') ? "116" : "120"} x2={stateKey.toLowerCase().includes('android') ? "232" : "240"} y2={stateKey.toLowerCase().includes('android') ? "116" : "120"} stroke="rgba(255,50,50,0.8)" strokeWidth="3" strokeDasharray="6 3" />
+                            </svg>
+                        )}
+
+                        {isProfileGrid && showProfileGrid && (
+                            <svg className="absolute inset-0 w-full h-full pointer-events-none z-10"
+                                viewBox={stateKey.toLowerCase().includes('android') ? "0 0 247 494" : "0 0 240 480"}
+                                preserveAspectRatio="xMidYMid meet">
+                                <line x1="0" y1={stateKey.toLowerCase().includes('android') ? "247" : "240"} x2={stateKey.toLowerCase().includes('android') ? "247" : "240"} y2={stateKey.toLowerCase().includes('android') ? "247" : "240"} stroke="rgba(255,50,50,0.8)" strokeWidth="5" strokeDasharray="10 5" />
                             </svg>
                         )}
 
@@ -423,9 +440,26 @@ ${extraGridRules}
                             </div>
 
                             <div>
-                                <h4 className="flex items-center gap-3 text-lg font-bold text-white mb-5 pb-3 border-b border-white/5"><span className="w-8 h-8 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center font-black">E</span> 個人圖片</h4>
-                                <div className="grid grid-cols-1 gap-6">
-                                    <UploadCard label="預設大頭貼" desc="240×240 px" stateKey="profileImage" icon={ImageIcon} />
+                                <h4 className="flex justify-between items-center text-lg font-bold text-white mb-5 pb-3 border-b border-white/5">
+                                    <span className="flex items-center gap-3">
+                                        <span className="w-8 h-8 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center font-black">E</span> 個人圖片
+                                    </span>
+                                </h4>
+                                <div className="grid grid-cols-2 gap-6 mb-4">
+                                    <UploadCard label="iOS 2x1" desc="240×480 px" stateKey="profileIosImage" icon={ImageIcon} />
+                                    <UploadCard label="Android 2x1" desc="247×494 px" stateKey="profileAndroidImage" icon={ImageIcon} />
+                                </div>
+                                <div className="flex flex-col items-center justify-center gap-3">
+                                    <div className="bg-slate-900/80 border border-white/10 rounded-xl px-4 py-2 text-xs flex items-center gap-4">
+                                        <span className="text-slate-500">版面：<span className="text-sky-400 font-mono font-bold">1欄 x 2列 (上下排列)</span></span>
+                                    </div>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); setShowProfileGrid(!showProfileGrid); }}
+                                        className={`flex items-center justify-center gap-2 px-6 py-2 rounded-xl text-xs font-bold transition-all border ${showProfileGrid ? 'bg-slate-800 border-slate-600 text-slate-300' : 'bg-slate-900/80 border-slate-700 text-slate-500 hover:text-slate-300'}`}
+                                    >
+                                        {showProfileGrid ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                                        {showProfileGrid ? '隱藏切割線' : '顯示切割線'}
+                                    </button>
                                 </div>
                             </div>
 
