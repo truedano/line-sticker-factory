@@ -2,44 +2,79 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 const useThemePack = () => {
-    // Utility to resize and crop image, returning base64
-    const resizeImage = (dataUrl, targetWidth, targetHeight, mode = 'cover') => {
-        return new Promise((resolve, reject) => {
-            if (!dataUrl) {
-                resolve(null);
-                return;
-            }
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = targetWidth;
-                canvas.height = targetHeight;
-                const ctx = canvas.getContext('2d');
+    // Utility to resize and crop image, returning base64 with size optimization
+    const resizeImage = async (dataUrl, targetWidth, targetHeight, mode = 'cover') => {
+        if (!dataUrl) return null;
 
-                if (mode === 'cover') {
-                    const scale = Math.max(targetWidth / img.width, targetHeight / img.height);
-                    const drawW = img.width * scale;
-                    const drawH = img.height * scale;
-                    const x = (targetWidth - drawW) / 2;
-                    const y = (targetHeight - drawH) / 2;
-                    ctx.drawImage(img, x, y, drawW, drawH);
-                } else if (mode === 'contain') {
-                    const scale = Math.min(targetWidth / img.width, targetHeight / img.height);
-                    const drawW = img.width * scale;
-                    const drawH = img.height * scale;
-                    const x = (targetWidth - drawW) / 2;
-                    const y = (targetHeight - drawH) / 2;
-                    ctx.drawImage(img, x, y, drawW, drawH);
-                } else {
-                    // stretch
-                    ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
-                }
-
-                resolve(canvas.toDataURL('image/png').split(',')[1]);
-            };
-            img.onerror = () => reject(new Error('Image load failed'));
-            img.src = dataUrl;
+        const img = await new Promise((resolve, reject) => {
+            const i = new Image();
+            i.onload = () => resolve(i);
+            i.onerror = reject;
+            i.src = dataUrl;
         });
+
+        const processCanvas = (blurAmount = 0) => {
+            const canvas = document.createElement('canvas');
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+            const ctx = canvas.getContext('2d');
+
+            // Apply smoothing filter if needed (Plan C)
+            if (blurAmount > 0) {
+                ctx.filter = `blur(${blurAmount}px)`;
+            }
+
+            if (mode === 'cover') {
+                const scale = Math.max(targetWidth / img.width, targetHeight / img.height);
+                const drawW = img.width * scale;
+                const drawH = img.height * scale;
+                const x = (targetWidth - drawW) / 2;
+                const y = (targetHeight - drawH) / 2;
+                ctx.drawImage(img, x, y, drawW, drawH);
+            } else if (mode === 'contain') {
+                const scale = Math.min(targetWidth / img.width, targetHeight / img.height);
+                const drawW = img.width * scale;
+                const drawH = img.height * scale;
+                const x = (targetWidth - drawW) / 2;
+                const y = (targetHeight - drawH) / 2;
+                ctx.drawImage(img, x, y, drawW, drawH);
+            } else {
+                ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+            }
+            return canvas;
+        };
+
+        // Iterative optimization loop (Plan B/C Hybrid: JPEG Re-encoding Noise Reduction)
+        let canvas = processCanvas(0);
+        let base64 = canvas.toDataURL('image/png').split(',')[1];
+        const MAX_BYTES = 950000; // 950KB safety threshold
+
+        // If PNG is over 1MB, use JPEG to strip invisible high-frequency noise
+        if ((base64.length * 0.75) > MAX_BYTES) {
+            let quality = 0.95;
+            while ((base64.length * 0.75) > MAX_BYTES && quality > 0.4) {
+                // Step 1: Export to high-quality lossy JPEG to remove noise
+                const jpegData = canvas.toDataURL('image/jpeg', quality);
+
+                // Step 2: Load the JPEG back into an Image object
+                const midImg = await new Promise(res => {
+                    const i = new Image();
+                    i.onload = () => res(i);
+                    i.src = jpegData;
+                });
+
+                // Step 3: Draw back to Canvas and re-export as PNG
+                const midCanvas = document.createElement('canvas');
+                midCanvas.width = targetWidth;
+                midCanvas.height = targetHeight;
+                midCanvas.getContext('2d').drawImage(midImg, 0, 0);
+                base64 = midCanvas.toDataURL('image/png').split(',')[1];
+
+                quality -= 0.15; // Gradually decrease quality if still too big
+            }
+        }
+
+        return base64;
     };
 
     const removeGreenBackground = (canvas) => {
@@ -204,8 +239,8 @@ const useThemePack = () => {
         if (hasProfile) {
             const profileFolder = zip.folder("5_Profile");
 
-            const iosTiles = await sliceImageGrid(profileIosImage || profileAndroidImage, 2, 2, 240, 240);
-            const androidTiles = await sliceImageGrid(profileAndroidImage || profileIosImage, 2, 2, 247, 247);
+            const iosTiles = await sliceImageGrid(profileIosImage || profileAndroidImage, 1, 2, 240, 240);
+            const androidTiles = await sliceImageGrid(profileAndroidImage || profileIosImage, 1, 2, 247, 247);
 
             // iOS
             if (iosTiles[0]) profileFolder.file("i_20.png", iosTiles[0], { base64: true });
@@ -214,10 +249,6 @@ const useThemePack = () => {
             // Android
             if (androidTiles[0]) profileFolder.file("a_20.png", androidTiles[0], { base64: true });
             if (androidTiles[1]) profileFolder.file("a_21.png", androidTiles[1], { base64: true });
-
-            // Fallback filenames
-            if (iosTiles[0]) profileFolder.file("profile_personal.png", iosTiles[0], { base64: true });
-            if (iosTiles[1]) profileFolder.file("profile_group.png", iosTiles[1], { base64: true });
         }
 
         // 6. ChatBackground

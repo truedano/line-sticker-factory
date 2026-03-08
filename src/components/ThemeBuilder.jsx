@@ -42,8 +42,8 @@ const ThemeBuilder = ({ productType }) => {
         { id: 'passcode_ios_on', category: 'D. 密碼畫面圖片', label: '密碼圖案 iOS (已輸入狀態)', size: '240×240' },
         { id: 'passcode_android_off', category: 'D. 密碼畫面圖片', label: '密碼圖案 Android (未輸入狀態)', size: '232×232' },
         { id: 'passcode_android_on', category: 'D. 密碼畫面圖片', label: '密碼圖案 Android (已輸入狀態)', size: '232×232' },
-        { id: 'profile_ios', category: 'E. 個人圖片', label: '大頭貼 iOS (2x1 網格)', size: '240×480' },
-        { id: 'profile_android', category: 'E. 個人圖片', label: '大頭貼 Android (2x1 網格)', size: '247×494' },
+        { id: 'profile_ios', category: 'E. 個人圖片', label: '大頭貼 iOS (1x2 網格)', size: '240×480' },
+        { id: 'profile_android', category: 'E. 個人圖片', label: '大頭貼 Android (1x2 網格)', size: '247×494' },
         { id: 'chat_bg_ios', category: 'F. 聊天室背景圖片', label: '聊天底圖 (iOS) (非必要)', size: '1482×1334' },
         { id: 'chat_bg_android', category: 'F. 聊天室背景圖片', label: '聊天底圖 (Android) (非必要)', size: '1300×1300' },
     ];
@@ -457,8 +457,8 @@ ${extraGridRules}
                                 </span>
                             </h4>
                             <div className="grid grid-cols-2 gap-6 mb-4">
-                                <UploadCard label="iOS 2x1" desc="240×480 px" stateKey="profileIosImage" icon={ImageIcon} />
-                                <UploadCard label="Android 2x1" desc="247×494 px" stateKey="profileAndroidImage" icon={ImageIcon} />
+                                <UploadCard label="iOS 1x2" desc="240×480 px" stateKey="profileIosImage" icon={ImageIcon} />
+                                <UploadCard label="Android 1x2" desc="247×494 px" stateKey="profileAndroidImage" icon={ImageIcon} />
                             </div>
                             <div className="flex flex-col items-center justify-center gap-3">
                                 <div className="bg-slate-900/80 border border-white/10 rounded-xl px-4 py-2 text-xs flex items-center gap-4">
