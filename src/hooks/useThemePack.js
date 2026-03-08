@@ -71,19 +71,17 @@ const useThemePack = () => {
     const generateThemeZip = async (assets) => {
         const zip = new JSZip();
 
-        const { mainImageIos, mainImageAndroid, mainImageStore, menuOffImage, menuOnImage, menuBgImage, passcodeIosOffImage, passcodeIosOnImage, passcodeAndroidOffImage, passcodeAndroidOnImage, profileIosImage, profileAndroidImage, chatBgImage } = assets;
+        const { mainImageIos, mainImageAndroid, mainImageStore, menuOffImage, menuOnImage, menuBgImage, passcodeIosOffImage, passcodeIosOnImage, passcodeAndroidOffImage, passcodeAndroidOnImage, profileIosImage, profileAndroidImage, chatBgIosImage, chatBgAndroidImage } = assets;
 
-        const mainFallback = mainImageIos || mainImageAndroid || mainImageStore || chatBgImage || profileImage;
+        const mainFallback = mainImageIos || mainImageAndroid || mainImageStore || chatBgIosImage || chatBgAndroidImage;
 
-        // 1. MainImages
-        if (mainFallback) {
-            const mainFolder = zip.folder("1_MainImages");
-            mainFolder.file("ios_thumbnail.png", await resizeImage(mainImageIos || mainFallback, 200, 284, 'cover'), { base64: true });
-            mainFolder.file("android_thumbnail.png", await resizeImage(mainImageAndroid || mainFallback, 136, 202, 'cover'), { base64: true });
-            mainFolder.file("store_thumbnail.png", await resizeImage(mainImageStore || mainFallback, 198, 278, 'cover'), { base64: true });
-        }
+        // 1. Main Images
+        const mainFolder = zip.folder("1_Main");
+        if (mainImageIos) mainFolder.file("i_01.png", await resizeImage(mainImageIos, 200, 284, 'cover'), { base64: true });
+        if (mainImageAndroid) mainFolder.file("a_01.png", await resizeImage(mainImageAndroid, 136, 202, 'cover'), { base64: true });
+        if (mainImageStore) mainFolder.file("main_store.png", await resizeImage(mainImageStore, 198, 278, 'cover'), { base64: true });
 
-        // 2. MenuButtons
+        // 2. Menu Buttons
         if (menuOffImage && menuOnImage) {
             const menuFolder = zip.folder("2_MenuButtons");
             const MENU_MAPPING = [
@@ -138,10 +136,12 @@ const useThemePack = () => {
             const passcodeFolder = zip.folder("4_Passcode");
 
             // iOS fallback logic
-            const iosOff = passcodeIosOffImage || passcodeAndroidOffImage || passcodeIosOnImage || passcodeAndroidOnImage;
-            const iosOn = passcodeIosOnImage || passcodeAndroidOnImage || passcodeIosOffImage || passcodeAndroidOffImage;
-            const androidOff = passcodeAndroidOffImage || passcodeIosOffImage || passcodeAndroidOnImage || passcodeIosOnImage;
-            const androidOn = passcodeAndroidOnImage || passcodeIosOnImage || passcodeAndroidOffImage || passcodeIosOffImage;
+            const iosOff = passcodeIosOffImage || passcodeAndroidOffImage;
+            const iosOn = passcodeIosOnImage || passcodeAndroidOnImage || iosOff;
+
+            // Android fallback logic
+            const androidOff = passcodeAndroidOffImage || passcodeIosOffImage;
+            const androidOn = passcodeAndroidOnImage || passcodeIosOnImage || androidOff;
 
             const iosOffTiles = await sliceImageGrid(iosOff, 2, 2, 120, 120);
             const iosOnTiles = await sliceImageGrid(iosOn, 2, 2, 120, 120);
@@ -193,10 +193,14 @@ const useThemePack = () => {
         }
 
         // 6. ChatBackground
-        if (chatBgImage) {
+        const hasChatBg = chatBgIosImage || chatBgAndroidImage;
+        if (hasChatBg) {
             const chatBgFolder = zip.folder("6_ChatBackground");
-            chatBgFolder.file("chat_bg_ios.png", await resizeImage(chatBgImage, 1482, 1334, 'cover'), { base64: true });
-            chatBgFolder.file("chat_bg_android.png", await resizeImage(chatBgImage, 1300, 1300, 'cover'), { base64: true });
+            const iosImg = chatBgIosImage || chatBgAndroidImage;
+            const androidImg = chatBgAndroidImage || chatBgIosImage;
+
+            chatBgFolder.file("i_22.png", await resizeImage(iosImg, 1482, 1334, 'cover'), { base64: true });
+            chatBgFolder.file("a_22.png", await resizeImage(androidImg, 1300, 1300, 'cover'), { base64: true });
         }
 
         const blob = await zip.generateAsync({ type: "blob" });

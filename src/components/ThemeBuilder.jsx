@@ -20,7 +20,8 @@ const ThemeBuilder = ({ productType }) => {
         passcodeAndroidOnImage: null,
         profileIosImage: null,
         profileAndroidImage: null,
-        chatBgImage: null
+        chatBgIosImage: null,
+        chatBgAndroidImage: null
     });
 
     // Prompt States
@@ -36,15 +37,15 @@ const ThemeBuilder = ({ productType }) => {
         { id: 'main_store', category: 'A. 主要圖片', label: '主要圖片 (STORE)', size: '198×278' },
         { id: 'menu_btn_off', category: 'B. 選單按鍵圖片', label: '選單按鍵 (未選取狀態)', size: '384×450' },
         { id: 'menu_btn_on', category: 'B. 選單按鍵圖片', label: '選單按鍵 (已選取狀態)', size: '384×450' },
-        { id: 'menu_bg', category: 'C. 選單背景圖片', label: '選單背景 (極扁長)', size: '1472×150' },
+        { id: 'menu_bg', category: 'C. 選單背景圖片', label: '選單背景 (極扁長) (非必要)', size: '1472×150' },
         { id: 'passcode_ios_off', category: 'D. 密碼畫面圖片', label: '密碼圖案 iOS (未輸入狀態)', size: '240×240' },
         { id: 'passcode_ios_on', category: 'D. 密碼畫面圖片', label: '密碼圖案 iOS (已輸入狀態)', size: '240×240' },
         { id: 'passcode_android_off', category: 'D. 密碼畫面圖片', label: '密碼圖案 Android (未輸入狀態)', size: '232×232' },
         { id: 'passcode_android_on', category: 'D. 密碼畫面圖片', label: '密碼圖案 Android (已輸入狀態)', size: '232×232' },
         { id: 'profile_ios', category: 'E. 個人圖片', label: '大頭貼 iOS (2x1 網格)', size: '240×480' },
         { id: 'profile_android', category: 'E. 個人圖片', label: '大頭貼 Android (2x1 網格)', size: '247×494' },
-        { id: 'chat_bg_ios', category: 'F. 聊天室背景圖片', label: '聊天底圖 (iOS)', size: '1482×1334' },
-        { id: 'chat_bg_android', category: 'F. 聊天室背景圖片', label: '聊天底圖 (Android)', size: '1300×1300' },
+        { id: 'chat_bg_ios', category: 'F. 聊天室背景圖片', label: '聊天底圖 (iOS) (非必要)', size: '1482×1334' },
+        { id: 'chat_bg_android', category: 'F. 聊天室背景圖片', label: '聊天底圖 (Android) (非必要)', size: '1300×1300' },
     ];
 
     const getPromptText = (typeId) => {
@@ -111,7 +112,11 @@ ${extraGridRules}
         if (typeInfo.category.startsWith('C')) {
             extraGuide = '\n• 橫向無縫拼接（極度重要）：這是一張 1472×150 px、極度扁長的「底部選單背景圖片」。因為這張圖會在 APP 內水平無縫重複，請務必將**左右兩端的圖案設計為自然無縫銜接（Seamless pattern）**。\n• 頂部留去背安全區：官方規定這張圖的下方為「主體繪製區（高度100~130px）」，而上方必須保留「20~50px 的去背區間」。因此強烈要求：**圖片上方至少 30px 請塗滿純綠色（#00FF00）作為預留的去背區**，所有的圖樣與裝飾必須貼緊下方邊緣設計。\n• 極簡設計：請設計能融入主題的低調地平線、雲朵或簡單線條，絕對不要在背景放過度複雜或巨大的角色，避免干擾浮在上面的按鈕。';
         } else if (typeInfo.category.startsWith('F')) {
-            extraGuide = '\n• 聊天室底圖：請保持畫面中央清爽，主體物件或角色請往角落邊緣靠攏，避免影響對話文字的閱讀性，推薦以留白或大面積簡單色塊為主。';
+            const isIos = typeId.includes('ios');
+            extraGuide = `\n• 聊天室底圖設定（${isIos ? 'iOS' : 'Android'}）：這是一張非必要的背景裝飾圖。
+• 避免畫面斷層（防偽偽瑕疵）：在部分大尺寸裝置上，背景圖若沒填滿會露出底層色塊。請務必讓背景底色與「${themeColor}」完美融合，或是將背景設計為純淨的 ${themeColor} 滿版色彩。
+• 構圖與位置（官方風格推薦）：${isIos ? '這張圖會顯示在「訊息輸入欄上方」，建議將主要角色放在畫面的「最下方邊緣」，營造從輸入欄位「向上探頭」的可愛視覺效果。' : '這張圖會顯示在「訊息輸入欄下方」，由於底部會與欄位重疊，建議將角色置於畫面的「下半部中央」，並避開最底部的功能鍵區。'}
+• 閱讀性優先：請保持畫面中央區域（對話流動區）乾淨清爽，避免複雜圖樣干擾文字閱讀。推薦使用與 ${themeColor} 協調的淡雅色彩。`;
         }
 
         return `✅ ${typeInfo.category} - ${typeInfo.label}｜AI Prompt 建議
@@ -151,7 +156,7 @@ ${extraGridRules}
     if (productType !== 'theme') return null;
 
     const allUploaded = Object.values(assets).filter(Boolean).length;
-    const progress = Math.round((allUploaded / 13) * 100);
+    const progress = Math.round((allUploaded / 14) * 100);
 
     const [showMenuGrid, setShowMenuGrid] = useState(true);
     const [showPasscodeGrid, setShowPasscodeGrid] = useState(true);
@@ -464,9 +469,14 @@ ${extraGridRules}
                             </div>
 
                             <div>
-                                <h4 className="flex items-center gap-3 text-lg font-bold text-white mb-5 pb-3 border-b border-white/5"><span className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-black">F</span> 聊天底圖</h4>
-                                <div className="grid grid-cols-1 gap-6">
-                                    <UploadCard label="聊天室底圖" desc="最高 1482×1334 px" stateKey="chatBgImage" icon={ImageIcon} />
+                                <h4 className="flex justify-between items-center text-lg font-bold text-white mb-5 pb-3 border-b border-white/5">
+                                    <span className="flex items-center gap-3">
+                                        <span className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-black">F</span> 聊天底圖
+                                    </span>
+                                </h4>
+                                <div className="grid grid-cols-2 gap-6">
+                                    <UploadCard label="iOS 聊天底圖" desc="1482×1334 px" stateKey="chatBgIosImage" icon={ImageIcon} />
+                                    <UploadCard label="Android 聊天底圖" desc="1300×1300 px" stateKey="chatBgAndroidImage" icon={ImageIcon} />
                                 </div>
                             </div>
                         </div>
