@@ -31,6 +31,7 @@ const ThemeBuilder = ({ productType, autoRemoveGeminiWatermark, setAutoRemoveGem
     const [activeStyle, setActiveStyle] = useState('qversion');
     const [activePromptType, setActivePromptType] = useState('main_ios');
     const [copySuccess, setCopySuccess] = useState(false);
+    const [maxSizeBytes, setMaxSizeBytes] = useState(950000); // Default 950KB
 
     const PROMPT_TYPES = [
         { id: 'main_ios', category: 'A. 主要圖片', label: '主要圖片 (iOS)', size: '200×284' },
@@ -171,7 +172,7 @@ ${extraGridRules}
     };
 
     const handleExport = async () => {
-        await generateThemeZip(assets);
+        await generateThemeZip(assets, maxSizeBytes);
     };
 
     if (productType !== 'theme') return null;
@@ -526,18 +527,44 @@ ${extraGridRules}
                 </div>
 
                 <div className="mt-16 flex flex-col items-center">
-                    <button
-                        onClick={handleExport}
-                        disabled={isExporting || allUploaded === 0}
-                        className={`btn-premium text-white px-10 py-5 rounded-[1.5rem] font-bold shadow-2xl transition-all btn-press flex items-center justify-center gap-4 text-xl active:scale-95 group min-w-[320px] 
-                                ${allUploaded > 0 ? 'bg-purple-600 hover:bg-purple-500 shadow-purple-500/30' : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'}`}
-                    >
-                        {isExporting ? <Loader className="animate-spin w-6 h-6" /> : <Download className="w-6 h-6 group-hover:scale-110 transition-transform" />}
-                        <div className="flex flex-col items-center">
-                            <span>{isExporting ? '打包中...' : '一鍵產生主題 ZIP'}</span>
-                            <span className="text-[10px] font-normal opacity-80 -mt-0.5">自動切割 ➔ 重新命名 ➔ 打包下載</span>
+                    <div className="flex flex-col items-center gap-6 mb-8 w-full max-w-md">
+                        <div className="w-full bg-slate-900/60 p-6 rounded-[1.5rem] border border-white/5">
+                            <h4 className="text-sm font-bold text-slate-300 mb-4 flex items-center gap-2">
+                                <Info className="w-4 h-4 text-purple-400" /> 目標檔案大小限制 (防止超過 1MB)
+                            </h4>
+                            <div className="grid grid-cols-3 gap-3">
+                                {[
+                                    { label: '標準 (950KB)', value: 950000 },
+                                    { label: '較小 (800KB)', value: 800000 },
+                                    { label: '極小 (600KB)', value: 600000 }
+                                ].map((opt) => (
+                                    <button
+                                        key={opt.value}
+                                        onClick={() => setMaxSizeBytes(opt.value)}
+                                        className={`py-2 px-1 rounded-xl text-[10px] font-bold border transition-all ${maxSizeBytes === opt.value ? 'bg-purple-600 border-purple-400 text-white shadow-lg' : 'bg-slate-800 border-slate-700 text-slate-500 hover:border-slate-500'}`}
+                                    >
+                                        {opt.label}
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="mt-3 text-[10px] text-slate-500 leading-tight">
+                                ※ 若上傳的背景圖細節過多導致壓縮失敗，請嘗試選擇「較小」或「極小」。系統將透過降低噪點來縮減容量。
+                            </p>
                         </div>
-                    </button>
+
+                        <button
+                            onClick={handleExport}
+                            disabled={isExporting || allUploaded === 0}
+                            className={`btn-premium text-white px-10 py-5 rounded-[1.5rem] font-bold shadow-2xl transition-all btn-press flex items-center justify-center gap-4 text-xl active:scale-95 group min-w-[320px] 
+                                    ${allUploaded > 0 ? 'bg-purple-600 hover:bg-purple-500 shadow-purple-500/30' : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'}`}
+                        >
+                            {isExporting ? <Loader className="animate-spin w-6 h-6" /> : <Download className="w-6 h-6 group-hover:scale-110 transition-transform" />}
+                            <div className="flex flex-col items-center">
+                                <span>{isExporting ? '打包中...' : '一鍵產生主題 ZIP'}</span>
+                                <span className="text-[10px] font-normal opacity-80 -mt-0.5">自動切割 ➔ 重新命名 ➔ 打包下載</span>
+                            </div>
+                        </button>
+                    </div>
 
                     <div className="mt-12 text-left bg-slate-900/40 backdrop-blur-sm border border-slate-700/50 p-8 rounded-[2rem] w-full max-w-3xl">
                         <h4 className="flex items-center gap-2 text-base font-bold text-slate-200 mb-4">

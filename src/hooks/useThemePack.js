@@ -3,7 +3,7 @@ import { saveAs } from 'file-saver';
 
 const useThemePack = () => {
     // Utility to resize and crop image, returning base64 with size optimization
-    const resizeImage = async (dataUrl, targetWidth, targetHeight, mode = 'cover') => {
+    const resizeImage = async (dataUrl, targetWidth, targetHeight, mode = 'cover', maxSizeBytes = 950000) => {
         if (!dataUrl) return null;
 
         const img = await new Promise((resolve, reject) => {
@@ -19,7 +19,6 @@ const useThemePack = () => {
             canvas.height = targetHeight;
             const ctx = canvas.getContext('2d');
 
-            // Apply smoothing filter if needed (Plan C)
             if (blurAmount > 0) {
                 ctx.filter = `blur(${blurAmount}px)`;
             }
@@ -44,33 +43,28 @@ const useThemePack = () => {
             return canvas;
         };
 
-        // Iterative optimization loop (Plan B/C Hybrid: JPEG Re-encoding Noise Reduction)
+        // Iterative optimization loop
         let canvas = processCanvas(0);
         let base64 = canvas.toDataURL('image/png').split(',')[1];
-        const MAX_BYTES = 950000; // 950KB safety threshold
 
-        // If PNG is over 1MB, use JPEG to strip invisible high-frequency noise
-        if ((base64.length * 0.75) > MAX_BYTES) {
-            let quality = 0.95;
-            while ((base64.length * 0.75) > MAX_BYTES && quality > 0.4) {
-                // Step 1: Export to high-quality lossy JPEG to remove noise
+        // If PNG is over limit, use JPEG re-encoding to strip noise
+        if ((base64.length * 0.75) > maxSizeBytes) {
+            let quality = 0.90;
+            while ((base64.length * 0.75) > maxSizeBytes && quality > 0.1) {
                 const jpegData = canvas.toDataURL('image/jpeg', quality);
-
-                // Step 2: Load the JPEG back into an Image object
                 const midImg = await new Promise(res => {
                     const i = new Image();
                     i.onload = () => res(i);
                     i.src = jpegData;
                 });
 
-                // Step 3: Draw back to Canvas and re-export as PNG
                 const midCanvas = document.createElement('canvas');
                 midCanvas.width = targetWidth;
                 midCanvas.height = targetHeight;
                 midCanvas.getContext('2d').drawImage(midImg, 0, 0);
                 base64 = midCanvas.toDataURL('image/png').split(',')[1];
 
-                quality -= 0.15; // Gradually decrease quality if still too big
+                quality -= 0.1; // More aggressive reduction
             }
         }
 
@@ -148,7 +142,7 @@ const useThemePack = () => {
         });
     };
 
-    const generateThemeZip = async (assets) => {
+    const generateThemeZip = async (assets, maxSizeBytes = 950000) => {
         const zip = new JSZip();
 
         const { mainImageIos, mainImageAndroid, mainImageStore, menuOffImage, menuOnImage, menuBgImage, passcodeIosOffImage, passcodeIosOnImage, passcodeAndroidOffImage, passcodeAndroidOnImage, profileIosImage, profileAndroidImage, chatBgIosImage, chatBgAndroidImage } = assets;
@@ -157,9 +151,9 @@ const useThemePack = () => {
 
         // 1. Main Images
         const mainFolder = zip.folder("1_Main");
-        if (mainImageIos) mainFolder.file("ios_thumbnail.png", await resizeImage(mainImageIos, 200, 284, 'cover'), { base64: true });
-        if (mainImageAndroid) mainFolder.file("android_thumbnail.png", await resizeImage(mainImageAndroid, 136, 202, 'cover'), { base64: true });
-        if (mainImageStore) mainFolder.file("store_thumbnail.png", await resizeImage(mainImageStore, 198, 278, 'cover'), { base64: true });
+        if (mainImageIos) mainFolder.file("ios_thumbnail.png", await resizeImage(mainImageIos, 200, 284, 'cover', maxSizeBytes), { base64: true });
+        if (mainImageAndroid) mainFolder.file("android_thumbnail.png", await resizeImage(mainImageAndroid, 136, 202, 'cover', maxSizeBytes), { base64: true });
+        if (mainImageStore) mainFolder.file("store_thumbnail.png", await resizeImage(mainImageStore, 198, 278, 'cover', maxSizeBytes), { base64: true });
 
         // 2. Menu Buttons
         if (menuOffImage && menuOnImage) {
@@ -190,7 +184,7 @@ const useThemePack = () => {
         if (menuBgImage) {
             const menuBgFolder = zip.folder("3_MenuBackground");
             // 1472x150 for general repeating iOS background
-            menuBgFolder.file("menu_bg.png", await resizeImage(menuBgImage, 1472, 150, 'cover'), { base64: true });
+            menuBgFolder.file("menu_bg.png", await resizeImage(menuBgImage, 1472, 150, 'cover', maxSizeBytes), { base64: true });
         }
 
         // 4. Passcode
@@ -258,8 +252,8 @@ const useThemePack = () => {
             const iosImg = chatBgIosImage || chatBgAndroidImage;
             const androidImg = chatBgAndroidImage || chatBgIosImage;
 
-            chatBgFolder.file("i_22.png", await resizeImage(iosImg, 1482, 1334, 'cover'), { base64: true });
-            chatBgFolder.file("a_22.png", await resizeImage(androidImg, 1300, 1300, 'cover'), { base64: true });
+            chatBgFolder.file("i_22.png", await resizeImage(iosImg, 1482, 1334, 'cover', maxSizeBytes), { base64: true });
+            chatBgFolder.file("a_22.png", await resizeImage(androidImg, 1300, 1300, 'cover', maxSizeBytes), { base64: true });
         }
 
         const blob = await zip.generateAsync({ type: "blob" });
