@@ -44,8 +44,8 @@ const ThemeBuilder = ({ productType }) => {
         { id: 'passcode_android_on', category: 'D. 密碼畫面圖片', label: '密碼圖案 Android (已輸入狀態)', size: '232×232' },
         { id: 'profile_ios', category: 'E. 個人圖片', label: '大頭貼 iOS (1x2 網格)', size: '240×480' },
         { id: 'profile_android', category: 'E. 個人圖片', label: '大頭貼 Android (1x2 網格)', size: '247×494' },
-        { id: 'chat_bg_ios', category: 'F. 聊天室背景圖片', label: '聊天底圖 (iOS) (非必要)', size: '1482×1334' },
-        { id: 'chat_bg_android', category: 'F. 聊天室背景圖片', label: '聊天底圖 (Android) (非必要)', size: '1300×1300' },
+        { id: 'chat_bg_ios', category: 'F. 聊天室背景圖片', label: '聊天室背景圖片 (iOS) (非必要)', size: '1482×1334' },
+        { id: 'chat_bg_android', category: 'F. 聊天室背景圖片', label: '聊天室背景圖片 (Android) (非必要)', size: '1300×1300' },
     ];
 
     const getPromptText = (typeId) => {
@@ -114,7 +114,7 @@ ${extraGridRules}
             extraGuide = '\n• 橫向無縫拼接（極度重要）：這是一張 1472×150 px、極度扁長的「底部選單背景圖片」。因為這張圖會在 APP 內水平無縫重複，請務必將**左右兩端的圖案設計為自然無縫銜接（Seamless pattern）**。\n• 頂部留去背安全區：官方規定這張圖的下方為「主體繪製區（高度100~130px）」，而上方必須保留「20~50px 的去背區間」。因此強烈要求：**圖片上方至少 30px 請塗滿純綠色（#00FF00）作為預留的去背區**，所有的圖樣與裝飾必須貼緊下方邊緣設計。\n• 極簡設計：請設計能融入主題的低調地平線、雲朵或簡單線條，絕對不要在背景放過度複雜或巨大的角色，避免干擾浮在上面的按鈕。';
         } else if (typeInfo.category.startsWith('F')) {
             const isIos = typeId.includes('ios');
-            extraGuide = `\n• 聊天室底圖設定（${isIos ? 'iOS' : 'Android'}）：這是一張非必要的背景裝飾圖。
+            extraGuide = `\n• 聊天室背景圖片設定（${isIos ? 'iOS' : 'Android'}）：這是一張非必要的背景裝飾圖。
 • 避免畫面斷層（防偽偽瑕疵）：在部分大尺寸裝置上，背景圖若沒填滿會露出底層色塊。請務必讓背景底色與「${currentThemeColor}」完美融合，或是將背景設計為純淨的 ${currentThemeColor} 滿版色彩。
 • 構圖與位置（官方風格推薦）：${isIos ? '這張圖會顯示在「訊息輸入欄上方」，建議將主要角色放在畫面的「最下方邊緣」，營造從輸入欄位「向上探頭」的可愛視覺效果。' : '這張圖會顯示在「訊息輸入欄下方」，由於底部會與欄位重疊，建議將角色置於畫面的「下半部中央」，並避開最底部的功能鍵區。'}
 • 閱讀性優先：請保持畫面中央區域（對話流動區）乾淨清爽，避免複雜圖樣干擾文字閱讀。推薦使用與 ${currentThemeColor} 協調的淡雅色彩。`;
@@ -309,7 +309,7 @@ ${extraGridRules}
                                 { id: 'C', title: <span>C. 選單背景 <span className="text-[10px] font-normal opacity-70">(非必要)</span></span>, items: PROMPT_TYPES.filter(t => t.category.startsWith('C')) },
                                 { id: 'D', title: 'D. 密碼畫面', items: PROMPT_TYPES.filter(t => t.category.startsWith('D')) },
                                 { id: 'E', title: 'E. 個人圖片', items: PROMPT_TYPES.filter(t => t.category.startsWith('E')) },
-                                { id: 'F', title: 'F. 聊天底圖', items: PROMPT_TYPES.filter(t => t.category.startsWith('F')) }
+                                { id: 'F', title: 'F. 聊天室背景圖片', items: PROMPT_TYPES.filter(t => t.category.startsWith('F')) }
                             ];
                             const activeCategoryGroup = PROMPT_CATEGORIES.find(c => c.items.some(i => i.id === activePromptType)) || PROMPT_CATEGORIES[0];
 
@@ -476,11 +476,11 @@ ${extraGridRules}
 
                         <div>
                             <h4 className="flex items-center gap-3 text-lg font-bold text-white mb-6 pb-3 border-b border-white/5 tracking-tight">
-                                <span className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-black">F</span> 聊天底圖
+                                <span className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-black">F</span> 聊天室背景圖片
                             </h4>
                             <div className="grid grid-cols-2 gap-4">
-                                <UploadCard label="iOS 聊天底圖" desc="1482×1334 px" stateKey="chatBgIosImage" icon={ImageIcon} />
-                                <UploadCard label="Android 聊天底圖" desc="1300×1300 px" stateKey="chatBgAndroidImage" icon={ImageIcon} />
+                                <UploadCard label="iOS 聊天室背景圖片" desc="1482×1334 px" stateKey="chatBgIosImage" icon={ImageIcon} />
+                                <UploadCard label="Android 聊天室背景圖片" desc="1300×1300 px" stateKey="chatBgAndroidImage" icon={ImageIcon} />
                             </div>
                         </div>
                     </div>
