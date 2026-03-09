@@ -144,31 +144,55 @@ ${extraGridRules}
         });
     };
 
-    const handleUpload = (e, key) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            const img = new Image();
-            img.onload = async () => {
-                let finalImgUrl = ev.target.result;
+    const handleBatchUpload = async (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
 
-                if (autoRemoveGeminiWatermark) {
-                    setIsGlobalProcessing(true);
-                    try {
-                        const processedImg = await removeGeminiWatermark(img);
-                        finalImgUrl = processedImg.src;
-                    } catch (err) {
-                        console.error('Error removing watermark:', err);
-                    }
-                    setIsGlobalProcessing(false);
-                }
-
-                setAssets(prev => ({ ...prev, [key]: finalImgUrl }));
-            };
-            img.src = ev.target.result;
+        const fileNameMapping = {
+            'a.png': ['mainImageIos', 'mainImageAndroid', 'mainImageStore'],
+            'b_off.png': ['menuOffImage'],
+            'b_on.png': ['menuOnImage'],
+            'd_off.png': ['passcodeIosOffImage', 'passcodeAndroidOffImage'],
+            'd_on.png': ['passcodeIosOnImage', 'passcodeAndroidOnImage'],
+            'e.png': ['profileIosImage', 'profileAndroidImage'],
+            'f.png': ['chatBgIosImage', 'chatBgAndroidImage']
         };
-        reader.readAsDataURL(file);
+
+        setIsGlobalProcessing(true);
+        let updatedAssets = { ...assets };
+
+        for (const file of files) {
+            const name = file.name.toLowerCase();
+            const keys = fileNameMapping[name];
+            if (keys) {
+                const url = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        const img = new Image();
+                        img.onload = async () => {
+                            let finalUrl = ev.target.result;
+                            if (autoRemoveGeminiWatermark) {
+                                try {
+                                    const processed = await removeGeminiWatermark(img);
+                                    finalUrl = processed.src;
+                                } catch (err) { console.error(err); }
+                            }
+                            resolve(finalUrl);
+                        };
+                        img.src = ev.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                });
+
+                keys.forEach(key => {
+                    updatedAssets[key] = url;
+                });
+            }
+        }
+
+        setAssets(updatedAssets);
+        setIsGlobalProcessing(false);
+        e.target.value = '';
     };
 
     const handleExport = async () => {
@@ -386,29 +410,53 @@ ${extraGridRules}
             {/* 素材上傳區 */}
             <div className="glass-card rounded-[2.5rem] p-8 md:p-12 border border-white/5">
                 <div className="max-w-5xl mx-auto text-center">
-                    <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4 px-4">
-                        <div className="flex items-center gap-4 bg-slate-900/60 p-4 rounded-2xl border border-white/5">
+                    <div className="flex flex-col md:flex-row items-stretch justify-center mb-12 gap-6 px-4">
+                        {/* 一鍵載入按鈕 */}
+                        <div className="flex items-center gap-4 bg-slate-900/60 p-5 rounded-[1.5rem] border border-cyan-500/20 hover:border-cyan-500/40 hover:bg-slate-800/80 transition-all relative group cursor-pointer shadow-lg shadow-cyan-500/5">
+                            <div className="w-10 h-10 bg-cyan-500/10 rounded-xl flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform">
+                                <Upload className="w-6 h-6" />
+                            </div>
                             <div className="flex flex-col text-left">
                                 <span className="text-sm font-bold text-white flex items-center gap-2">
-                                    <Wand2 className="w-4 h-4 text-purple-400" /> 自動去除 Gemini 浮水印
+                                    一鍵載入圖片目錄
                                 </span>
-                                <span className="text-[10px] text-slate-500">上傳時自動移除 AI 產生的右下角標誌</span>
+                                <span className="text-[10px] text-slate-500">自動分配 A, B, D, E, F 等檔案</span>
+                            </div>
+                            <input
+                                type="file"
+                                webkitdirectory="true"
+                                directory=""
+                                onChange={handleBatchUpload}
+                                className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                            />
+                        </div>
+
+                        {/* 去浮水印開關 */}
+                        <div className="flex items-center gap-4 bg-slate-900/60 p-5 rounded-[1.5rem] border border-white/5 shadow-lg">
+                            <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400">
+                                <Wand2 className="w-5 h-5" />
+                            </div>
+                            <div className="flex flex-col text-left">
+                                <span className="text-sm font-bold text-white flex items-center gap-2">
+                                    自動去除 Gemini 浮水印
+                                </span>
+                                <span className="text-[10px] text-slate-500">上傳時自動移除右下角標誌</span>
                             </div>
                             <button
-                                onClick={() => setAutoRemoveGeminiWatermark(!autoRemoveGeminiWatermark)}
+                                onClick={() => textAutoRemoveGeminiWatermark(!autoRemoveGeminiWatermark)}
                                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${autoRemoveGeminiWatermark ? 'bg-purple-600' : 'bg-slate-700'}`}
                             >
                                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${autoRemoveGeminiWatermark ? 'translate-x-6' : 'translate-x-1'}`} />
                             </button>
                         </div>
 
-                        <div className="flex-1 max-w-md w-full">
-                            <div className="bg-slate-900/60 rounded-full h-3 w-full overflow-hidden mb-2 border border-slate-700/50">
-                                <div className="h-full bg-purple-500 transition-all duration-700 ease-out flex items-center justify-end pr-2 shadow-[0_0_15px_rgba(168,85,247,0.5)]" style={{ width: `${Math.max(5, progress)}%` }}>
-                                    {progress > 10 && <div className="w-1.5 h-1.5 bg-white/50 rounded-full animate-pulse"></div>}
+                        {/* 進度條 */}
+                        <div className="flex-1 max-w-xs flex flex-col justify-center bg-slate-900/40 p-5 rounded-[1.5rem] border border-white/5">
+                            <div className="bg-slate-950/60 rounded-full h-2.5 w-full overflow-hidden mb-2 border border-slate-700/50">
+                                <div className="h-full bg-gradient-to-r from-purple-600 to-indigo-500 transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(168,85,247,0.3)]" style={{ width: `${Math.max(5, progress)}%` }}>
                                 </div>
                             </div>
-                            <p className="text-[10px] text-slate-500 font-bold tracking-[0.2em] uppercase">
+                            <p className="text-[10px] text-slate-500 font-bold tracking-[0.2em] uppercase text-center">
                                 已準備素材 {allUploaded} / 14
                             </p>
                         </div>
