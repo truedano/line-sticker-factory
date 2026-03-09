@@ -2,8 +2,9 @@ import React, { useState, useRef } from 'react';
 import { Upload, Download, Loader, Info, Palette, Image as ImageIcon, Wand2, ChevronDown, Copy, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import useThemePack from '../hooks/useThemePack';
 import { PROMPT_STYLES } from '../data';
+import { removeGeminiWatermark } from '../utils/removeGeminiWatermark';
 
-const ThemeBuilder = ({ productType }) => {
+const ThemeBuilder = ({ productType, autoRemoveGeminiWatermark, setAutoRemoveGeminiWatermark, setIsGlobalProcessing }) => {
     const { generateThemeZip, isExporting } = useThemePack();
 
     // States for uploaded images
@@ -147,7 +148,24 @@ ${extraGridRules}
         if (!file) return;
         const reader = new FileReader();
         reader.onload = (ev) => {
-            setAssets(prev => ({ ...prev, [key]: ev.target.result }));
+            const img = new Image();
+            img.onload = async () => {
+                let finalImgUrl = ev.target.result;
+
+                if (autoRemoveGeminiWatermark) {
+                    setIsGlobalProcessing(true);
+                    try {
+                        const processedImg = await removeGeminiWatermark(img);
+                        finalImgUrl = processedImg.src;
+                    } catch (err) {
+                        console.error('Error removing watermark:', err);
+                    }
+                    setIsGlobalProcessing(false);
+                }
+
+                setAssets(prev => ({ ...prev, [key]: finalImgUrl }));
+            };
+            img.src = ev.target.result;
         };
         reader.readAsDataURL(file);
     };
@@ -367,14 +385,33 @@ ${extraGridRules}
             {/* 素材上傳區 */}
             <div className="glass-card rounded-[2.5rem] p-8 md:p-12 border border-white/5">
                 <div className="max-w-5xl mx-auto text-center">
-                    <div className="bg-slate-900/60 rounded-full h-3 w-full max-w-md mx-auto overflow-hidden mb-2 border border-slate-700/50">
-                        <div className="h-full bg-purple-500 transition-all duration-700 ease-out flex items-center justify-end pr-2 shadow-[0_0_15px_rgba(168,85,247,0.5)]" style={{ width: `${Math.max(5, progress)}%` }}>
-                            {progress > 10 && <div className="w-1.5 h-1.5 bg-white/50 rounded-full animate-pulse"></div>}
+                    <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4 px-4">
+                        <div className="flex items-center gap-4 bg-slate-900/60 p-4 rounded-2xl border border-white/5">
+                            <div className="flex flex-col text-left">
+                                <span className="text-sm font-bold text-white flex items-center gap-2">
+                                    <Wand2 className="w-4 h-4 text-purple-400" /> 自動去除 Gemini 浮水印
+                                </span>
+                                <span className="text-[10px] text-slate-500">上傳時自動移除 AI 產生的右下角標誌</span>
+                            </div>
+                            <button
+                                onClick={() => setAutoRemoveGeminiWatermark(!autoRemoveGeminiWatermark)}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${autoRemoveGeminiWatermark ? 'bg-purple-600' : 'bg-slate-700'}`}
+                            >
+                                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${autoRemoveGeminiWatermark ? 'translate-x-6' : 'translate-x-1'}`} />
+                            </button>
+                        </div>
+
+                        <div className="flex-1 max-w-md w-full">
+                            <div className="bg-slate-900/60 rounded-full h-3 w-full overflow-hidden mb-2 border border-slate-700/50">
+                                <div className="h-full bg-purple-500 transition-all duration-700 ease-out flex items-center justify-end pr-2 shadow-[0_0_15px_rgba(168,85,247,0.5)]" style={{ width: `${Math.max(5, progress)}%` }}>
+                                    {progress > 10 && <div className="w-1.5 h-1.5 bg-white/50 rounded-full animate-pulse"></div>}
+                                </div>
+                            </div>
+                            <p className="text-[10px] text-slate-500 font-bold tracking-[0.2em] uppercase">
+                                已準備素材 {allUploaded} / 14
+                            </p>
                         </div>
                     </div>
-                    <p className="text-xs text-slate-500 font-bold tracking-[0.2em] uppercase mb-12">
-                        已準備素材 {allUploaded} / 14
-                    </p>
                 </div>
 
                 <div className="flex flex-col gap-10">

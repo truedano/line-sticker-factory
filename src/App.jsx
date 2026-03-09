@@ -347,7 +347,12 @@ ${isEmojiTextEnabled ? '• 文字配色：每格的文字顏色必須各不相�
             <Header step={step} version={version} productType={productType} setProductType={setProductType} />
 
             {productType === 'theme' ? (
-                <ThemeBuilder productType={productType} />
+                <ThemeBuilder
+                    productType={productType}
+                    autoRemoveGeminiWatermark={autoRemoveGeminiWatermark}
+                    setAutoRemoveGeminiWatermark={setAutoRemoveGeminiWatermark}
+                    setIsGlobalProcessing={setIsProcessing}
+                />
             ) : (
                 <>
                     <UploadSection
