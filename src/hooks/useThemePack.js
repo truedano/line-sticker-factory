@@ -160,15 +160,15 @@ const useThemePack = () => {
             const menuFolder = zip.folder("2_MenuButtons");
 
             const MENU_MAPPING = [
-                { off: "i_29.png", on: "i_30.png" }, // 1. 主頁
-                { off: "i_03.png", on: "i_04.png" }, // 2. 聊天
-                { off: "i_33.png", on: "i_34.png" }, // 3. VOOM
-                { off: "i_35.png", on: "i_36.png" }, // 4. 購物
-                { off: "i_07.png", on: "i_08.png" }, // 5. 通話
-                { off: "i_25.png", on: "i_26.png" }, // 6. 新聞
-                { off: "i_31.png", on: "i_32.png" }, // 7. TODAY
-                { off: "i_27.png", on: "i_28.png" }, // 8. 錢包
-                { off: "i_37.png", on: "i_38.png" }, // 9. MINI
+                { off: "i_29.png", on: "i_30.png" }, // 1. 主頁 (1,1)
+                { off: "i_03.png", on: "i_04.png" }, // 2. 聊天 (1,2)
+                { off: "i_33.png", on: "i_34.png" }, // 3. VOOM (1,3)
+                { off: "i_35.png", on: "i_36.png" }, // 4. 購物 (2,1)
+                { off: "i_07.png", on: "i_08.png" }, // 5. 通話 (2,2)
+                { off: "i_25.png", on: "i_26.png" }, // 6. 新聞 (2,3)
+                { off: "i_31.png", on: "i_32.png" }, // 7. TODAY (3,1)
+                { off: "i_27.png", on: "i_28.png" }, // 8. 錢包 (3,2)
+                { off: "i_37.png", on: "i_38.png" }, // 9. MINI (3,3)
             ];
 
             const offTiles = await sliceImageGrid(menuOffImage, 3, 3, 128, 150, true);

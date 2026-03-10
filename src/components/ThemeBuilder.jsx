@@ -73,6 +73,17 @@ const ThemeBuilder = ({ productType, autoRemoveGeminiWatermark, setAutoRemoveGem
                 stateDesc = typeId === 'menu_btn_off'
                     ? '請使用低調、平淡或是單色草圖線條設計，代表未選取狀態。'
                     : '請使用色彩鮮明、生動可愛的特效設計，代表正被點擊活躍中。';
+
+                stateDesc += `\n\n九宮格位置對應表（極重要，請務必按照此順序畫出正確物品）：
+• (1,1) 第一行左：主頁圖示（如：房子）
+• (1,2) 第一行中：聊天圖示（如：對話框）
+• (1,3) 第一行右：VOOM 圖示（如：播放或波紋形狀）
+• (2,1) 第二行左：購物圖示（如：購物袋或購物車）
+• (2,2) 第二行中：通話圖示（如：電話聽筒）
+• (2,3) 第二行右：新聞圖示（如：報紙或文件）
+• (3,1) 第三行左：TODAY 圖示（如：日曆或今日報標誌）
+• (3,2) 第三行中：錢包圖示（如：皮夾或硬幣）
+• (3,3) 第三行右：Mini 程式圖示（如：四格小方塊或星號）`;
             } else if (isPasscodeGrid) {
                 stateDesc = typeId.includes('_off')
                     ? '這代表「未輸入」的空狀態，顏色請設計較暗沉平淡，或是顯示角色最基本的樣子（例如：蛋殼、還沒被點亮的燈）。'
@@ -82,7 +93,7 @@ const ThemeBuilder = ({ productType, autoRemoveGeminiWatermark, setAutoRemoveGem
             }
 
             let extraGridRules = isMenuGrid
-                ? '• 集中偏左下避讓（極重要）：每格內的圖示必須完全獨立且緊湊地集中在單一格子的「中央偏左下」。\n• 避開右上通知區域：在實際的 LINE 畫面上，每個選單的「右上角（距上空 49px、距環境空 21px，尺寸 33×33 px）」會被系統強制覆蓋紅色的提醒數字。因此強烈要求：你的小圖示主要結構絕對要「避開右上角」，不能把格子畫滿！'
+                ? '• 每個格子對應一個物件：請確實在九宮格中畫出對應位置的物品（如：電話、購物袋），位置必須精確。\n• 集中偏左下避讓（極重要）：每格內的圖示必須完全獨立且緊湊地集中在單一格子的「中央偏左下」。\n• 避開右上通知區域：在實際的 LINE 畫面上，每個選單的「右上角」會被系統強制覆蓋。因此強烈要求：你的小圖示主要結構絕對要「避開右上角」，不能把格子畫滿！'
                 : (isPasscodeGrid
                     ? '• 集中置中：每個密碼圖案必須保持圓潤小巧，並且完全置中，四周保留安全的去背空間。可以透過動作或表情的變化增添密碼輸入時的樂趣。'
                     : '• 滿格或圓形預留：大頭貼在 LINE 內會被剪裁為「圓形」，請確保角色的臉部集中在每格的中央。畫面可以填滿格子，但主題務必置中以便裁切。');
@@ -195,6 +206,30 @@ ${extraGridRules}
         e.target.value = '';
     };
 
+    const handleUpload = async (e, stateKey) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setIsGlobalProcessing(true);
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+            const img = new Image();
+            img.onload = async () => {
+                let finalUrl = ev.target.result;
+                if (autoRemoveGeminiWatermark) {
+                    try {
+                        const processed = await removeGeminiWatermark(img);
+                        finalUrl = processed.src;
+                    } catch (err) { console.error(err); }
+                }
+                setAssets(prev => ({ ...prev, [stateKey]: finalUrl }));
+                setIsGlobalProcessing(false);
+            };
+            img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    };
+
     const handleExport = async () => {
         await generateThemeZip(assets, maxSizeBytes);
     };
@@ -207,6 +242,12 @@ ${extraGridRules}
     const [showMenuGrid, setShowMenuGrid] = useState(true);
     const [showPasscodeGrid, setShowPasscodeGrid] = useState(true);
     const [showProfileGrid, setShowProfileGrid] = useState(true);
+
+    const MENU_LABELS = [
+        "主頁", "聊天", "VOOM",
+        "購物", "通話", "新聞",
+        "TODAY", "錢包", "MINI"
+    ];
 
     const UploadCard = ({ label, desc, stateKey, icon: Icon }) => {
         const hasImage = !!assets[stateKey];
@@ -230,12 +271,19 @@ ${extraGridRules}
                         <img src={assets[stateKey]} className="max-h-[120px] w-full h-full rounded-xl shadow-lg object-contain relative z-0" alt={label} />
 
                         {isMenuGrid && showMenuGrid && (
-                            <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 384 450" preserveAspectRatio="xMidYMid meet">
-                                <line x1="128" y1="0" x2="128" y2="450" stroke="rgba(255,50,50,0.8)" strokeWidth="4" strokeDasharray="8 4" />
-                                <line x1="256" y1="0" x2="256" y2="450" stroke="rgba(255,50,50,0.8)" strokeWidth="4" strokeDasharray="8 4" />
-                                <line x1="0" y1="150" x2="384" y2="150" stroke="rgba(255,50,50,0.8)" strokeWidth="4" strokeDasharray="8 4" />
-                                <line x1="0" y1="300" x2="384" y2="300" stroke="rgba(255,50,50,0.8)" strokeWidth="4" strokeDasharray="8 4" />
-                            </svg>
+                            <div className="absolute inset-0 w-full h-full pointer-events-none z-10 grid grid-cols-3 grid-rows-3 opacity-60">
+                                {MENU_LABELS.map((label, idx) => (
+                                    <div key={idx} className="border border-red-500/30 flex items-center justify-center">
+                                        <span className="text-[10px] text-red-500 bg-black/50 px-1 rounded font-bold shadow-sm">{label}</span>
+                                    </div>
+                                ))}
+                                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 384 450" preserveAspectRatio="xMidYMid meet">
+                                    <line x1="128" y1="0" x2="128" y2="450" stroke="rgba(255,50,50,0.8)" strokeWidth="4" strokeDasharray="8 4" />
+                                    <line x1="256" y1="0" x2="256" y2="450" stroke="rgba(255,50,50,0.8)" strokeWidth="4" strokeDasharray="8 4" />
+                                    <line x1="0" y1="150" x2="384" y2="150" stroke="rgba(255,50,50,0.8)" strokeWidth="4" strokeDasharray="8 4" />
+                                    <line x1="0" y1="300" x2="384" y2="300" stroke="rgba(255,50,50,0.8)" strokeWidth="4" strokeDasharray="8 4" />
+                                </svg>
+                            </div>
                         )}
 
                         {isPasscodeGrid && showPasscodeGrid && (
@@ -443,7 +491,7 @@ ${extraGridRules}
                                 <span className="text-[10px] text-slate-500">上傳時自動移除右下角標誌</span>
                             </div>
                             <button
-                                onClick={() => textAutoRemoveGeminiWatermark(!autoRemoveGeminiWatermark)}
+                                onClick={() => setAutoRemoveGeminiWatermark(!autoRemoveGeminiWatermark)}
                                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${autoRemoveGeminiWatermark ? 'bg-purple-600' : 'bg-slate-700'}`}
                             >
                                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${autoRemoveGeminiWatermark ? 'translate-x-6' : 'translate-x-1'}`} />
