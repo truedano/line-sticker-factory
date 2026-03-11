@@ -131,7 +131,11 @@ Row 3 (第三行)：
                 ? '• 分開繪製：這 9 個物件必須完全獨立，彼此互不接觸。\n• 避開右上角 (Avoid Top-Right): 每一格內的物件請盡量靠左下方一點，避開每格右上角 40x40px 的區域，那是 LINE 顯示通知紅點的地方。'
                 : (isPasscodeGrid
                     ? '• 集中置中：每個密碼圖案必須保持圓潤小巧，並且完全置中，四周保留安全的去背空間。可以透過動作或表情的變化增添密碼輸入時的樂趣。'
-                    : '• 滿格或圓形預留：大頭貼在 LINE 內會被剪裁為「圓形」，請確保角色的臉部集中在每格的中央。畫面可以填滿格子，但主題務必置中以便裁切。');
+                    : '• 延伸滿版且禁畫外框 (非常重要)：大頭貼在 LINE app 內最終會被系統自動裁切為圓形，因此請確保角色臉部集中在每格的正中央。請讓背景自然地填滿整個方格，【絕對不要在角色外圍畫出任何圓圈、邊界或相框】！');
+
+            let backgroundGuide = isProfileGrid 
+                ? `• 背景 (Background): 請使用與「${currentThemeColor}」相符的顏色或簡單的圖樣作為背景，絕對不要畫成純綠色（這裡不需要去背）。`
+                : '• 背景 (Background): 全平面純色，使用 #00FF00 (Pure Green)，不准有漸層或陰影。';
 
             return `✅ ${typeInfo.category} - ${typeInfo.label}｜AI Prompt
 
@@ -144,7 +148,7 @@ ${stateDesc}
 
 🛠️ 製圖細節 (Technical Details)
 • 隱形網格 (Invisible Grid): 排列必須整齊，但「絕對禁止」畫出任何格線、框線或標記數字。
-• 背景 (Background): 全平面純色，使用 #00FF00 (Pure Green)，不准有漸層或陰影。
+${backgroundGuide}
 ${extraGridRules}
 • 風格維持 (Style Continuity): ${style.label} (${style.desc})。請參考參考圖的配色「${currentThemeColor}」與主角外觀特徵。`;
         }
