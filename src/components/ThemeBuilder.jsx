@@ -39,6 +39,9 @@ const ThemeBuilder = ({ productType, autoRemoveGeminiWatermark, setAutoRemoveGem
     const [activeStyle, setActiveStyle] = useState(() => {
         return localStorage.getItem('lsf_active_style') || 'qversion';
     });
+    const [chatBgCharPos, setChatBgCharPos] = useState(() => {
+        return localStorage.getItem('lsf_chat_bg_char_pos') || 'default';
+    });
 
     useEffect(() => {
         localStorage.setItem('lsf_theme_color', themeColor);
@@ -51,6 +54,10 @@ const ThemeBuilder = ({ productType, autoRemoveGeminiWatermark, setAutoRemoveGem
     useEffect(() => {
         localStorage.setItem('lsf_active_style', activeStyle);
     }, [activeStyle]);
+
+    useEffect(() => {
+        localStorage.setItem('lsf_chat_bg_char_pos', chatBgCharPos);
+    }, [chatBgCharPos]);
     const [activePromptType, setActivePromptType] = useState('main_ios');
     const [copySuccess, setCopySuccess] = useState(false);
     const [maxSizeBytes, setMaxSizeBytes] = useState(950000); // Default 950KB
@@ -147,12 +154,36 @@ ${extraGridRules}
             extraGuide = '\n• 橫向無縫拼接（極度重要）：這是一張 1472×150 px、極度扁長的「底部選單背景圖片」。因為這張圖會在 APP 內水平無縫重複，請務必將**左右兩端的圖案設計為自然無縫銜接（Seamless pattern）**。\n• 頂部留去背安全區：官方規定這張圖的下方為「主體繪製區（高度100~130px）」，而上方必須保留「20~50px 的去背區間」。因此強烈要求：**圖片上方至少 30px 請塗滿純綠色（#00FF00）作為預留的去背區**，所有的圖樣與裝飾必須貼緊下方邊緣設計。\n• 極簡設計：請設計能融入主題的低調地平線、雲朵或簡單線條，絕對不要在背景放過度複雜或巨大的角色，避免干擾浮在上面的按鈕。';
         } else if (typeInfo.category.startsWith('F')) {
             const isIos = typeId.includes('ios');
+            let positionGuide = '';
+
+            if (chatBgCharPos === 'none') {
+                positionGuide = '• 無角色純背景：這是一張純粹的背景圖，請用主題色與簡單的背景物件散落畫面，保持柔和佈局。';
+            } else if (chatBgCharPos === 'center') {
+                positionGuide = '• 角色位置：請將主要角色安置於「畫面正中央」，並保持適當的大小，不要過度佔滿整個空間。';
+            } else if (chatBgCharPos === 'bottom-right') {
+                positionGuide = '• 角色位置：請將主要角色安置於「畫面右下角」或外側邊緣作為點綴，其他區域保留為純粹的背景。';
+            } else if (chatBgCharPos === 'full') {
+                positionGuide = '• 角色位置 (大滿版)：請將主角「極度放大並填滿整個畫面空間」。整個畫面【只能有一隻巨大化的角色】作為底圖，畫面上下左右絕對不可以再畫出其他的迷你/小隻分身！';
+            } else {
+                positionGuide = `• 構圖與位置（官方預設推薦）：${isIos ? '建議將主要角色放在畫面的「最下方邊緣」，營造從輸入欄位「向上探頭」的效果。' : '建議將角色置於畫面的「下半部中央」，並避開最底部的功能鍵區。'}`;
+            }
+
             extraGuide = `\n• 聊天室背景圖片設定（${isIos ? 'iOS' : 'Android'}）：這是一張非必要的背景裝飾圖。
 • 淡化處理（極重要）：**必須將人物與背景進行淡化處理**。請使用低飽和度（Desaturated）、高亮度（High Brightness）、低對比度（Low Contrast）的色彩。
 • 視覺呈現：建議呈現如「水彩渲染」、「磨砂玻璃感」或「輕透半透明感」的視覺效果，確保聊天文字（黑色或白色）在背景上清晰易讀。
 • 避免畫面斷層：請務必讓背景底色與「${currentThemeColor}」完美融合，或是將背景設計為純淨的 ${currentThemeColor} 滿版色彩。
-• 構圖與位置（官方風格推薦）：${isIos ? '建議將主要角色放在畫面的「最下方邊緣」，營造從輸入欄位「向上探頭」的效果。' : '建議將角色置於畫面的「下半部中央」，並避開最底部的功能鍵區。'}
-• 閱讀性優先：請保持畫面中央區域（對話流動區）完全乾淨清爽，絕對不要有複雜圖樣。`;
+${positionGuide}
+• 閱讀性優先：請保持畫面中央區域（對話流動區）盡量乾淨清爽，絕對不要有複雜圖樣。`;
+        }
+
+        let characterGuide = '• 角色設定：請必須完全維持原圖主角的髮型、服裝、五官與整體外觀特徵，請放置在畫面最適當的地方。';
+        
+        if (typeInfo.category.startsWith('F')) {
+            if (chatBgCharPos === 'none') {
+                characterGuide = '• 角色排除 (純背景)：請「絕對不要」保留或畫出圖片中的主角。畫面只能有符合主題氛圍的背景元素！';
+            } else {
+                characterGuide = '• 角色設定：請必須完全維持原圖主角的髮型、服裝、五官與整體外觀特徵。畫面只能存在「唯一一隻主角」，請嚴格避免複製出多個角色！';
+            }
         }
 
         return `✅ ${typeInfo.category} - ${typeInfo.label}｜AI Prompt 建議
@@ -163,7 +194,7 @@ ${extraGridRules}
 • 佈局構圖：四周務必保留大面積的安全留白（避免在不同裝置上被微調或裁切）。
 
 請參考我上傳的圖片生圖：
-• 角色設定：請必須完全維持原圖主角的髮型、服裝、五官與整體外觀特徵，請放置在畫面最適當的地方。${extraGuide}
+${characterGuide}${extraGuide}
 • 視覺風格：${style.label}（${style.desc}）。
 • 背景設定：以 ${currentThemeColor} 為主的乾淨背景，四周維持留白與簡單圖樣，絕對不要在畫面出現任何干擾文字。`;
     };
@@ -458,6 +489,31 @@ ${extraGridRules}
                                 />
                             </div>
                         </div>
+
+                        {activePromptType.startsWith('chat_bg') && (
+                            <div className="p-6 bg-slate-900/60 rounded-[1.5rem] border border-slate-700/50 hover:border-slate-600 transition-colors flex flex-col justify-start md:col-span-2">
+                                <span className="block text-xs font-bold text-pink-400 uppercase tracking-widest mb-4">
+                                    3. 聊天室背景角色專屬設定
+                                </span>
+                                <div className="flex gap-2 flex-wrap">
+                                    {[
+                                        { id: 'default', label: '預設 (底部或居中)' },
+                                        { id: 'center', label: '畫面正中央' },
+                                        { id: 'bottom-right', label: '右下角點綴' },
+                                        { id: 'full', label: '大滿版展現' },
+                                        { id: 'none', label: '無角色 (純背景)' }
+                                    ].map(pos => (
+                                        <button
+                                            key={pos.id}
+                                            onClick={() => setChatBgCharPos(pos.id)}
+                                            className={`px-3 py-2 rounded-xl text-xs font-bold transition-all border ${chatBgCharPos === pos.id ? 'bg-pink-600 text-white border-pink-500 shadow-lg shadow-pink-500/20' : 'bg-slate-800/80 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-200'}`}
+                                        >
+                                            {pos.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="bg-slate-950/80 p-6 md:p-8 rounded-[1.5rem] border border-white/5 shadow-inner">
