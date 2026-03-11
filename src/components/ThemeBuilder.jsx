@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Upload, Download, Loader, Info, Palette, Image as ImageIcon, Wand2, ChevronDown, Copy, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import useThemePack from '../hooks/useThemePack';
 import { PROMPT_STYLES } from '../data';
@@ -31,6 +31,7 @@ const ThemeBuilder = ({ productType, autoRemoveGeminiWatermark, setAutoRemoveGem
     // Prompt States
     const [showPromptGuide, setShowPromptGuide] = useState(true);
     const [themeColor, setThemeColor] = useState('溫柔的奶茶色系');
+    const [isCustomThemeColor, setIsCustomThemeColor] = useState(false);
     const [activeStyle, setActiveStyle] = useState('qversion');
     const [activePromptType, setActivePromptType] = useState('main_ios');
     const [copySuccess, setCopySuccess] = useState(false);
@@ -156,6 +157,27 @@ ${extraGridRules}
         });
     };
 
+    const processImageFile = (file) => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.onload = async () => {
+                    let finalUrl = ev.target.result;
+                    if (autoRemoveGeminiWatermark) {
+                        try {
+                            const processed = await removeGeminiWatermark(img);
+                            finalUrl = processed.src;
+                        } catch (err) { console.error(err); }
+                    }
+                    resolve(finalUrl);
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+
     const processBatchFiles = async (files) => {
         if (!files || files.length === 0) return;
 
@@ -176,25 +198,7 @@ ${extraGridRules}
             const name = file.name.toLowerCase();
             const keys = fileNameMapping[name];
             if (keys) {
-                const url = await new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                        const img = new Image();
-                        img.onload = async () => {
-                            let finalUrl = ev.target.result;
-                            if (autoRemoveGeminiWatermark) {
-                                try {
-                                    const processed = await removeGeminiWatermark(img);
-                                    finalUrl = processed.src;
-                                } catch (err) { console.error(err); }
-                            }
-                            resolve(finalUrl);
-                        };
-                        img.src = ev.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                });
-
+                const url = await processImageFile(file);
                 keys.forEach(key => {
                     updatedAssets[key] = url;
                 });
@@ -205,28 +209,7 @@ ${extraGridRules}
         setIsGlobalProcessing(false);
     };
 
-    const readDirectory = async (directoryEntry) => {
-        const reader = directoryEntry.createReader();
-        const files = [];
-        const readEntries = async () => {
-            const entries = await new Promise((resolve, reject) => reader.readEntries(resolve, reject));
-            if (entries.length === 0) return;
-            for (const entry of entries) {
-                if (entry.isFile) {
-                    const file = await new Promise(resolve => entry.file(resolve));
-                    if (file.type.startsWith('image/') || file.name.match(/\.(png|jpe?g|webp)$/i)) {
-                        files.push(file);
-                    }
-                } else if (entry.isDirectory) {
-                    const subFiles = await readDirectory(entry);
-                    files.push(...subFiles);
-                }
-            }
-            await readEntries();
-        };
-        await readEntries();
-        return files;
-    };
+
 
     const handleDirectoryPick = async () => {
         if (!('showDirectoryPicker' in window)) {
@@ -277,23 +260,9 @@ ${extraGridRules}
         if (!file) return;
 
         setIsGlobalProcessing(true);
-        const reader = new FileReader();
-        reader.onload = async (ev) => {
-            const img = new Image();
-            img.onload = async () => {
-                let finalUrl = ev.target.result;
-                if (autoRemoveGeminiWatermark) {
-                    try {
-                        const processed = await removeGeminiWatermark(img);
-                        finalUrl = processed.src;
-                    } catch (err) { console.error(err); }
-                }
-                setAssets(prev => ({ ...prev, [stateKey]: finalUrl }));
-                setIsGlobalProcessing(false);
-            };
-            img.src = ev.target.result;
-        };
-        reader.readAsDataURL(file);
+        const finalUrl = await processImageFile(file);
+        setAssets(prev => ({ ...prev, [stateKey]: finalUrl }));
+        setIsGlobalProcessing(false);
     };
 
     const handleExport = async () => {
@@ -438,17 +407,38 @@ ${extraGridRules}
                             </div>
                         </div>
 
-                        <div className="p-6 bg-slate-900/60 rounded-[1.5rem] border border-slate-700/50 hover:border-slate-600 transition-colors">
+                        <div className="p-6 bg-slate-900/60 rounded-[1.5rem] border border-slate-700/50 hover:border-slate-600 transition-colors flex flex-col justify-start">
                             <span className="block text-xs font-bold text-cyan-400 uppercase tracking-widest mb-4">
                                 2. 設定主題色系
                             </span>
-                            <input
-                                type="text"
-                                value={themeColor}
-                                onChange={(e) => setThemeColor(e.target.value)}
-                                className="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl p-3 text-sm focus:ring-1 focus:ring-purple-500 outline-none transition-colors"
-                                placeholder="例如：溫柔的奶茶色系、粉嫩馬卡龍色系"
-                            />
+                            <div className="flex gap-2 flex-wrap mb-4">
+                                {['溫柔的奶茶色系', '粉嫩馬卡龍色系', '沉穩莫蘭迪色系', '活潑糖果色系'].map(preset => (
+                                    <button
+                                        key={preset}
+                                        onClick={() => { setThemeColor(preset); setIsCustomThemeColor(false); }}
+                                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${!isCustomThemeColor && themeColor === preset ? 'bg-cyan-600 text-white border-cyan-500 shadow-lg shadow-cyan-500/20' : 'bg-slate-800/80 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-200'}`}
+                                    >
+                                        {preset}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => setIsCustomThemeColor(true)}
+                                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${isCustomThemeColor ? 'bg-cyan-600 text-white border-cyan-500 shadow-lg shadow-cyan-500/20' : 'bg-slate-800/80 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-200'}`}
+                                >
+                                    自訂
+                                </button>
+                            </div>
+                            <div className={`transition-all duration-300 overflow-hidden ${isCustomThemeColor ? 'max-h-20 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                <input
+                                    type="text"
+                                    value={isCustomThemeColor ? themeColor : ''}
+                                    onChange={(e) => {
+                                        setThemeColor(e.target.value);
+                                    }}
+                                    className="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl p-3 text-sm focus:ring-1 focus:ring-cyan-500 outline-none transition-colors"
+                                    placeholder="輸入自訂主題色系 (例如: 漸層霓虹色系)"
+                                />
+                            </div>
                         </div>
                     </div>
 
