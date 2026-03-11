@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Upload, Download, Loader, Info, Palette, Image as ImageIcon, Wand2, ChevronDown, Copy, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import useThemePack from '../hooks/useThemePack';
 import { PROMPT_STYLES } from '../data';
@@ -30,9 +30,27 @@ const ThemeBuilder = ({ productType, autoRemoveGeminiWatermark, setAutoRemoveGem
 
     // Prompt States
     const [showPromptGuide, setShowPromptGuide] = useState(true);
-    const [themeColor, setThemeColor] = useState('溫柔的奶茶色系');
-    const [isCustomThemeColor, setIsCustomThemeColor] = useState(false);
-    const [activeStyle, setActiveStyle] = useState('qversion');
+    const [themeColor, setThemeColor] = useState(() => {
+        return localStorage.getItem('lsf_theme_color') || '日系清爽薄荷綠';
+    });
+    const [isCustomThemeColor, setIsCustomThemeColor] = useState(() => {
+        return localStorage.getItem('lsf_is_custom_color') === 'true';
+    });
+    const [activeStyle, setActiveStyle] = useState(() => {
+        return localStorage.getItem('lsf_active_style') || 'qversion';
+    });
+
+    useEffect(() => {
+        localStorage.setItem('lsf_theme_color', themeColor);
+    }, [themeColor]);
+
+    useEffect(() => {
+        localStorage.setItem('lsf_is_custom_color', isCustomThemeColor);
+    }, [isCustomThemeColor]);
+
+    useEffect(() => {
+        localStorage.setItem('lsf_active_style', activeStyle);
+    }, [activeStyle]);
     const [activePromptType, setActivePromptType] = useState('main_ios');
     const [copySuccess, setCopySuccess] = useState(false);
     const [maxSizeBytes, setMaxSizeBytes] = useState(950000); // Default 950KB
@@ -412,7 +430,7 @@ ${extraGridRules}
                                 2. 設定主題色系
                             </span>
                             <div className="flex gap-2 flex-wrap mb-4">
-                                {['溫柔的奶茶色系', '粉嫩馬卡龍色系', '沉穩莫蘭迪色系', '活潑糖果色系'].map(preset => (
+                                {['日系清爽薄荷綠', '粉嫩馬卡龍色系', '沉穩莫蘭迪色系', '活潑糖果色系'].map(preset => (
                                     <button
                                         key={preset}
                                         onClick={() => { setThemeColor(preset); setIsCustomThemeColor(false); }}
