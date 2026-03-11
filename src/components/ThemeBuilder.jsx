@@ -25,6 +25,9 @@ const ThemeBuilder = ({ productType, autoRemoveGeminiWatermark, setAutoRemoveGem
         chatBgAndroidImage: null
     });
 
+    const [isFolderLoading, setIsFolderLoading] = useState(false);
+    const [folderLoadSuccess, setFolderLoadSuccess] = useState(false);
+
     // Prompt States
     const [showPromptGuide, setShowPromptGuide] = useState(true);
     const [themeColor, setThemeColor] = useState('溫柔的奶茶色系');
@@ -153,9 +156,8 @@ ${extraGridRules}
         });
     };
 
-    const handleBatchUpload = async (e) => {
-        const files = Array.from(e.target.files);
-        if (files.length === 0) return;
+    const processBatchFiles = async (files) => {
+        if (!files || files.length === 0) return;
 
         const fileNameMapping = {
             'a.png': ['mainImageIos', 'mainImageAndroid', 'mainImageStore'],
@@ -201,7 +203,73 @@ ${extraGridRules}
 
         setAssets(updatedAssets);
         setIsGlobalProcessing(false);
-        e.target.value = '';
+    };
+
+    const readDirectory = async (directoryEntry) => {
+        const reader = directoryEntry.createReader();
+        const files = [];
+        const readEntries = async () => {
+            const entries = await new Promise((resolve, reject) => reader.readEntries(resolve, reject));
+            if (entries.length === 0) return;
+            for (const entry of entries) {
+                if (entry.isFile) {
+                    const file = await new Promise(resolve => entry.file(resolve));
+                    if (file.type.startsWith('image/') || file.name.match(/\.(png|jpe?g|webp)$/i)) {
+                        files.push(file);
+                    }
+                } else if (entry.isDirectory) {
+                    const subFiles = await readDirectory(entry);
+                    files.push(...subFiles);
+                }
+            }
+            await readEntries();
+        };
+        await readEntries();
+        return files;
+    };
+
+    const handleDirectoryPick = async () => {
+        if (!('showDirectoryPicker' in window)) {
+            alert('您的瀏覽器不支援現代化資料夾選取 API，請改用「選擇多個圖片」或拖拉資料夾。');
+            return;
+        }
+        try {
+            const dirHandle = await window.showDirectoryPicker({ mode: 'read' });
+            setIsFolderLoading(true);
+            setIsGlobalProcessing(true);
+            const files = [];
+            
+            const scanDirectory = async (handle) => {
+                for await (const entry of handle.values()) {
+                    if (entry.kind === 'file') {
+                        const file = await entry.getFile();
+                        if (file.type.startsWith('image/') || file.name.match(/\.(png|jpe?g|webp)$/i)) {
+                            files.push(file);
+                        }
+                    } else if (entry.kind === 'directory') {
+                        await scanDirectory(entry);
+                    }
+                }
+            };
+            
+            await scanDirectory(dirHandle);
+            
+            if (files.length > 0) {
+                await processBatchFiles(files);
+                setFolderLoadSuccess(true);
+                setTimeout(() => setFolderLoadSuccess(false), 2000);
+            } else {
+                alert('在此資料夾內沒有找到支援的圖片。');
+            }
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                console.error('Error selecting directory:', err);
+                alert('載入資料夾時發生錯誤，請重試。');
+            }
+        } finally {
+            setIsFolderLoading(false);
+            setIsGlobalProcessing(false);
+        }
     };
 
     const handleUpload = async (e, stateKey) => {
@@ -458,23 +526,42 @@ ${extraGridRules}
                 <div className="max-w-5xl mx-auto text-center">
                     <div className="flex flex-col md:flex-row items-stretch justify-center mb-12 gap-6 px-4">
                         {/* 一鍵載入按鈕 */}
-                        <div className="flex items-center gap-4 bg-slate-900/60 p-5 rounded-[1.5rem] border border-cyan-500/20 hover:border-cyan-500/40 hover:bg-slate-800/80 transition-all relative group cursor-pointer shadow-lg shadow-cyan-500/5">
-                            <div className="w-10 h-10 bg-cyan-500/10 rounded-xl flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform">
-                                <Upload className="w-6 h-6" />
+                        <div 
+                            onClick={!isFolderLoading ? handleDirectoryPick : undefined}
+                            className={`flex items-center gap-4 bg-slate-900/60 p-5 rounded-[1.5rem] border transition-all relative group shadow-lg 
+                                ${isFolderLoading 
+                                    ? 'border-purple-500/50 shadow-purple-500/20 cursor-wait' 
+                                    : folderLoadSuccess
+                                        ? 'border-green-500/50 bg-green-900/20 shadow-green-500/20'
+                                        : 'border-cyan-500/20 hover:border-cyan-500/40 hover:bg-slate-800/80 cursor-pointer shadow-cyan-500/5'}`}
+                        >
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300
+                                ${isFolderLoading 
+                                    ? 'bg-purple-500/20 text-purple-400' 
+                                    : folderLoadSuccess
+                                        ? 'bg-green-500/20 text-green-400 scale-110'
+                                        : 'bg-cyan-500/10 text-cyan-400 group-hover:scale-110'}`}>
+                                {isFolderLoading ? (
+                                    <Loader className="w-6 h-6 animate-spin" />
+                                ) : folderLoadSuccess ? (
+                                    <CheckCircle className="w-6 h-6" />
+                                ) : (
+                                    <Upload className="w-6 h-6" />
+                                )}
                             </div>
-                            <div className="flex flex-col text-left">
-                                <span className="text-sm font-bold text-white flex items-center gap-2">
-                                    一鍵載入圖片目錄
+                            <div className="flex flex-col text-left min-w-[140px]">
+                                <span className={`text-sm font-bold flex items-center gap-2 transition-colors duration-300
+                                    ${folderLoadSuccess ? 'text-green-400' : 'text-white'}`}>
+                                    {isFolderLoading ? '正在掃描檔案...' : folderLoadSuccess ? '載入完畢！' : '一鍵載入圖片目錄'}
                                 </span>
-                                <span className="text-[10px] text-slate-500">自動分配 A, B, D, E, F 等檔案</span>
+                                <span className="text-[10px] text-slate-500">
+                                    {isFolderLoading 
+                                        ? '這可能需要幾秒鐘' 
+                                        : folderLoadSuccess
+                                            ? '圖片已成功載入'
+                                            : '自動分配 A, B, D, E, F 等檔案'}
+                                </span>
                             </div>
-                            <input
-                                type="file"
-                                webkitdirectory="true"
-                                directory=""
-                                onChange={handleBatchUpload}
-                                className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                            />
                         </div>
 
                         {/* 去浮水印開關 */}
