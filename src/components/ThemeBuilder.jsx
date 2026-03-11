@@ -67,23 +67,29 @@ const ThemeBuilder = ({ productType, autoRemoveGeminiWatermark, setAutoRemoveGem
             let cellW = isMenuGrid ? 128 : (typeId.includes('android') ? (isProfileGrid ? 247 : 116) : (isProfileGrid ? 240 : 120));
             let cellH = isMenuGrid ? 150 : (typeId.includes('android') ? (isProfileGrid ? 247 : 116) : (isProfileGrid ? 240 : 120));
             let cellCount = isMenuGrid ? 9 : (isProfileGrid ? 2 : 4);
-            let targetGroup = isMenuGrid ? '小選單圖示' : (isProfileGrid ? '大頭貼圖示' : '密碼狀態圖示');
+            let targetGroup = isMenuGrid ? '選單導覽圖籤 (Menu Icons)' : (isProfileGrid ? '大頭貼圖示' : '密碼狀態圖示');
 
             if (isMenuGrid) {
-                stateDesc = typeId === 'menu_btn_off'
-                    ? '請使用低調、平淡或是單色草圖線條設計，代表未選取狀態。'
-                    : '請使用色彩鮮明、生動可愛的特效設計，代表正被點擊活躍中。';
+                const isOff = typeId === 'menu_btn_off';
+                stateDesc = isOff 
+                    ? '【狀態：未選取 (OFF)】請使用簡潔的高級灰色調、低飽和度、或是極簡線條設計，背景務必保持純綠色。' 
+                    : '【狀態：已選取 (ON)】請使用色彩吸睛、飽和度高、或是帶有發光特效的動態設計，背景務必保持純綠色。';
+                
+                stateDesc += `\n\n🎯 九宮格內容清單 (Grid Content List) - 請務必按照以下座標產生 9 個不同物件：
+Row 1 (第一行)：
+• (1,1) Top-Left (左上): 主頁房子 (Home icon)
+• (1,2) Top-Center (中上): 聊天氣泡 (Chat / Message bubble)
+• (1,3) Top-Right (右上): VOOM/影片播放 (VOOM / Timeline icon)
 
-                stateDesc += `\n\n九宮格位置對應表（極重要，請務必按照此順序畫出正確物品）：
-• (1,1) 第一行左：主頁圖示（如：房子）
-• (1,2) 第一行中：聊天圖示（如：對話框）
-• (1,3) 第一行右：VOOM 圖示（如：播放或波紋形狀）
-• (2,1) 第二行左：購物圖示（如：購物袋或購物車）
-• (2,2) 第二行中：通話圖示（如：電話聽筒）
-• (2,3) 第二行右：新聞圖示（如：報紙或文件）
-• (3,1) 第三行左：TODAY 圖示（如：日曆或今日報標誌）
-• (3,2) 第三行中：錢包圖示（如：皮夾或硬幣）
-• (3,3) 第三行右：Mini 程式圖示（如：四格小方塊或星號）`;
+Row 2 (第二行)：
+• (2,1) Mid-Left (左中): 購物袋 (Shopping bag / cart icon)
+• (2,2) Mid-Center (正中): 電話聽筒 (Calls / Phone icon) 👈 重要！
+• (2,3) Mid-Right (右中): 新聞報紙 (News / Document icon) 👈 重要！
+
+Row 3 (第三行)：
+• (3,1) Bottom-Left (左下): TODAY新聞 (TODAY / Newspaper icon)
+• (3,2) Bottom-Center (中下): 錢包硬幣 (Wallet / Payment icon)
+• (3,3) Bottom-Right (右下): 更多/MINI (Mini App / Grid icon)`;
             } else if (isPasscodeGrid) {
                 stateDesc = typeId.includes('_off')
                     ? '這代表「未輸入」的空狀態，顏色請設計較暗沉平淡，或是顯示角色最基本的樣子（例如：蛋殼、還沒被點亮的燈）。'
@@ -93,33 +99,25 @@ const ThemeBuilder = ({ productType, autoRemoveGeminiWatermark, setAutoRemoveGem
             }
 
             let extraGridRules = isMenuGrid
-                ? '• 每個格子對應一個物件：請確實在九宮格中畫出對應位置的物品（如：電話、購物袋），位置必須精確。\n• 集中偏左下避讓（極重要）：每格內的圖示必須完全獨立且緊湊地集中在單一格子的「中央偏左下」。\n• 避開右上通知區域：在實際的 LINE 畫面上，每個選單的「右上角」會被系統強制覆蓋。因此強烈要求：你的小圖示主要結構絕對要「避開右上角」，不能把格子畫滿！'
+                ? '• 分開繪製：這 9 個物件必須完全獨立，彼此互不接觸。\n• 避開右上角 (Avoid Top-Right): 每一格內的物件請盡量靠左下方一點，避開每格右上角 40x40px 的區域，那是 LINE 顯示通知紅點的地方。'
                 : (isPasscodeGrid
                     ? '• 集中置中：每個密碼圖案必須保持圓潤小巧，並且完全置中，四周保留安全的去背空間。可以透過動作或表情的變化增添密碼輸入時的樂趣。'
                     : '• 滿格或圓形預留：大頭貼在 LINE 內會被剪裁為「圓形」，請確保角色的臉部集中在每格的中央。畫面可以填滿格子，但主題務必置中以便裁切。');
 
-            return `✅ ${typeInfo.category} - ${typeInfo.label}｜AI Prompt 建議
+            return `✅ ${typeInfo.category} - ${typeInfo.label}｜AI Prompt
 
-⚠️ 尺寸與裁切要求 (極度重要)
-• 畫布精確尺寸：請設定為「寬度 ${typeInfo.size.split('×')[0]} px，高度 ${typeInfo.size.split('×')[1]} px」。
-• 不可變更：請在 AI 生圖工具中將解析度明確設定為 ${typeInfo.size.split('×')[0]}×${typeInfo.size.split('×')[1]}，不可使用其他尺寸。
+⚠️ 格式要求 (Format)
+• 尺寸 (Size): ${typeInfo.size.split('×')[0]} x ${typeInfo.size.split('×')[1]} px.
+• 佈局 (Layout): ${gridCols} Columns × ${gridRows} Rows.
 
-請參考我上傳的圖片生圖：生成一張 ${typeInfo.size.split('×')[0]}×${typeInfo.size.split('×')[1]} px 的滿版大圖，包含 ${cellCount} 個不同的${targetGroup}。
+🎨 核心內容 (Core Content)
+${stateDesc}
 
-畫面佈局設計（極重要參數）
-• 版面規則：${gridCols} 欄 × ${gridRows} 列，每格 ${cellW}×${cellH} px，共 ${cellCount} 格。
-• 隱形網格（超重點防呆）：所有 ${cellCount} 個圖示必須排列整齊，呈現嚴格的網格陣列。👉 絕對禁止畫出任何白色的網格線、實體十字分隔線、宮格框線或整體大外框！
-• 嚴禁畫分隔線：請注意，去背系統會因為白線發生錯誤！你只要讓 ${cellCount} 個圖示各自散開排好就好，背景必須是${isProfileGrid ? '「一整片完全乾淨、無任何干擾線條」的連續背景色' : '「一整片完全乾淨、無任何干擾線條」的純連續綠色'}，絕對不要自作主張畫出各格子的邊界框線！${isProfileGrid ? '' : '\n• 自動去背功能：系統在切割完成後將「自動移除純綠色背景」，請放心產生。'}
-• 絕對禁止文字：👉 畫面中「絕對不准」出現任何數字、英文字母 (如 ON, OFF, 1, 2, 3)、國字或符號。不管是按鈕名字還是編號都禁止！只需要畫出圖案本身。
+🛠️ 製圖細節 (Technical Details)
+• 隱形網格 (Invisible Grid): 排列必須整齊，但「絕對禁止」畫出任何格線、框線或標記數字。
+• 背景 (Background): 全平面純色，使用 #00FF00 (Pure Green)，不准有漸層或陰影。
 ${extraGridRules}
-• 安全邊界：單一個小圖示四周必須保留明確且足夠寬敞的${isProfileGrid ? '背景' : '綠色'}安全邊距（Padding），確保切割出來的各張圖完全不會互相切斷或黏合。
-
-角色與風格設定
-• ${targetGroup}設計（極重要）：這「${cellCount} 個不同的圖示」會在 APP 內被連續使用。👉 絕對禁止在每一格都畫一個複雜的「全身佈景」！圖示必須是簡單易懂的小符號、大頭或小道具。
-• 參考圖轉換：請擷取我上傳原圖的配色與風格氛圍，將這些特徵完美融入到 ${cellCount} 個圖示中。
-• 按鍵狀態要求：${stateDesc}
-• 背景設定：${isProfileGrid ? `這組大頭貼「不需要去背」，請直接填滿背景。背景顏色請優先使用「${currentThemeColor}」，或者由你根據角色配色自動適配一組和諧、粉嫩且具有質感的背景色。` : '去背優化：請在每個物件邊緣加入「粗白色外框 (Sticker Style)」。背景統一為不可有任何漸層與雜訊的 #00FF00 (純綠色)。'}
-• 視覺風格：${style.label}（${style.desc}）。`;
+• 風格維持 (Style Continuity): ${style.label} (${style.desc})。請參考參考圖的配色「${currentThemeColor}」與主角外觀特徵。`;
         }
 
         let extraGuide = '';
