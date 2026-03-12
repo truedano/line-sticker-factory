@@ -183,8 +183,8 @@ const useThemePack = () => {
         // 3. MenuBackground
         if (menuBgImage) {
             const menuBgFolder = zip.folder("3_MenuBackground");
-            // 1472x150 for general repeating iOS background
-            menuBgFolder.file("menu_bg.png", await resizeImage(menuBgImage, 1472, 150, 'cover', maxSizeBytes), { base64: true });
+            const bgTiles = await sliceImageGrid(menuBgImage, 1, 1, 1472, 150, true);
+            if (bgTiles[0]) menuBgFolder.file("i_11.png", bgTiles[0], { base64: true });
         }
 
         // 4. Passcode

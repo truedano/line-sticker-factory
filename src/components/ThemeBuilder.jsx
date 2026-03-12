@@ -155,7 +155,7 @@ ${extraGridRules}
 
         let extraGuide = '';
         if (typeInfo.category.startsWith('C')) {
-            extraGuide = '\n• 橫向無縫拼接（極度重要）：這是一張 1472×150 px、極度扁長的「底部選單背景圖片」。因為這張圖會在 APP 內水平無縫重複，請務必將**左右兩端的圖案設計為自然無縫銜接（Seamless pattern）**。\n• 頂部留去背安全區：官方規定這張圖的下方為「主體繪製區（高度100~130px）」，而上方必須保留「20~50px 的去背區間」。因此強烈要求：**圖片上方至少 30px 請塗滿純綠色（#00FF00）作為預留的去背區**，所有的圖樣與裝飾必須貼緊下方邊緣設計。\n• 極簡設計：請設計能融入主題的低調地平線、雲朵或簡單線條，絕對不要在背景放過度複雜或巨大的角色，避免干擾浮在上面的按鈕。';
+            extraGuide = '\n• 橫向無縫拼接（極度重要）：這是一張 1472×150 px、極度扁長的「底部選單背景圖片」。因為這張圖會在 APP 內水平無縫重複，請務必將**左右兩端的圖案設計為自然無縫銜接（Seamless pattern）**。\n• 頂部去背安全區：官方規定這張圖的主體（不透明部分）高度必須在 100px~150px 之間，且必須貼緊下方邊緣。代表你【可以完全不去背（整圖畫滿150px高）】；若需在頂部做透明效果，透明的去背空間「最多只能從頂部向下算 0~50px 之間」（例如：上方 20px 綠色去背，下方 130px 保留為實體主圖）。若有去背需求，請在最上方的去背區塊塗滿純綠色（#00FF00）。\n• 極簡純色設計：圖片請盡量以「純色、微漸層或極簡的幾何色塊」顯示，只需與主題色系（${currentThemeColor}）互相搭配即可。絕對不要在背景放任何複雜圖樣，避免干擾浮在上面的按鈕。';
         } else if (typeInfo.category.startsWith('F')) {
             const isIos = typeId.includes('ios');
             let positionGuide = '';
@@ -182,7 +182,9 @@ ${positionGuide}
 
         let characterGuide = '• 角色設定：請必須完全維持原圖主角的髮型、服裝、五官與整體外觀特徵，請放置在畫面最適當的地方。';
         
-        if (typeInfo.category.startsWith('F')) {
+        if (typeInfo.category.startsWith('C')) {
+            characterGuide = '• 角色排除 (純色背景)：請「絕對不要」在畫面中保留或畫出任何角色。這只是一張單純的底部襯底。';
+        } else if (typeInfo.category.startsWith('F')) {
             if (chatBgCharPos === 'none') {
                 characterGuide = '• 角色排除 (純背景)：請「絕對不要」保留或畫出圖片中的主角。畫面只能有符合主題氛圍的背景元素！';
             } else {
@@ -238,6 +240,7 @@ ${characterGuide}${extraGuide}
             'a.png': ['mainImageIos', 'mainImageAndroid', 'mainImageStore'],
             'b_off.png': ['menuOffImage'],
             'b_on.png': ['menuOnImage'],
+            'c.png': ['menuBgImage'],
             'd_off.png': ['passcodeIosOffImage', 'passcodeAndroidOffImage'],
             'd_on.png': ['passcodeIosOnImage', 'passcodeAndroidOnImage'],
             'e.png': ['profileIosImage', 'profileAndroidImage'],
@@ -627,7 +630,7 @@ ${characterGuide}${extraGuide}
                                         ? '這可能需要幾秒鐘' 
                                         : folderLoadSuccess
                                             ? '圖片已成功載入'
-                                            : '自動分配 A, B, D, E, F 等檔案'}
+                                            : '自動分配 A, B, C, D, E, F 等檔案'}
                                 </span>
                             </div>
                         </div>
@@ -703,7 +706,7 @@ ${characterGuide}${extraGuide}
                         <div>
                             <h4 className="flex items-center gap-3 text-lg font-bold text-white mb-5 pb-3 border-b border-white/5">
                                 <span className="w-8 h-8 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center font-black">C</span>
-                                選單背景圖片 <span className="text-sm text-slate-500 font-normal tracking-wider ml-1">(非必要)</span>
+                                選單背景圖片 <span className="text-[10px] bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded-full border border-rose-500/30">支援自動去背</span><span className="text-sm text-slate-500 font-normal tracking-wider ml-1">(非必要)</span>
                             </h4>
                             <div className="grid grid-cols-1 gap-6">
                                 <UploadCard label="選單背景" desc="1472×150 px" stateKey="menuBgImage" icon={ImageIcon} />
