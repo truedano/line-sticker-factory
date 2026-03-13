@@ -104,7 +104,7 @@ const ThemeBuilder = ({ productType, autoRemoveGeminiWatermark, setAutoRemoveGem
                     ? '【狀態：未選取 (OFF)】請使用簡潔的高級灰色調、低飽和度、或是極簡線條設計，背景務必保持純綠色。' 
                     : '【狀態：已選取 (ON)】請使用色彩吸睛、飽和度高、或是帶有發光特效的動態設計，背景務必保持純綠色。';
                 
-                stateDesc += `\n\n🎯 九宮格內容清單 (Grid Content List) - 請務必按照以下座標產生 9 個不同物件：
+                stateDesc += `\n\n🎯 九宮格內容清單 (Grid Content List) - 請務必按照以下座標產生 9 個不同物件（注意：下方的文字標籤僅供說明，畫面中「絕對禁止」畫出任何文字）：
 Row 1 (第一行)：
 • (1,1) Top-Left (左上): 主頁房子 (Home icon)
 • (1,2) Top-Center (中上): 聊天氣泡 (Chat / Message bubble)
@@ -128,7 +128,7 @@ Row 3 (第三行)：
             }
 
             let extraGridRules = isMenuGrid
-                ? '• 分開繪製：這 9 個物件必須完全獨立，彼此互不接觸。\n• 避開右上角 (Avoid Top-Right): 每一格內的物件請盡量靠左下方一點，避開每格右上角 40x40px 的區域，那是 LINE 顯示通知紅點的地方。'
+                ? '• 分開繪製：這 9 個物件必須完全獨立，彼此互不接觸。\n• 避開右上角 (Avoid Top-Right): 每一格內的物件請盡量靠左下方一點，避開每格右上角 40x40px 的區域，那是 LINE 顯示通知紅點的地方。\n• 嚴格禁止文字 (NO TEXT)：畫面中「絕對不能」出現任何文字、英文字母、說明標籤或數字，只需畫出圖案(Icon)本身。\n• 嚴格禁止分隔線 (NO SEPARATORS)：背景必須是一整張完美連續的純綠色，格子之間「絕對禁止」畫出任何白色分隔線、網格線或外框！'
                 : (isPasscodeGrid
                     ? '• 集中置中：每個密碼圖案必須保持圓潤小巧，並且完全置中，四周保留安全的去背空間。可以透過動作或表情的變化增添密碼輸入時的樂趣。'
                     : '• 延伸滿版且禁畫外框 (非常重要)：大頭貼在 LINE app 內最終會被系統自動裁切為圓形，因此請確保角色臉部集中在每格的正中央。請讓背景自然地填滿整個方格，【絕對不要在角色外圍畫出任何圓圈、邊界或相框】！');
@@ -147,7 +147,7 @@ Row 3 (第三行)：
 ${stateDesc}
 
 🛠️ 製圖細節 (Technical Details)
-• 隱形網格 (Invisible Grid): 排列必須整齊，但「絕對禁止」畫出任何格線、框線或標記數字。
+• 隱形網格 (Invisible Grid): 排列必須整齊，但「絕對禁止」畫出任何格線、白色分隔線、框線或標記數字。
 ${backgroundGuide}
 ${extraGridRules}
 • 風格維持 (Style Continuity): ${style.label} (${style.desc})。請參考參考圖的配色「${currentThemeColor}」與主角外觀特徵。`;
