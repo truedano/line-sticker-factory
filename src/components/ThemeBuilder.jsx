@@ -128,9 +128,9 @@ Row 3 (第三行)：
             }
 
             let extraGridRules = isMenuGrid
-                ? '• 分開繪製：這 9 個物件必須完全獨立，彼此互不接觸。\n• 避開右上角 (Avoid Top-Right): 每一格內的物件請盡量靠左下方一點，避開每格右上角 40x40px 的區域，那是 LINE 顯示通知紅點的地方。\n• 嚴格禁止文字 (NO TEXT)：畫面中「絕對不能」出現任何文字、英文字母、說明標籤或數字，只需畫出圖案(Icon)本身。\n• 嚴格禁止分隔線 (NO SEPARATORS)：背景必須是一整張完美連續的純綠色，格子之間「絕對禁止」畫出任何白色分隔線、網格線或外框！'
+                ? '• 分開繪製：這 9 個物件必須完全獨立，彼此互不接觸並保持間隔(Keep safe margin)。\n• 避開右上角 (Avoid Top-Right): 每一格內的物件請盡量靠左下方一點，避開每格右上角 40x40px 的區域，那是 LINE 顯示通知紅點的地方。\n• 嚴格禁止文字 (NO TEXT)：畫面中「絕對不能」出現任何文字、英文字母、說明標籤或數字，只需畫出圖案(Icon)本身。\n• 嚴格禁止分隔線 (NO SEPARATORS)：背景必須是一整張完美連續的純綠色，格子之間「絕對禁止」畫出任何實體的白色分隔線、網格線、黑線或邊框！'
                 : (isPasscodeGrid
-                    ? '• 集中置中：每個密碼圖案必須保持圓潤小巧，並且完全置中，四周保留安全的去背空間。可以透過動作或表情的變化增添密碼輸入時的樂趣。'
+                    ? '• 集中置中：每個密碼圖案必須保持圓潤小巧，並且完全置中，四周保留安全的去背空間及間隔(Keep safe margin)。可以透過動作或表情的變化增添密碼輸入時的樂趣。'
                     : '• 延伸滿版且禁畫外框 (非常重要)：大頭貼在 LINE app 內最終會被系統自動裁切為圓形，因此請確保角色臉部集中在每格的正中央。請讓背景自然地填滿整個方格，【絕對不要在角色外圍畫出任何圓圈、邊界或相框】！');
 
             let backgroundGuide = isProfileGrid 
@@ -147,7 +147,7 @@ Row 3 (第三行)：
 ${stateDesc}
 
 🛠️ 製圖細節 (Technical Details)
-• 隱形網格 (Invisible Grid): 排列必須整齊，但「絕對禁止」畫出任何格線、白色分隔線、框線或標記數字。
+• 隱形網格 (Invisible Grid): 排列必須整齊，但「絕對禁止」畫出任何實體格線、白色分隔線、框線或標記數字。每個物件都要嚴格待在自己的無形格子內，不可越界。
 ${backgroundGuide}
 ${extraGridRules}
 • 風格維持 (Style Continuity): ${style.label} (${style.desc})。請參考參考圖的配色「${currentThemeColor}」與主角外觀特徵。`;
@@ -203,7 +203,7 @@ ${positionGuide}
 ${characterGuide}${extraGuide}
 • 視覺風格：${style.label}（${style.desc}）。
 • 背景設定：以 ${currentThemeColor} 為主的乾淨背景，四周維持留白與簡單圖樣，絕對不要在畫面出現任何干擾文字。
-• 🚫 審核防護重點（重要）：不可出現彩虹色、漸層色、或任何宗教符號與違規旗幟。建議在生圖工具加入負向提示詞：rainbow, holographic, iridescent, multicolored gradients, LGBT, pride flag, religious symbols, nudity, gore.`;
+• 🚫 審核防護重點（重要）：不可出現彩虹色、漸層色、或任何宗教符號與違規旗幟。強烈建議在生圖工具加入負向提示詞：grid lines, frames, borders, dividing lines, panels, bounding boxes, rainbow, holographic, iridescent, multicolored gradients, LGBT, pride flag, religious symbols, nudity, gore.`;
     };
 
     const handleCopyPrompt = (type) => {
