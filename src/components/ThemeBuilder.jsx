@@ -180,7 +180,7 @@ ${positionGuide}
 • 閱讀性優先：請保持畫面中央區域（對話流動區）盡量乾淨清爽，絕對不要有複雜圖樣。`;
         }
 
-        let characterGuide = '• 角色設定：請必須完全維持原圖主角的髮型、服裝、五官與整體外觀特徵，請放置在畫面最適當的地方。';
+        let characterGuide = '• 角色設定：請必須完全維持原圖主角的髮型、服裝、五官、真實色彩（Natural color）與整體外觀特徵，並使用單一或自然的毛色/膚色，請放置在畫面最適當的地方。';
         
         if (typeInfo.category.startsWith('C')) {
             characterGuide = '• 角色排除 (純色背景)：請「絕對不要」在畫面中保留或畫出任何角色。這只是一張單純的底部襯底。';
@@ -188,7 +188,7 @@ ${positionGuide}
             if (chatBgCharPos === 'none') {
                 characterGuide = '• 角色排除 (純背景)：請「絕對不要」保留或畫出圖片中的主角。畫面只能有符合主題氛圍的背景元素！';
             } else {
-                characterGuide = '• 角色設定：請必須完全維持原圖主角的髮型、服裝、五官與整體外觀特徵。畫面只能存在「唯一一隻主角」，請嚴格避免複製出多個角色！';
+                characterGuide = '• 角色設定：請必須完全維持原圖主角的髮型、服裝、五官、真實色彩（Natural color）與整體外觀特徵，並使用單一或自然的毛色/膚色。畫面只能存在「唯一一隻主角」，請嚴格避免複製出多個角色！';
             }
         }
 
@@ -202,7 +202,8 @@ ${positionGuide}
 請參考我上傳的圖片生圖：
 ${characterGuide}${extraGuide}
 • 視覺風格：${style.label}（${style.desc}）。
-• 背景設定：以 ${currentThemeColor} 為主的乾淨背景，四周維持留白與簡單圖樣，絕對不要在畫面出現任何干擾文字。`;
+• 背景設定：以 ${currentThemeColor} 為主的乾淨背景，四周維持留白與簡單圖樣，絕對不要在畫面出現任何干擾文字。
+• 🚫 審核防護重點（重要）：不可出現彩虹色、漸層色、或任何宗教符號與違規旗幟。建議在生圖工具加入負向提示詞：rainbow, holographic, iridescent, multicolored gradients, LGBT, pride flag, religious symbols, nudity, gore.`;
     };
 
     const handleCopyPrompt = (type) => {
