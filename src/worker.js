@@ -3,11 +3,11 @@
 // --- 核心距離計算函數 ---
 
 // 歐幾里德距離 (用於計算 RGB 空間中的顏色差異)
-const colorDistance = (r1, g1, b1, r2, g2, b2) => {
+export const colorDistance = (r1, g1, b1, r2, g2, b2) => {
     return Math.sqrt(Math.pow(r1 - r2, 2) + Math.pow(g1 - g2, 2) + Math.pow(b1 - b2, 2));
 };
 
-const hexToRgb = (hex) => {
+export const hexToRgb = (hex) => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
         r: parseInt(result[1], 16),
@@ -17,7 +17,7 @@ const hexToRgb = (hex) => {
 };
 
 // 1. HSV 判斷邏輯（已調整：加入綠色通道純度檢查）
-const isPixelBackgroundHSVHard = (r, g, b, tolerancePercent) => {
+export const isPixelBackgroundHSVHard = (r, g, b, tolerancePercent) => {
     const max = Math.max(r, g, b);
     const min = Math.min(r, g, b);
     const delta = max - min;
@@ -66,7 +66,7 @@ const isPixelBackgroundHSVHard = (r, g, b, tolerancePercent) => {
 
 
 // 2. 核心去背邏輯：實現邊緣柔化 (Feathering)
-const removeBgFeathered = (imgData, targetHex, tolerancePercent, smoothnessPercent) => {
+export const removeBgFeathered = (imgData, targetHex, tolerancePercent, smoothnessPercent) => {
     const data = imgData.data;
     const len = data.length;
 
@@ -111,7 +111,7 @@ const removeBgFeathered = (imgData, targetHex, tolerancePercent, smoothnessPerce
 };
 
 // 3. 連通去背 (Flood Fill) 邏輯 - HARD EDGE 模式（使用最新的綠色純度檢查）
-const removeBgFloodFill = (imgData, w, h, targetHex, tolerancePercent) => {
+export const removeBgFloodFill = (imgData, w, h, targetHex, tolerancePercent) => {
     const data = imgData.data;
     const isGreenScreen = targetHex.toLowerCase() === '#00ff00';
     const targetRgb = isGreenScreen ? null : hexToRgb(targetHex) || { r: 0, g: 0, b: 0 };
@@ -160,7 +160,7 @@ const removeBgFloodFill = (imgData, w, h, targetHex, tolerancePercent) => {
 };
 
 // 4. 侵蝕濾鏡
-const applyErosion = (imgData, w, h, strength) => {
+export const applyErosion = (imgData, w, h, strength) => {
     if (strength <= 0) return imgData;
 
     const data = imgData.data;
@@ -187,22 +187,24 @@ const applyErosion = (imgData, w, h, strength) => {
 
 // --- Web Worker Main Listener ---
 
-self.onmessage = function (e) {
-    const { id, rawImageData, removalMode, targetColorHex, colorTolerance, erodeStrength, smoothness, width, height } = e.data;
+if (typeof self !== 'undefined') {
+    self.onmessage = function (e) {
+        const { id, rawImageData, removalMode, targetColorHex, colorTolerance, erodeStrength, smoothness, width, height } = e.data;
 
-    let processedImageData = rawImageData;
+        let processedImageData = rawImageData;
 
-    if (removalMode === 'flood') {
-        // 連通去背 (Hard Edge) - 請使用此模式
-        processedImageData = removeBgFloodFill(processedImageData, width, height, targetColorHex, colorTolerance);
-    } else {
-        // 柔化去背 (Feathering)
-        processedImageData = removeBgFeathered(processedImageData, targetColorHex, colorTolerance, smoothness);
-    }
+        if (removalMode === 'flood') {
+            // 連通去背 (Hard Edge) - 請使用此模式
+            processedImageData = removeBgFloodFill(processedImageData, width, height, targetColorHex, colorTolerance);
+        } else {
+            // 柔化去背 (Feathering)
+            processedImageData = removeBgFeathered(processedImageData, targetColorHex, colorTolerance, smoothness);
+        }
 
-    // 執行邊緣侵蝕
-    processedImageData = applyErosion(processedImageData, width, height, erodeStrength);
+        // 執行邊緣侵蝕
+        processedImageData = applyErosion(processedImageData, width, height, erodeStrength);
 
-    // 將結果傳回主執行緒 (Web Worker 加速的核心)
-    self.postMessage({ id: id, processedImageData: processedImageData }, [processedImageData.data.buffer]);
-};
+        // 將結果傳回主執行緒 (Web Worker 加速的核心)
+        self.postMessage({ id: id, processedImageData: processedImageData }, [processedImageData.data.buffer]);
+    };
+}

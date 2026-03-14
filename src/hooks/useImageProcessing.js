@@ -9,7 +9,9 @@ const useImageProcessing = (autoRemoveBg, targetColorHex, colorTolerance, smooth
     const workerRef = useRef(null);
 
     useEffect(() => {
-        workerRef.current = new Worker(new URL('../worker.js', import.meta.url));
+        workerRef.current = new Worker(new URL('../worker.js', import.meta.url), {
+            type: 'module'
+        });
         workerRef.current.onmessage = (e) => {
             const { id, processedImageData } = e.data;
 
