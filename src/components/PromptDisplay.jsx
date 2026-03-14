@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Copy, CheckCircle } from 'lucide-react';
 import { PROMPT_THEMES, PROMPT_STYLES, GRID_MODES, EMOJI_GRID_MODES, EMOJI_PROMPT_THEMES } from '../data';
 
-const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, customActions, gridMode = '4x3', handleCopyPrompt, copySuccess, productType = 'sticker', isEmojiTextEnabled }) => {
+const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, customActions, gridMode = '4x3', handleCopyPrompt, copySuccess, productType = 'sticker', isEmojiTextEnabled, isStickerTextEnabled = true }) => {
     const isEmoji = productType === 'emoji';
     const promptThemes = isEmoji ? EMOJI_PROMPT_THEMES : PROMPT_THEMES;
     const gridModes = isEmoji ? EMOJI_GRID_MODES : GRID_MODES;
@@ -210,9 +210,9 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
                     </h2>
                     <ul className="space-y-2 mt-3">
                         <li><span className="text-slate-400">核心要求：</span>必須完全維持原圖主角的髮型、服裝、五官與整體外觀特徵。</li>
-                        <li><span className="text-slate-400">構圖邏輯：</span>畫面僅包含「角色 + 文字」，不包含任何複雜背景。</li>
+                        <li><span className="text-slate-400">構圖邏輯：</span>{isStickerTextEnabled ? '畫面僅包含「角色 + 文字」，不包含任何複雜背景。' : <><span className="text-red-400 font-bold">【🚫 不含文字】</span>畫面僅包含「角色」，絕對不含任何文字或標籤，不包含任何複雜背景。</>}</li>
                         <li><span className="text-slate-400">風格關鍵字：</span><span className="var-highlight">{style.desc}</span></li>
-                        <li><span className="text-slate-400">去背優化：</span>角色與文字需加入 <span className="text-white font-medium">粗白色外框 (Sticker Style)</span>。背景統一為 <span className="fixed-val">#00FF00 (純綠色)</span>。</li>
+                        <li><span className="text-slate-400">去背優化：</span>角色{isStickerTextEnabled ? '與文字' : ''}需加入 <span className="text-white font-medium">粗白色外框 (Sticker Style)</span>。背景統一為 <span className="fixed-val">#00FF00 (純綠色)</span>。</li>
                     </ul>
                 </section>
 
@@ -230,6 +230,7 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
                     </ul>
                 </section>
 
+                {isStickerTextEnabled && (
                 <section>
                     <h2 className="text-sky-400 border-sky-500/30 flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-sky-400"></div>
@@ -242,6 +243,7 @@ const PromptDisplay = ({ activeTheme, activeStyle, customTexts, customEmotions, 
                         <li><span className="text-slate-400">排版：</span>大小約佔 1/3，可緊貼或壓在人物邊角，<span className="text-red-400 font-bold">不可遮臉，且必須確保文字和人物一同收攏在單格的正中間，嚴禁文字超出格子的假想邊界</span>。</li>
                     </ul>
                 </section>
+                )}
                 <section>
                     <h2 className="text-line border-green-500/30 flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-line"></div>

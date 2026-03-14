@@ -31,6 +31,7 @@ const App = () => {
     const [activeTheme, setActiveTheme] = useState(settings.activeTheme || 'daily');
     const [activeStyle, setActiveStyle] = useState(settings.activeStyle || 'qversion');
     const [isEmojiTextEnabled, setIsEmojiTextEnabled] = useState(settings.isEmojiTextEnabled ?? false);
+    const [isStickerTextEnabled, setIsStickerTextEnabled] = useState(settings.isStickerTextEnabled ?? true);
     const [autoRemoveGeminiWatermark, setAutoRemoveGeminiWatermark] = useState(settings.autoRemoveGeminiWatermark ?? true);
     const [autoRemoveBg, setAutoRemoveBg] = useState(settings.autoRemoveBg ?? true);
     const [targetColorHex, setTargetColorHex] = useState(settings.targetColorHex || "#00FF00");
@@ -51,6 +52,7 @@ const App = () => {
             activeTheme,
             activeStyle,
             isEmojiTextEnabled,
+            isStickerTextEnabled,
             autoRemoveGeminiWatermark,
             autoRemoveBg,
             targetColorHex,
@@ -65,7 +67,7 @@ const App = () => {
         localStorage.setItem('lsf_settings', JSON.stringify(newSettings));
     }, [
         productType, gridMode, showPromptGuide, activeTheme, activeStyle,
-        isEmojiTextEnabled, autoRemoveGeminiWatermark, autoRemoveBg,
+        isEmojiTextEnabled, isStickerTextEnabled, autoRemoveGeminiWatermark, autoRemoveBg,
         targetColorHex, colorTolerance, smoothness, despill, zoomLevel,
         customTexts, customEmotions, customActions
     ]);
@@ -211,6 +213,7 @@ const App = () => {
             customTexts,
             customEmotions,
             customActions,
+            isStickerTextEnabled,
             tabIndex
         });
     };
@@ -266,6 +269,8 @@ const App = () => {
                         setActiveStyle={setActiveStyle}
                         isEmojiTextEnabled={isEmojiTextEnabled}
                         setIsEmojiTextEnabled={setIsEmojiTextEnabled}
+                        isStickerTextEnabled={isStickerTextEnabled}
+                        setIsStickerTextEnabled={setIsStickerTextEnabled}
                         customTexts={customTexts}
                         setCustomTexts={setCustomTexts}
                         customEmotions={customEmotions}

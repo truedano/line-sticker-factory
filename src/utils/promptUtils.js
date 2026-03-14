@@ -40,6 +40,7 @@ export const generateStickerPrompt = ({
     customTexts = '',
     customEmotions = '',
     customActions = '',
+    isStickerTextEnabled = true,
     tabIndex = 0
 }) => {
     const theme = PROMPT_THEMES[activeTheme];
@@ -69,16 +70,18 @@ export const generateStickerPrompt = ({
 
     let titlePrefix = gridConfig.isDoubleSheet ? `✅ (第 ${tabIndex + 1} 組)` : '✅';
 
+    const noTextNegativeAddition = isStickerTextEnabled ? '' : ', text, letters, words, captions, speech bubbles, labels, typography';
+
     return `${titlePrefix} ${sheetTotalCount} 格角色貼圖集｜AI Prompt 建議
 
 請參考上傳圖片中的角色特徵，在您常用的 AI 生圖工具中輸入以下指令，生成一張包含 ${sheetTotalCount} 個不同動作的貼圖大圖（切勿包含任何表情符號 Emoji）。
 
 角色與風格設定
 • 核心要求：必須完全維持原圖主角的髮型、服裝、五官、真實色彩（Natural color）與整體外觀特徵，並使用單一或自然的毛色/膚色。
-• 構圖邏輯：畫面僅包含「角色 + 文字」，不包含任何複雜背景。
+• 構圖邏輯：${isStickerTextEnabled ? '畫面僅包含「角色 + 文字」，不包含任何複雜背景。' : '【🚫 不含文字】畫面僅包含「角色」，絕對不包含任何文字、字母、數字或標籤，不包含任何複雜背景。'}
 • 風格關鍵字：${style.desc}
-• 去背優化：角色與文字需加入 粗白色外框 (Sticker Style)。背景統一為 #00FF00 (純綠色)。
-• 🚫 審核防護重點（重要）：不可出現彩虹色、漸層色、或任何宗教符號與違規旗幟。強烈建議在生圖工具加入負向提示詞：grid lines, frames, borders, dividing lines, panels, bounding boxes, rainbow, holographic, iridescent, multicolored gradients, LGBT, pride flag, religious symbols, nudity, gore.
+• 去背優化：角色${isStickerTextEnabled ? '與文字' : ''}需加入 粗白色外框 (Sticker Style)。背景統一為 #00FF00 (純綠色)。
+• 🚫 審核防護重點（重要）：不可出現彩虹色、漸層色、或任何宗教符號與違規旗幟。強烈建議在生圖工具加入負向提示詞：grid lines, frames, borders, dividing lines, panels, bounding boxes, rainbow, holographic, iridescent, multicolored gradients, LGBT, pride flag, religious symbols, nudity, gore${noTextNegativeAddition}.
 
 畫面佈局與尺寸規格
 • 整體為 ${layoutLabel} 佈局，共 ${sheetTotalCount} 張貼圖。總尺寸：${sizeLabel}。
@@ -87,13 +90,13 @@ export const generateStickerPrompt = ({
 • 每個角色必須嚴格控制在自己的區域內，不可與相鄰貼圖重疊，以免在裁切時被切斷（Do not overlap boundaries）。
 • 每張貼圖四周預留適度 Padding，保留安全間距避免畫面互相黏住。
 • 視角：全身 + 半身混合，包含正面、側面、俯角等。
-
+${isStickerTextEnabled ? `
 文字設計細節
 • 語言：台灣繁體中文
 • 內容：${finalTexts}
 • 配色：每張貼圖的文字顏色必須各不相同，從以下色系中輪流選用：紅色、橘色、黃色、藍色、紫色、粉紅色、白色、深藍色、棕色、酒紅色。絕對禁止使用綠色系與黑色。確保整套貼圖的文字色彩豐富多元、不重複。
 • 排版：大小約佔 1/3，可壓在衣服邊角，不可遮臉。
-
+` : ''}
 表情與動作設計
 • 情緒清單：${finalEmotions}
 • 建議動作：${finalActions}
@@ -137,6 +140,8 @@ export const generateEmojiPrompt = ({
 
     let titlePrefix = gridConfig.isDoubleSheet ? `✅ (第 ${tabIndex + 1} 組)` : '✅';
 
+    const noTextNegativeAddition = isEmojiTextEnabled ? '' : ', text, letters, words, captions, speech bubbles, labels, typography';
+
     return `${titlePrefix} ${sheetTotalCount} 格角色表情貼集｜AI Prompt 建議
 
 ⚠️ 圖片解析度（最重要，務必遵守）
@@ -148,10 +153,10 @@ export const generateEmojiPrompt = ({
 
 角色與風格設定
 • 核心要求：必須完全維持原圖主角的髮型、服裝、五官、真實色彩（Natural color）與整體外觀特徵，並使用單一或自然的毛色/膚色。
-• 構圖邏輯：${isEmojiTextEnabled ? '以角色的表情和動作傳達情緒，可搭配「簡單少量的文字」（如：OK、讚、哈等短語）。' : '表情貼「不含文字」，純粹以角色的表情和動作傳達情緒。'}
+• 構圖邏輯：${isEmojiTextEnabled ? '以角色的表情和動作傳達情緒，可搭配「簡單少量的文字」（如：OK、讚、哈等短語）。' : '【🚫 不含文字】表情貼完全不包含任何文字、字母、數字或標籤，純粹以角色的表情和動作傳達情緒。'}
 ${isEmojiTextEnabled ? '• 文字配色：每格的文字顏色必須各不相同，從以下色系中輪流選用：紅色、橘色、黃色、藍色、紫色、粉紅色、白色、深藍色、棕色、酒紅色。絕對禁止使用綠色系與黑色。確保整套表情貼的文字色彩豐富多元、不重複。\n' : ''}• 風格關鍵字：${style.desc}
 • 去背優化：角色需加入 粗白色外框 (Sticker Style)。背景統一為 #00FF00 (純綠色)。
-• 🚫 審核防護重點（重要）：不可出現彩虹色、漸層色、或任何宗教符號與違規旗幟。強烈建議在生圖工具加入負向提示詞：grid lines, frames, borders, dividing lines, panels, bounding boxes, rainbow, holographic, iridescent, multicolored gradients, LGBT, pride flag, religious symbols, nudity, gore.
+• 🚫 審核防護重點（重要）：不可出現彩虹色、漸層色、或任何宗教符號與違規旗幟。強烈建議在生圖工具加入負向提示詞：grid lines, frames, borders, dividing lines, panels, bounding boxes, rainbow, holographic, iridescent, multicolored gradients, LGBT, pride flag, religious symbols, nudity, gore${noTextNegativeAddition}.
 
 畫面佈局（${currentGrid.width} × ${currentGrid.height} px）
 • 整體畫布：${currentGrid.width} × ${currentGrid.height} px（不可偏差）。
