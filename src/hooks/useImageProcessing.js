@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { calculateSliceDimensions } from '../utils/imageUtils';
 
 const useImageProcessing = (autoRemoveBg, targetColorHex, colorTolerance, smoothness, zoomLevel) => {
     const [slicedPieces, setSlicedPieces] = useState([]);
@@ -61,23 +62,24 @@ const useImageProcessing = (autoRemoveBg, targetColorHex, colorTolerance, smooth
 
                 for (let r = 0; r < rows; r++) {
                     for (let c = 0; c < cols; c++) {
-                        // 用 Math.round 精確計算每格的起始與結束像素位置，避免浮點數累積誤差
-                        const x1 = Math.round(c * imgW / cols);
-                        const y1 = Math.round(r * imgH / rows);
-                        const x2 = Math.round((c + 1) * imgW / cols);
-                        const y2 = Math.round((r + 1) * imgH / rows);
-                        const rawW = x2 - x1;
-                        const rawH = y2 - y1;
-                        // 內縮 cropPercent% 避免切到相鄰貼圖（表情貼為 0）
-                        const insetX = Math.round(rawW * cropPercent / 100);
-                        const insetY = Math.round(rawH * cropPercent / 100);
-                        const pieceW = rawW - insetX * 2;
-                        const pieceH = rawH - insetY * 2;
+                        const {
+                            sourceX,
+                            sourceY,
+                            sourceWidth,
+                            sourceHeight,
+                            canvasWidth,
+                            canvasHeight
+                        } = calculateSliceDimensions(imgW, imgH, cols, rows, c, r, cropPercent);
+
                         const pCanvas = document.createElement('canvas');
-                        pCanvas.width = pieceW;
-                        pCanvas.height = pieceH;
+                        pCanvas.width = canvasWidth;
+                        pCanvas.height = canvasHeight;
                         const pCtx = pCanvas.getContext('2d');
-                        pCtx.drawImage(canvas, x1 + insetX, y1 + insetY, pieceW, pieceH, 0, 0, pieceW, pieceH);
+                        pCtx.drawImage(
+                            canvas,
+                            sourceX, sourceY, sourceWidth, sourceHeight,
+                            0, 0, canvasWidth, canvasHeight
+                        );
                         pieces.push({
                             id: currentId++,
                             rawCanvas: pCanvas,
