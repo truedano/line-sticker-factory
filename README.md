@@ -1,4 +1,4 @@
-# Line 貼圖自動化助手 (Line Sticker Factory) ![Version](https://img.shields.io/badge/version-1.8.0-06C755?style=flat-square)
+# Line 貼圖自動化助手 (Line Sticker Factory) ![Version](https://img.shields.io/badge/version-1.9.0-06C755?style=flat-square)
 
 這是一個專為 LINE 貼圖創作者設計的自動化工具，旨在簡化從 AI 生圖到最終貼圖打包的流程。透過本工具，您可以輕鬆將 AI 生成的角色網格圖，自動切割、去背並打包成符合 LINE 官方規範的貼圖包。
 
@@ -123,6 +123,12 @@ npm run build
 6.  **打包下載**：只需選擇 Tab 圖（表情貼不需要 Main），下載 ZIP（檔名為三位數 `001.png`）。
 
 ## 📝 更新日誌
+
+### v1.9.0 (2026-03-15)
+*   **🚫 貼圖文字精確控制 (Sticker Text Control)**：新增貼圖「不包含文字」選項。創作者現在可以針對「LINE 靜態貼圖」獨立選擇是否包含 AI 生成文字，滿足純圖案貼圖的創作需求。
+*   **🔄 文字開關邏輯統一**：同步「表情貼」與「靜態貼圖」的文字開關邏輯，確保所有產品類型都能精準控制文字產生，並在 Prompt 中自動加入對應的負向提示詞（Negative Prompt）。
+*   **🟢 去背精準度提升**：進一步優化純色背景（如 `#00FF00`）的識別與處理，確保去背後的邊緣更加平滑自然。
+*   **🎨 UI 體驗優化**：優化了上傳區塊的設定配置，讓文字控制與浮水印移除等開關操作更直覺。
 
 ### v1.8.0 (2026-03-14)
 *   **🧪 單元測試環境建置 (Testing Environment)**：導入 Vitest 測試框架。
